@@ -1,0 +1,113 @@
+/* 테라러닝 디자인 토큰 — 전 앱 공통 (2026-10-11 허브)
+ * 이름은 전부 --t- 로 시작한다. 앱이 이미 쓰는 --bg·--red·--cta 를 덮지 않으려고다.
+ * 1단계(지금): 앱은 이 파일을 link 만 하고, 아이콘·theme-color 만 맞춘다.
+ * 2단계(베타 11/7 뒤): 앱 CSS 의 자기 변수를 이 토큰으로 하나씩 바꾼다(예 --cta: var(--t-cta)).
+ *
+ * 값의 출처 — 새로 지은 색이 아니다:
+ *   빨강 #E5202E·회색 단계·paper·night = 중개사·한국사·공시 엔진 :root (흰 판·종이·밤)
+ *   오답 #E5322D = 선호대장 「오답 색 통일, 분홍은 눈에 안 들어옴」
+ *   정답 #16B364 = 오늘의 루틴 카드(routinecard.js) 끝난 칸, XP 금색 = 짜잔 3판(zzajan.js)
+ *   등급 칩 S 노랑·A 빨강·B 파랑·C 진회색 = 선호대장 고정
+ *   보조 회색은 진한 쪽 #4B5563 = 선호대장 1차 판정
+ *   글꼴 Pretendard, 본문 500 이상·제목 900 = 선호대장 「글씨는 무조건 진하게」
+ */
+
+:root {
+  /* ── 브랜드 ── */
+  --t-red: #E5202E;          /* 테라러닝 빨강. 주 단추·지금 할 일 */
+  --t-red-2: #C8101D;        /* 눌렀을 때 */
+  --t-red-soft: rgba(229, 32, 46, .10);
+  --t-ink-brand: #111419;    /* 로고 검정 */
+
+  /* 앱 색 — 아이콘 막대·배지·판 색과 같다. 화면에서는 머리띠 점·탭 밑줄 정도로만 쓴다 */
+  --t-app: var(--t-red);
+
+  /* ── 의미 색 ── */
+  --t-ok: #16B364;  --t-ok-2: #0E8A4B;  --t-ok-soft: rgba(22, 179, 100, .12);
+  --t-no: #E5322D;  --t-no-2: #C81E1E;  --t-no-soft: rgba(229, 50, 45, .10);
+  --t-warn: #F59E0B; --t-warn-2: #B45309; --t-warn-soft: rgba(245, 158, 11, .14);
+  --t-xp: #FFCB3D;  --t-xp-2: #F59E0B;   /* 짜잔 +XP 딱지·LV 막대 */
+  --t-tier-s: #FACC15; --t-tier-a: #E5202E; --t-tier-b: #2563EB; --t-tier-c: #4B5563;
+  --t-unplayed: #111419;   /* 안 푼 노드: 검정·빛 없음 */
+
+  /* ── 글꼴 ── */
+  --t-font: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --t-font-jp: "Pretendard JP", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", var(--t-font);
+  --t-font-num: "Pretendard Variable", Pretendard, var(--t-font);
+  --t-w-body: 500; --t-w-strong: 700; --t-w-bold: 800; --t-w-title: 900;
+  /* 크기 단계(px). 가장 작은 글씨 12 */
+  --t-fs-xs: 12px; --t-fs-sm: 13.5px; --t-fs-md: 15px; --t-fs-base: 16px; --t-fs-lg: 18px;
+  --t-fs-xl: 20px; --t-fs-2xl: 24px; --t-fs-3xl: 30px; --t-fs-4xl: 38px;
+  --t-fs-ox: 19px;          /* O·X 문장 (선호대장) */
+  --t-lh: 1.55; --t-lh-tight: 1.25; --t-ls-title: -.02em;
+
+  /* ── 모서리·간격·그림자 ── */
+  --t-r-xs: 6px; --t-r-sm: 10px; --t-r-md: 14px; --t-r-lg: 18px; --t-r-xl: 24px; --t-r-pill: 999px;
+  --t-r-icon: 21.875%;      /* 아이콘 판 112/512 */
+  --t-s1: 4px; --t-s2: 8px; --t-s3: 12px; --t-s4: 16px; --t-s5: 24px; --t-s6: 32px; --t-s7: 48px; --t-s8: 64px;
+  --t-head-h: 56px; --t-tab-h: 64px; --t-btn-h: 56px; --t-ox-h: 120px; /* O·X 네모: 폰 120 (선호대장) */
+  --t-wrap: 960px;
+  --t-sh-1: 0 1px 2px rgba(17, 20, 25, .06), 0 1px 1px rgba(17, 20, 25, .04);
+  --t-sh-2: 0 6px 18px -8px rgba(17, 20, 25, .22), 0 0 0 1px var(--t-line);
+  --t-sh-3: 0 14px 34px -14px rgba(17, 20, 25, .38), 0 0 0 1px var(--t-line);
+  --t-sh-press: 0 4px 0 var(--t-red-2);   /* 주 단추 아래 두께 */
+  --t-ease: cubic-bezier(.2, .8, .2, 1); --t-dur: .18s;
+}
+
+/* ── 화면 옷 ── 앱이 이미 쓰는 data-skin 값 그대로 */
+:root, :root[data-skin="white"] {
+  --t-bg: #FFFFFF; --t-bg-2: #FAFAFB;
+  --t-surface: #FFFFFF; --t-surface-2: #F6F7F9; --t-surface-3: #EFF1F4;
+  --t-line: #E6E8EC; --t-line-2: #D3D7DD; --t-line-3: #B4BAC3;
+  --t-ink: #111419; --t-ink-2: #333941; --t-ink-3: #4B5563; --t-ink-4: #5F6670;
+  --t-cta: var(--t-red); --t-cta-2: var(--t-red-2); --t-on-cta: #FFFFFF;
+  --t-theme-color: #FFFFFF;
+}
+:root[data-skin="paper"] {
+  --t-bg: #FAF8F3; --t-bg-2: #F3F0E8;
+  --t-surface: #FFFFFF; --t-surface-2: #F3F0E8; --t-surface-3: #ECE8DE;
+  --t-line: #E6E1D6; --t-line-2: #D9D3C5; --t-line-3: #BDB6A6;
+  --t-ink: #171B24; --t-ink-2: #2B3140; --t-ink-3: #4B5160; --t-ink-4: #626774;
+  --t-cta: var(--t-red); --t-cta-2: var(--t-red-2); --t-on-cta: #FFFFFF;
+  --t-theme-color: #FAF8F3;
+}
+:root[data-skin="night"] {
+  --t-bg: #0B0D11; --t-bg-2: #0F1216;
+  --t-surface: #14171C; --t-surface-2: #191D23; --t-surface-3: #22272E;
+  --t-line: #262B33; --t-line-2: #323842; --t-line-3: #454D59;
+  --t-ink: #F3F5F8; --t-ink-2: #D5DAE1; --t-ink-3: #AEB6C1; --t-ink-4: #8A929D;
+  --t-cta: #FF4D57; --t-cta-2: #E5202E; --t-on-cta: #FFFFFF;
+  --t-red-soft: rgba(255, 77, 87, .14);
+  --t-ok: #22C77A; --t-ok-soft: rgba(34, 199, 122, .16);
+  --t-no: #FF5A52; --t-no-soft: rgba(255, 90, 82, .16);
+  --t-unplayed: #000000;
+  --t-sh-1: 0 1px 2px rgba(0, 0, 0, .5);
+  --t-sh-2: 0 8px 22px -10px rgba(0, 0, 0, .7), 0 0 0 1px var(--t-line);
+  --t-sh-3: 0 16px 38px -14px rgba(0, 0, 0, .8), 0 0 0 1px var(--t-line);
+  --t-theme-color: #0B0D11;
+}
+
+/* ── 앱 색 ── <html data-app="gisa"> 로 고른다. 아이콘의 앱 색과 같은 값 */
+:root[data-app="tera"]    { --t-app: #E5202E; }
+:root[data-app="tongsa"]   { --t-app: #E5202E; }
+:root[data-app="hanguksa"] { --t-app: #9A2A1F; }
+:root[data-app="tonggwa"]  { --t-app: #3A6036; }
+:root[data-app="gugeo"]    { --t-app: #0B5E3C; }
+:root[data-app="english"]  { --t-app: #C99A00; }
+:root[data-app="gisa"]     { --t-app: #E8590C; }
+:root[data-app="junggae"]  { --t-app: #5B21B6; }
+:root[data-app="gongsi"]   { --t-app: #111419; }
+:root[data-app="jagyeok"]  { --t-app: #A16207; }
+:root[data-app="jeonmun"]  { --t-app: #1F2937; }
+:root[data-app="shikaku"]  { --t-app: #D10F3A; --t-font: var(--t-font-jp); }
+:root[data-app="prep"]     { --t-app: #0F766E; }
+/* 밤 옷에서는 어두운 앱 색을 밝은 쪽으로 (아이콘 C안 테두리와 같은 값) */
+:root[data-skin="night"][data-app="hanguksa"] { --t-app: #E0533A; }
+:root[data-skin="night"][data-app="tonggwa"]  { --t-app: #74B062; }
+:root[data-skin="night"][data-app="gugeo"]    { --t-app: #22B573; }
+:root[data-skin="night"][data-app="english"]  { --t-app: #F2C230; }
+:root[data-skin="night"][data-app="junggae"]  { --t-app: #9D6BFF; }
+:root[data-skin="night"][data-app="gongsi"]   { --t-app: #FF4D57; }
+:root[data-skin="night"][data-app="jagyeok"]  { --t-app: #E39A1E; }
+:root[data-skin="night"][data-app="jeonmun"]  { --t-app: #E0B43A; }
+:root[data-skin="night"][data-app="prep"]     { --t-app: #2BC0AE; }
