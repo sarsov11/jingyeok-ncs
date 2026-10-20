@@ -90,7 +90,7 @@
     if (PAD_AREAS.indexOf(q.a) < 0 || !window.Ink) return "";
     var open = S.padOpen !== false;
     return '<div class="padbox' + (open ? ' on' : '') + '"><div class="padbar"><button class="padt" data-pt="toggle">연습장 ' + (open ? '접기' : '펴기') + '</button><span class="sp"></span>' +
-      '<button class="padt on" data-pt="pen">펜</button><button class="padt" data-pt="eraser">지우개</button><button class="padt" data-pt="undo">되돌리기</button><button class="padt" data-pt="clear">전부 지움</button></div><div class="padcv"></div></div>';
+      '<button class="padt on" data-pt="pen">펜</button><button class="padt" data-pt="eraser">지우개</button><button class="padt" data-pt="undo">한 획 취소</button><button class="padt" data-pt="clear">전부 지움</button></div><div class="padcv"></div></div>';
   }
   function padMount() {
     if (pad) { try { pad.destroy(); } catch (e) {} pad = null; }
@@ -199,6 +199,7 @@
       '<div class="sub">정답률 ' + (solved ? Math.round(ok / solved * 100) + "%" : "—") + '</div>' +
       '<div class="row"><button class="btn red full" data-go="#/go/' + encodeURIComponent(w) + '">' + esc(w) + ' 10문항</button></div></div>';
     h += orgCard();
+    h += timeWeakHtml();
     h += '<h2 class="sec">영역별 진단</h2><div class="areas">';
     AREAS.forEach(function (a) {
       var st = areaStat(a); if (!st.n) return; var t = tierOf(st), weak = a === w && st.solved >= 10;
@@ -242,31 +243,64 @@
   }
 
   /* ── 연습 세트 ── */
+  /* ── 시간: 유형별 목표 시간(data tips.s), 맞혀도 목표의 1.3배를 넘기면 「느린 정답」 ── */
+  var TIPS = D.tips || {}, DEF_S = { "의사소통": 90, "수리": 90, "문제해결": 100, "자원관리": 110 };
+  function target(q) { return (TIPS[q.t] && TIPS[q.t].s) || DEF_S[q.a] || 45; }
+  function ms2(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ":" + ("0" + sec % 60).slice(-2); }
+  function isSlow(q, sec) { return sec > target(q) * 1.3; }
+  function skillBox(q, title) {
+    var t = TIPS[q.t]; if (!t || !(t.k || []).length) return "";
+    return '<div class="skill"><div class="sk-t">' + esc(title) + '</div><ul>' + t.k.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join("") + '</ul></div>';
+  }
+  S.tm = S.tm || {};
+  function timeWeak() {   // 유형별 평균 시간이 목표를 넘는 것
+    var by = {};
+    Object.keys(S.tm).forEach(function (id) { var q = BYID[id]; if (!q || !q.t) return; var o = by[q.t] = by[q.t] || { q: q, n: 0, sum: 0 }; o.n++; o.sum += S.tm[id][0]; });
+    return Object.keys(by).map(function (k) { var o = by[k]; o.avg = o.sum / o.n; o.ratio = o.avg / target(o.q); return o; })
+      .filter(function (o) { return o.n >= 3 && o.ratio > 1.25; }).sort(function (a, b) { return b.ratio - a.ratio; }).slice(0, 3);
+  }
+  function timeWeakHtml() {
+    var w = timeWeak(); if (!w.length) return "";
+    return '<h2 class="sec">시간 약점</h2><div class="list">' + w.map(function (o) {
+      var t = TIPS[o.q.t] || {};
+      return '<div class="card tw"><div class="tw-h"><b>' + esc(typeName(o.q) || o.q.a) + '</b><span>평균 ' + ms2(o.avg) + ' · 목표 ' + ms2(target(o.q)) + '</span></div>' +
+        ((t.k || [])[0] ? '<div class="tw-k">' + esc(t.k[0]) + '</div>' : '') +
+        '<button class="btn line full" style="height:40px;font-size:14px;margin-top:8px" data-go="#/go/' + encodeURIComponent(o.q.a) + '/' + encodeURIComponent(o.q.t) + '">이 유형 10문항</button></div>';
+    }).join("") + '</div>';
+  }
+
+  /* ── 연습 세트 (0초부터 올라가는 시계) ── */
   var P = null;
   function startPractice(ids, back, title) {
     if (!ids.length) { location.hash = back; return; }
-    P = { ids: ids, i: 0, ok: 0, back: back, title: title, done: false };
+    P = { ids: ids, i: 0, ok: 0, back: back, title: title, done: false, res: [] };
     history.replaceState(null, "", "#/play"); play();
   }
   function play() {
     if (!P) { location.hash = "#/"; return; }
     if (P.i >= P.ids.length) return playEnd();
     var q = BYID[P.ids[P.i]];
-    top({ back: P.back });
+    top({ back: P.back, right: '<span class="timer up" id="tm">0:00</span>' });
     var h = '<div class="qhead"><span class="pill">' + esc(q.a) + '</span>' + esc(typeName(q)) + (q.d >= 3 ? '<span class="hard">고난도</span>' : '') + '<span class="prog">' + (P.i + 1) + ' / ' + P.ids.length + '</span></div>' +
       '<div class="pbar"><i style="width:' + (P.i / P.ids.length * 100) + '%"></i></div>' + qBody(q) + padHtml(q) + opts(q) + '<div id="after"></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>'; scrollTo(0, 0); padMount();
+    var t0 = Date.now(); stopTimer();
+    tick = setInterval(function () { var t = document.getElementById("tm"); if (!t) return stopTimer(); var sec = (Date.now() - t0) / 1000; t.textContent = ms2(sec); t.classList.toggle("low", sec > target(q)); }, 1000);
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
-        if (P.done) return; P.done = true;
-        var v = +b.getAttribute("data-v"), ok = v === q.x;
+        if (P.done) return; P.done = true; stopTimer();
+        var v = +b.getAttribute("data-v"), ok = v === q.x, sec = Math.round((Date.now() - t0) / 1000), slow = isSlow(q, sec);
         rec(q.i, ok); if (ok) P.ok++;
+        S.tm[q.i] = [sec, ok ? 1 : 0]; save(); P.res.push({ id: q.i, ok: ok, sec: sec });
+        var tm = document.getElementById("tm"); if (tm) tm.textContent = ms2(sec);
         b.setAttribute("data-s", ok ? "ok" : "no");
         if (!ok) $app.querySelector('.opt[data-v="' + q.x + '"]').classList.add("right");
         $app.querySelectorAll(".opt").forEach(function (o) { o.classList.add("locked"); });
         if (window.ZZ) { ok ? ZZ.ok(b) : ZZ.no(b); }
         var a = document.getElementById("after");
-        a.innerHTML = '<div class="verdict ' + (ok ? 'good' : 'bad') + '">' + (ok ? '정답 ' + CIR[q.x] : '오답 · 정답 ' + CIR[q.x]) + '</div>' + explHtml(q) +
+        a.innerHTML = '<div class="verdict ' + (ok ? (slow ? 'slow' : 'good') : 'bad') + '">' + (ok ? '정답 ' + CIR[q.x] : '오답 · 정답 ' + CIR[q.x]) +
+          (ok && slow ? '<span class="vtag">느린 정답</span>' : '') + '<small>걸린 시간 ' + ms2(sec) + ' · 목표 ' + ms2(target(q)) + '</small></div>' +
+          (slow || !ok ? skillBox(q, ok ? "목표 시간 안에 푸는 법" : "이 유형 푸는 순서") : '') + explHtml(q) +
           '<div class="dock"><button class="btn red full" id="nx">' + (P.i + 1 < P.ids.length ? '다음 문제' : '결과 보기') + '</button></div>';
         document.getElementById("nx").onclick = function () { P.i++; P.done = false; play(); };
         setTimeout(function () { a.scrollIntoView({ behavior: "smooth", block: "start" }); }, 350);
@@ -275,46 +309,67 @@
   }
   function playEnd() {
     top({ back: P.back });
-    var n = P.ids.length, r = P.ok / n, last = BYID[P.ids[0]];
-    $app.innerHTML = '<div class="wrap"><div class="card res" style="margin-top:16px;text-align:center"><div class="src">' + esc(P.title || "") + '</div><div class="score">' + P.ok + ' / ' + n + '</div><div class="src">정답률 ' + Math.round(r * 100) + '%</div></div>' +
+    var n = P.ids.length, r = P.ok / n, last = BYID[P.ids[0]], tot = 0, slowN = 0, weak = {};
+    var rows = P.res.map(function (x, k) {
+      var q = BYID[x.id], sl = isSlow(q, x.sec); tot += x.sec; if (x.ok && sl) slowN++;
+      if (!x.ok || sl) weak[q.t] = q;
+      return '<tr><td>' + (k + 1) + '</td><td class="' + (x.ok ? 'ok' : 'no') + '">' + (x.ok ? 'O' : 'X') + '</td><td>' + esc(typeName(q) || q.a) + '</td><td class="' + (sl ? 'sl' : '') + '">' + ms2(x.sec) + '<small> / ' + ms2(target(q)) + '</small></td></tr>';
+    }).join("");
+    var wk = Object.keys(weak).slice(0, 3).map(function (t) { var q = weak[t]; return '<div class="card tw"><div class="tw-h"><b>' + esc(typeName(q) || q.a) + '</b></div>' + skillBox(q, "다음에 쓸 손 기술") + '<button class="btn line full" style="height:40px;font-size:14px;margin-top:8px" data-go="#/go/' + encodeURIComponent(q.a) + '/' + encodeURIComponent(q.t) + '">이 유형 10문항</button></div>'; }).join("");
+    $app.innerHTML = '<div class="wrap"><div class="card res" style="margin-top:16px;text-align:center"><div class="src">' + esc(P.title || "") + '</div><div class="score">' + P.ok + ' / ' + n + '</div>' +
+      '<div class="src">정답률 ' + Math.round(r * 100) + '% · 평균 ' + ms2(tot / Math.max(1, P.res.length)) + ' · 느린 정답 ' + slowN + '</div></div>' +
+      '<div class="card res" style="margin-top:10px"><table class="tt"><tr><th>#</th><th></th><th>유형</th><th>시간 / 목표</th></tr>' + rows + '</table></div>' +
+      (wk ? '<h2 class="sec">이번 세트 약점</h2><div class="list">' + wk + '</div>' : '') +
       '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" data-go="#/go/' + encodeURIComponent(last.a) + '">' + esc(last.a) + ' 10문항 더</button><button class="btn line full" data-go="#/">홈</button></div></div>';
     if (window.ZZ) { var st = r >= 1 ? 3 : r >= .7 ? 2 : r >= .4 ? 1 : 0; if (st) ZZ.stars(st); }
     P = null;
   }
 
-  /* ── 모의고사 ── */
+  /* ── 모의고사: 실제 필기시험 문제지 꼴 ── */
   var M = null, tick = null;
   function stopTimer() { if (tick) { clearInterval(tick); tick = null; } }
+  function examYear() { var d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1; return m >= 7 ? (y + 1) + "년 상반기" : y + "년 하반기"; }
+  function examOrg() { var c = curJob(); return c ? { o: c.o.n, j: c.j.n } : { o: "공기업", j: "" }; }
   function mockIntro(key) {
     var m = mockBy(key); if (!m) { location.hash = "#/"; return; }
     top({ back: "#/" });
     var cnt = {}; m.ids.forEach(function (id) { var a = BYID[id].a; cnt[a] = (cnt[a] || 0) + 1; });
-    var r = S.m[key], min = m.min || m.ids.length;
-    var h = '<div class="card" style="margin-top:16px"><div style="font-weight:900;font-size:20px">' + esc(m.name) + '</div><div class="src">' + esc(m.form) + ' · ' + m.ids.length + '문항 · 제한 ' + min + '분 · 다 풀고 한 번에 채점</div><table style="width:100%;margin-top:10px;font-size:14px">';
-    AREAS.forEach(function (a) { if (cnt[a]) h += '<tr><td>' + a + '</td><td style="text-align:right;font-weight:800">' + cnt[a] + '</td></tr>'; });
-    h += '</table>' + (r ? '<div class="src" style="margin-top:8px">지난 점수 ' + r.s + ' / ' + r.t + '</div>' : '') + '</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" id="st">시작</button>' +
-      (r ? '<button class="btn line full" data-go="#/res/' + encodeURIComponent(key) + '">지난 채점 결과</button>' : '') + '</div>';
+    var r = S.m[key], min = m.min || m.ids.length, eo = examOrg();
+    var h = '<div class="paper cover"><div class="cv-y">' + examYear() + '</div><div class="cv-o">' + esc(eo.o) + '</div><div class="cv-s">신입사원 채용 필기시험</div>' +
+      '<div class="cv-t">문 제 지</div><div class="cv-k">직업기초능력평가' + (eo.j ? ' · ' + esc(eo.j) : '') + '</div><div class="cv-f">' + esc(m.name) + ' (' + esc(m.form) + ')</div>' +
+      '<table class="cv-tb"><tr><th>문항 수</th><td>' + m.ids.length + '문항</td><th>시험 시간</th><td>' + min + '분</td></tr></table>' +
+      '<table class="cv-tb ar">' + AREAS.filter(function (a) { return cnt[a]; }).map(function (a) { return '<tr><th>' + a + '</th><td>' + cnt[a] + '문항</td></tr>'; }).join("") + '</table>' +
+      '<div class="cv-id"><span>수험번호</span><i></i><span>성 명</span><i></i></div>' +
+      '<div class="cv-rule"><b>응시자 유의사항</b><ol><li>답은 화면 아래 답안 표기란에 고르고, 다 푼 뒤 「채점」을 누른다.</li><li>시험 시간이 끝나면 고른 답까지만 자동으로 채점된다.</li><li>계산기는 쓸 수 없다. 계산은 문항 밑 연습장에 한다.</li><li>문항마다 머문 시간이 기록되어 해설지에 나온다.</li></ol></div></div>' +
+      (r ? '<div class="src" style="margin-top:8px;text-align:center">지난 점수 ' + r.s + ' / ' + r.t + '</div>' : '') +
+      '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" id="st">시험 시작</button>' +
+      (r ? '<button class="btn line full" data-go="#/res/' + encodeURIComponent(key) + '">지난 해설지</button>' : '') + '</div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
-    document.getElementById("st").onclick = function () { M = { key: key, m: m, i: 0, ans: {}, end: Date.now() + min * 60000 }; history.replaceState(null, "", "#/exam"); exam(); };
+    document.getElementById("st").onclick = function () { M = { key: key, m: m, i: 0, ans: {}, dw: {}, end: Date.now() + min * 60000 }; history.replaceState(null, "", "#/exam"); exam(); };
   }
   function fmt(ms) { ms = Math.max(0, ms); var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2); }
+  function leave() { if (M && M.enter) { var id = M.m.ids[M.i]; M.dw[id] = (M.dw[id] || 0) + (Date.now() - M.enter) / 1000; M.enter = 0; } }
+  function go(i) { leave(); M.i = i; exam(); }
   function exam() {
     if (!M) { location.hash = "#/"; return; }
-    var id = M.m.ids[M.i], q = BYID[id];
+    var id = M.m.ids[M.i], q = BYID[id], eo = examOrg(); M.enter = Date.now();
     top({ back: "#/mock/" + encodeURIComponent(M.key), right: '<span class="timer" id="tm">' + fmt(M.end - Date.now()) + '</span>' });
-    var h = '<div class="qhead"><span class="pill">' + (M.i + 1) + '번</span>' + esc(q.a) + '<span class="prog">' + Object.keys(M.ans).length + ' / ' + M.m.ids.length + ' 표기</span></div>' + qBody(q) + padHtml(q) + opts(q, M.ans[id]) +
+    var no = ("0" + (M.i + 1)).slice(-2);
+    var h = '<div class="paper"><div class="run"><span>' + examYear() + ' ' + esc(eo.o) + ' 필기시험</span><span>직업기초능력평가</span></div>' +
+      '<div class="qhead"><span class="pill">' + esc(q.a) + '</span><span class="prog">' + Object.keys(M.ans).length + ' / ' + M.m.ids.length + ' 표기</span></div>' +
+      qBody(q, no) + padHtml(q) + opts(q, M.ans[id]) + '</div>' +
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn line" style="flex:1" id="pv"' + (M.i ? '' : ' disabled') + '>이전</button><button class="btn dark" style="flex:1" id="nx2">' + (M.i + 1 < M.m.ids.length ? '다음' : '마지막') + '</button></div><div style="height:70px"></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>' + omr(); scrollTo(0, 0); padMount();
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         M.ans[id] = +b.getAttribute("data-v");
         $app.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("pick", x === b); });
-        if (M.i + 1 < M.m.ids.length) setTimeout(function () { M.i++; exam(); }, 220); else exam();
+        if (M.i + 1 < M.m.ids.length) setTimeout(function () { go(M.i + 1); }, 220); else { leave(); exam(); }
       };
     });
-    document.getElementById("pv").onclick = function () { if (M.i) { M.i--; exam(); } };
-    document.getElementById("nx2").onclick = function () { if (M.i + 1 < M.m.ids.length) { M.i++; exam(); } };
-    $app.querySelectorAll(".omr .dots button").forEach(function (b) { b.onclick = function () { M.i = +b.getAttribute("data-i"); exam(); }; });
+    document.getElementById("pv").onclick = function () { if (M.i) go(M.i - 1); };
+    document.getElementById("nx2").onclick = function () { if (M.i + 1 < M.m.ids.length) go(M.i + 1); };
+    $app.querySelectorAll(".omr .dots button").forEach(function (b) { b.onclick = function () { go(+b.getAttribute("data-i")); }; });
     document.getElementById("sub").onclick = function () { var left = M.m.ids.length - Object.keys(M.ans).length; if (left && !confirm("안 고른 문항 " + left + "개. 이대로 채점할까요?")) return; grade(); };
     var cur = $app.querySelector(".omr .dots .cur"); if (cur) cur.scrollIntoView({ inline: "center", block: "nearest" });
     stopTimer();
@@ -326,19 +381,35 @@
     return h + '</div><button class="btn red" id="sub">채점</button></div></div>';
   }
   function grade() {
-    stopTimer();
-    var s = 0, t = M.m.ids.length;
-    M.m.ids.forEach(function (id) { var ok = M.ans[id] === BYID[id].x; if (ok) s++; if (M.ans[id]) rec(id, ok); });
-    S.m[M.key] = { s: s, t: t, ans: M.ans, ts: Date.now() }; save();
+    stopTimer(); leave();
+    var s = 0, t = M.m.ids.length, dw = {};
+    M.m.ids.forEach(function (id) { var ok = M.ans[id] === BYID[id].x; if (ok) s++; if (M.ans[id]) { rec(id, ok); S.tm[id] = [Math.round(M.dw[id] || 0), ok ? 1 : 0]; } dw[id] = Math.round(M.dw[id] || 0); });
+    S.m[M.key] = { s: s, t: t, ans: M.ans, dw: dw, ts: Date.now() }; save();
     var key = M.key; M = null; history.replaceState(null, "", "#/res/" + encodeURIComponent(key)); result(key, true);
   }
+  function mockLevel(m) { var n = m.ids.length, d = 0, hard = 0; m.ids.forEach(function (id) { var q = BYID[id]; d += q.d || 2; if ((q.d || 2) >= 3) hard++; }); return { avg: d / n, hard: hard, n: n }; }
+  function levelName(avg) { return avg >= 2.75 ? "상" : avg >= 2.5 ? "중상" : avg >= 2.2 ? "중" : "중하"; }
   function result(key, fresh) {
     var r = S.m[key], m = mockBy(key); if (!r || !m) { location.hash = "#/"; return; }
     top({ back: "#/" });
-    var by = {}; m.ids.forEach(function (id) { var q = BYID[id], o = by[q.a] = by[q.a] || [0, 0]; o[1]++; if (r.ans[id] === q.x) o[0]++; });
-    var h = '<div class="card res" style="margin-top:16px;text-align:center"><div class="src">' + esc(m.name) + '</div><div class="score">' + r.s + ' / ' + r.t + '</div><div class="src">' + Math.round(r.s / r.t * 100) + '점 환산</div></div><h2 class="sec">영역별</h2><div class="card res"><table>';
-    AREAS.forEach(function (a) { if (by[a]) h += '<tr><td>' + a + '</td><td>' + by[a][0] + ' / ' + by[a][1] + '</td></tr>'; });
-    h += '</table></div><h2 class="sec">문항별 해설</h2><div class="grid">';
+    var dw = r.dw || {}, by = {}, eo = examOrg();
+    m.ids.forEach(function (id) { var q = BYID[id], o = by[q.a] = by[q.a] || { n: 0, ok: 0, hard: 0, types: {} }; o.n++; if (r.ans[id] === q.x) o.ok++; if ((q.d || 2) >= 3) o.hard++; o.types[q.t] = (o.types[q.t] || 0) + 1; });
+    var lv = mockLevel(m), used = m.ids.reduce(function (s, id) { return s + (dw[id] || 0); }, 0);
+    var killer = m.ids.map(function (id, i) { return [i, BYID[id]]; }).filter(function (x) { return (x[1].d || 2) >= 3 && r.ans[x[1].i] !== x[1].x; }).slice(0, 8);
+    var longQ = m.ids.map(function (id, i) { var q = BYID[id]; return [i, q, (dw[id] || 0) / target(q)]; }).filter(function (x) { return x[2] > 1.3; }).sort(function (a, b) { return b[2] - a[2]; }).slice(0, 5);
+    var h = '<div class="paper cover small"><div class="cv-y">' + examYear() + ' ' + esc(eo.o) + '</div><div class="cv-t" style="margin:6px 0">해 설 지</div><div class="cv-f">' + esc(m.name) + ' (' + esc(m.form) + ')</div>' +
+      '<div class="score" style="text-align:center">' + r.s + ' / ' + r.t + '</div><div class="src" style="text-align:center">' + Math.round(r.s / r.t * 100) + '점 환산 · 쓴 시간 ' + ms2(used) + ' / ' + (m.min || m.ids.length) + '분</div></div>';
+    h += '<h2 class="sec">시험 총평</h2><div class="card review-sum">' +
+      '<div class="rs-row"><b>난이도</b><span class="lv">' + levelName(lv.avg) + '</span><span>고난도 ' + lv.hard + '문항 / ' + lv.n + '문항</span></div>' +
+      '<table class="tt"><tr><th>영역</th><th>맞힘</th><th>고난도</th></tr>' + AREAS.filter(function (a) { return by[a]; }).map(function (a) { return '<tr><td>' + a + '</td><td>' + by[a].ok + ' / ' + by[a].n + '</td><td>' + by[a].hard + '</td></tr>'; }).join("") + '</table>' +
+      '<div class="rs-sub">영역별 강조 포인트</div><ul class="rs-pt">' + AREAS.filter(function (a) { return by[a]; }).map(function (a) {
+        var ts = Object.keys(by[a].types).sort(function (x, y) { return by[a].types[y] - by[a].types[x]; }), t = TIPS[ts[0]];
+        return t && t.p ? '<li><b>' + a + '</b> ' + esc(t.p) + '</li>' : '';
+      }).join("") + '</ul>' +
+      (killer.length ? '<div class="rs-sub">놓친 고난도 문항</div><div class="rs-chips">' + killer.map(function (x) { return '<button class="chip" data-go="#/rev/' + encodeURIComponent(key) + '/' + x[0] + '">' + (x[0] + 1) + '번 ' + esc(typeName(x[1]) || x[1].a) + '</button>'; }).join("") + '</div>' : '') +
+      (longQ.length ? '<div class="rs-sub">시간을 많이 쓴 문항</div><div class="rs-chips">' + longQ.map(function (x) { return '<button class="chip" data-go="#/rev/' + encodeURIComponent(key) + '/' + x[0] + '">' + (x[0] + 1) + '번 ' + ms2(dw[x[1].i] || 0) + ' / ' + ms2(target(x[1])) + '</button>'; }).join("") + '</div>' : '') +
+      '</div>';
+    h += '<h2 class="sec">문항별 해설</h2><div class="grid">';
     m.ids.forEach(function (id, i) { h += '<button class="' + (r.ans[id] === BYID[id].x ? 'o' : 'x') + '" data-go="#/rev/' + encodeURIComponent(key) + '/' + i + '">' + (i + 1) + '</button>'; });
     h += '</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:16px"><button class="btn red full" data-go="#/mock/' + encodeURIComponent(key) + '">다시 풀기</button><button class="btn line full" data-go="#/">홈</button></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
@@ -347,11 +418,13 @@
   function review(key, i) {
     var r = S.m[key], m = mockBy(key); if (!r || !m) { location.hash = "#/"; return; }
     i = Math.max(0, Math.min(m.ids.length - 1, i));
-    var q = BYID[m.ids[i]], a = r.ans[q.i];
+    var q = BYID[m.ids[i]], a = r.ans[q.i], sec = (r.dw || {})[q.i], tp = TIPS[q.t] || {};
     top({ back: "#/res/" + encodeURIComponent(key) });
-    var h = '<div class="qhead"><span class="pill">' + (i + 1) + '번</span>' + esc(q.a) + '</div>' + qBody(q) +
+    var h = '<div class="qhead"><span class="pill">' + (i + 1) + '번</span>' + esc(q.a) + ' · ' + esc(typeName(q)) + ((q.d || 2) >= 3 ? '<span class="hard">고난도</span>' : '') + '</div>' + qBody(q) +
       '<div class="opts">' + q.c.map(function (c, k) { var v = k + 1; return '<div class="opt locked' + (v === q.x ? ' right' : '') + (v === a && a !== q.x ? ' wrongpick' : '') + '"><b>' + CIR[v] + '</b><span>' + esc(c) + '</span></div>'; }).join("") + '</div>' +
-      '<div class="verdict ' + (a === q.x ? 'good' : 'bad') + '">' + (a === q.x ? '정답 ' + CIR[q.x] : (a ? '고른 답 ' + CIR[a] + ' · ' : '안 고름 · ') + '정답 ' + CIR[q.x]) + '</div>' + explHtml(q) +
+      '<div class="verdict ' + (a === q.x ? 'rv-good' : 'rv-bad') + '">' + (a === q.x ? '정답 ' + CIR[q.x] : (a ? '고른 답 ' + CIR[a] + ' · ' : '안 고름 · ') + '정답 ' + CIR[q.x]) +
+      (sec != null ? '<small>머문 시간 ' + ms2(sec) + ' · 목표 ' + ms2(target(q)) + '</small>' : '') + '</div>' +
+      (tp.p ? '<div class="point"><b>출제 포인트</b> ' + esc(tp.p) + '</div>' : '') + explHtml(q) + skillBox(q, "시간 줄이는 손 기술") +
       '<div class="dock" style="display:flex;gap:8px"><button class="btn line" style="flex:1" data-go="#/rev/' + encodeURIComponent(key) + '/' + (i - 1) + '"' + (i ? '' : ' disabled') + '>이전</button><button class="btn dark" style="flex:1" data-go="#/rev/' + encodeURIComponent(key) + '/' + (i + 1) + '"' + (i + 1 < m.ids.length ? '' : ' disabled') + '>다음</button></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>'; scrollTo(0, 0);
   }
