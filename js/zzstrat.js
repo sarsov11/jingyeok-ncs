@@ -152,7 +152,8 @@
     "#zst .bub .h{font:900 12.5px/1.3 system-ui,sans-serif;color:var(--zs-red);letter-spacing:.04em;margin-bottom:8px}",
     "#zst .bub.in{animation:zstIn .3s ease-out}@keyframes zstIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}",
     "#zst .row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}",
-    "#zst .dots{display:flex;gap:5px}#zst .dots i{width:7px;height:7px;border-radius:9px;background:#DADDE2}#zst .dots i.on{background:var(--zs-red);width:18px}",
+    "#zst .dots{display:flex;gap:5px;min-width:0;flex:1 1 auto;overflow:hidden}#zst .dots .cnt{font:800 13px/1 system-ui,sans-serif;color:#8A8F98;white-space:nowrap}",
+    "#zst .dots i{flex:none}#zst .dots i{width:7px;height:7px;border-radius:9px;background:#DADDE2}#zst .dots i.on{background:var(--zs-red);width:18px}",
     "#zst .sk{margin-left:auto;background:none;border:0;color:#8A8F98;font:700 14px/1 inherit;padding:8px 6px;cursor:pointer;white-space:nowrap;flex:none}",
     "#zst .nx{background:var(--zs-red);color:#fff;border:0;border-radius:12px;padding:11px 18px;font:800 15px/1 inherit;cursor:pointer;white-space:nowrap;flex:none}",
     "#zst .nx[hidden]{display:none}",
@@ -350,7 +351,7 @@
     var h = d.합격선 || {}, sub = d.과목 || [], st = [], c = choice(d, g);
     var q = function (s) { return function () { return box.querySelector('[data-zs="' + s + '"]'); }; };
     if (d.한줄) st.push({ el: q("hero"), h: d.이름, t: d.한줄 });
-    if ((d.선택 || []).length) st.push({ el: q("pick"), h: L.pick, pick: true, t: d.선택.map(function (x) { return x.이름 + (num(x.목표) > 0 ? " " + num(x.목표) + L.pt : ""); }).join(" / ") });
+    if ((d.선택 || []).length) st.push({ el: q("pick"), h: L.pick, pick: true, t: d.선택.map(function (x) { return x.이름 + (num(x.목표) > 0 ? " " + num(x.목표) + (h.단위 != null ? h.단위 : L.pt) : ""); }).join(" / ") });   /* 만점이 문항 수인 시험은 합격선.단위:"개" */
     var tg = totalGoal(d, g);
     if (tg > 0) {
       var t = (d._hi > 0 ? (d.방식 === "상대" ? L.cut : L.line) + " " + d._hi + (d._lo > 0 && d._lo !== d._hi ? " (" + d._lo + "~" + d._hi + ")" : "") + ". " : "") + L.goal + " " + tg + " / " + num(h.만점) + ".";
@@ -417,7 +418,8 @@
       tb.classList.toggle("pass", pk); nx.hidden = pk;   /* 고르기 단계: 카드를 직접 눌러야 넘어간다 */
       bub.querySelector(".h").textContent = list[i].h || "";
       bub.querySelector(".tx").textContent = list[i].t;
-      bub.querySelector(".dots").innerHTML = list.map(function (_, k) { return '<i' + (k === i ? ' class="on"' : '') + '></i>'; }).join("");
+      /* 단계가 9개를 넘으면 점 대신 「4 / 15」 — 점이 많으면 다음 버튼이 말풍선 밖으로 밀린다 */
+      bub.querySelector(".dots").innerHTML = list.length > 9 ? '<span class="cnt">' + (i + 1) + ' / ' + list.length + '</span>' : list.map(function (_, k) { return '<i' + (k === i ? ' class="on"' : '') + '></i>'; }).join("");
       nx.textContent = i === list.length - 1 ? L.end : L.next;
       bub.classList.remove("in"); void bub.offsetWidth; bub.classList.add("in");
       place(); setTimeout(place, RM ? 0 : 380);
