@@ -84,6 +84,28 @@
     return '<div class="qcard">' + (lead ? '<div class="shared">' + blocks(lead.m) + '</div>' : '') +
       '<div class="stem">' + (no ? '<b class="qn">' + no + '.</b> ' : '') + esc(q.p) + '</div>' + blocks(q.m) + '</div>';
   }
+  /* 연습장(모두의 수학 필기판 ink.js): 계산이 드는 영역에서 선지 위에 펼친다 */
+  var PAD_AREAS = ["수리", "자원관리", "문제해결", "정보"], pad = null;
+  function padHtml(q) {
+    if (PAD_AREAS.indexOf(q.a) < 0 || !window.Ink) return "";
+    var open = S.padOpen !== false;
+    return '<div class="padbox' + (open ? ' on' : '') + '"><div class="padbar"><button class="padt" data-pt="toggle">연습장 ' + (open ? '접기' : '펴기') + '</button><span class="sp"></span>' +
+      '<button class="padt on" data-pt="pen">펜</button><button class="padt" data-pt="eraser">지우개</button><button class="padt" data-pt="undo">되돌리기</button><button class="padt" data-pt="clear">전부 지움</button></div><div class="padcv"></div></div>';
+  }
+  function padMount() {
+    if (pad) { try { pad.destroy(); } catch (e) {} pad = null; }
+    var box = $app.querySelector(".padbox"); if (!box) return;
+    if (box.classList.contains("on")) pad = new Ink(box.querySelector(".padcv"), { color: "#1F2A55", width: 2.2 });
+    box.querySelectorAll("[data-pt]").forEach(function (b) {
+      b.onclick = function () {
+        var t = b.getAttribute("data-pt");
+        if (t === "toggle") { S.padOpen = !box.classList.contains("on"); save(); box.classList.toggle("on"); b.textContent = "연습장 " + (S.padOpen ? "접기" : "펴기"); padMount(); return; }
+        if (!pad) return;
+        if (t === "undo") pad.undo(); else if (t === "clear") pad.clear();
+        else { pad.setTool(t); box.querySelectorAll('[data-pt="pen"],[data-pt="eraser"]').forEach(function (x) { x.classList.toggle("on", x === b); }); }
+      };
+    });
+  }
   function opts(q, picked) {
     return '<div class="opts">' + q.c.map(function (c, i) { var v = i + 1; return '<button class="opt' + (picked === v ? ' pick' : '') + '" data-v="' + v + '"><b>' + CIR[v] + '</b><span>' + esc(c) + '</span></button>'; }).join("") + '</div>';
   }
@@ -126,9 +148,9 @@
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn red" style="flex:1"' + (have.length ? '' : ' disabled') + ' data-go="#/goorg">맞춤 10문항</button><button class="btn dark" style="flex:1"' + (have.length ? '' : ' disabled') + ' data-go="#/orgmock">기관형 모의고사</button></div>' +
       '<button class="btn line full" style="margin-top:8px;height:42px;font-size:14px" data-go="#/org">기관 바꾸기</button></div>';
   }
-  function orgList(q) {
-    top({ back: "#/" });
-    var h = '<h2 class="sec">지원 기관</h2><input class="search" id="oq" placeholder="기관 이름" value="' + esc(q || "") + '"><div class="list" id="ol" style="margin-top:10px"></div><div class="foot">기관별 영역은 최근 채용공고 기준 · 공고마다 바뀔 수 있음</div>';
+  function orgList(q, first) {
+    top(first ? {} : { back: "#/" });
+    var h = (first ? '<div class="hero" style="margin-bottom:6px"><div class="big" style="font-size:24px">목표 기업과 직렬</div></div>' : '') + '<h2 class="sec">지원 기관</h2><input class="search" id="oq" placeholder="기관 이름" value="' + esc(q || "") + '"><div class="list" id="ol" style="margin-top:10px"></div>' + (first ? '<button class="btn line full" id="skip" style="margin-top:12px">아직 안 정함 · 10영역 전부</button>' : '') + '<div class="foot">기관별 영역은 최근 채용공고 기준 · 공고마다 바뀔 수 있음</div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
     function draw() {
       var v = document.getElementById("oq").value.trim();
@@ -137,6 +159,7 @@
       }).join("") || '<div class="empty">없음</div>';
     }
     document.getElementById("oq").oninput = draw; draw();
+    var sk = document.getElementById("skip"); if (sk) sk.onclick = function () { S.skipOrg = true; save(); home(); };
   }
   function orgJobs(i) {
     var o = ORGS[i]; if (!o) { location.hash = "#/org"; return; }
@@ -231,8 +254,8 @@
     var q = BYID[P.ids[P.i]];
     top({ back: P.back });
     var h = '<div class="qhead"><span class="pill">' + esc(q.a) + '</span>' + esc(typeName(q)) + (q.d >= 3 ? '<span class="hard">고난도</span>' : '') + '<span class="prog">' + (P.i + 1) + ' / ' + P.ids.length + '</span></div>' +
-      '<div class="pbar"><i style="width:' + (P.i / P.ids.length * 100) + '%"></i></div>' + qBody(q) + opts(q) + '<div id="after"></div>';
-    $app.innerHTML = '<div class="wrap">' + h + '</div>'; scrollTo(0, 0);
+      '<div class="pbar"><i style="width:' + (P.i / P.ids.length * 100) + '%"></i></div>' + qBody(q) + padHtml(q) + opts(q) + '<div id="after"></div>';
+    $app.innerHTML = '<div class="wrap">' + h + '</div>'; scrollTo(0, 0); padMount();
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         if (P.done) return; P.done = true;
@@ -279,9 +302,9 @@
     if (!M) { location.hash = "#/"; return; }
     var id = M.m.ids[M.i], q = BYID[id];
     top({ back: "#/mock/" + encodeURIComponent(M.key), right: '<span class="timer" id="tm">' + fmt(M.end - Date.now()) + '</span>' });
-    var h = '<div class="qhead"><span class="pill">' + (M.i + 1) + '번</span>' + esc(q.a) + '<span class="prog">' + Object.keys(M.ans).length + ' / ' + M.m.ids.length + ' 표기</span></div>' + qBody(q) + opts(q, M.ans[id]) +
+    var h = '<div class="qhead"><span class="pill">' + (M.i + 1) + '번</span>' + esc(q.a) + '<span class="prog">' + Object.keys(M.ans).length + ' / ' + M.m.ids.length + ' 표기</span></div>' + qBody(q) + padHtml(q) + opts(q, M.ans[id]) +
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn line" style="flex:1" id="pv"' + (M.i ? '' : ' disabled') + '>이전</button><button class="btn dark" style="flex:1" id="nx2">' + (M.i + 1 < M.m.ids.length ? '다음' : '마지막') + '</button></div><div style="height:70px"></div>';
-    $app.innerHTML = '<div class="wrap">' + h + '</div>' + omr(); scrollTo(0, 0);
+    $app.innerHTML = '<div class="wrap">' + h + '</div>' + omr(); scrollTo(0, 0); padMount();
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         M.ans[id] = +b.getAttribute("data-v");
@@ -350,7 +373,9 @@
       case "exam": return exam();
       case "res": return result(p[1]);
       case "rev": return review(p[1], +p[2]);
-      default: return home();
+      default:
+        if (!S.org && !S.skipOrg && ORGS.length) return orgList(null, true);
+        return home();
     }
   }
   addEventListener("hashchange", route);
