@@ -111,7 +111,52 @@
     var un = shuffle(pool.filter(function (q) { return !S.h[q.i]; })), wr = shuffle(pool.filter(function (q) { return S.h[q.i] && !S.h[q.i][1]; })), rt = shuffle(pool.filter(function (q) { return S.h[q.i] && S.h[q.i][1]; }));
     return un.concat(wr, rt).slice(0, n).map(function (q) { return q.i; });
   }
-  function mockBy(key) { return D.mocks.filter(function (x) { return x.key === key; })[0]; }
+  function mockBy(key) { if (key === "org") return S.om; return D.mocks.filter(function (x) { return x.key === key; })[0]; }
+
+  /* ── 지원 기관 (data/orgs.js: 채용공고 조사) ── */
+  var ORGS = window.NCS_ORGS || [];
+  function curJob() { if (!S.org) return null; var o = ORGS.filter(function (x) { return x.n === S.org.o; })[0]; if (!o) return null; var j = o.j.filter(function (x) { return x.n === S.org.j; })[0]; return j ? { o: o, j: j } : null; }
+  function orgCard() {
+    var c = curJob();
+    if (!c) return ORGS.length ? '<h2 class="sec">지원 기관</h2><div class="list"><button class="li" data-go="#/org"><div><div class="t">지원 기관 고르기</div><div class="d">' + ORGS.length + '곳 · 기관별 필기 영역에 맞춰 연습</div></div><div class="r">›</div></button></div>' : '';
+    var have = c.j.a.filter(function (a) { return areaStat(a).n; });
+    return '<h2 class="sec">지원 기관</h2><div class="card org"><div class="ot">' + esc(c.o.n) + '</div><div class="src">' + esc(c.j.n) + (c.j.q ? ' · NCS ' + c.j.q + '문항' : '') + (c.j.m ? ' · ' + c.j.m + '분' : '') + '</div>' +
+      '<div class="chips">' + c.j.a.map(function (a) { return '<span class="chip on">' + esc(a) + '</span>'; }).join("") + '</div>' +
+      (c.j.s.length ? '<div class="src">전공: ' + c.j.s.map(esc).join(" · ") + '</div>' : '') +
+      '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn red" style="flex:1"' + (have.length ? '' : ' disabled') + ' data-go="#/goorg">맞춤 10문항</button><button class="btn dark" style="flex:1"' + (have.length ? '' : ' disabled') + ' data-go="#/orgmock">기관형 모의고사</button></div>' +
+      '<button class="btn line full" style="margin-top:8px;height:42px;font-size:14px" data-go="#/org">기관 바꾸기</button></div>';
+  }
+  function orgList(q) {
+    top({ back: "#/" });
+    var h = '<h2 class="sec">지원 기관</h2><input class="search" id="oq" placeholder="기관 이름" value="' + esc(q || "") + '"><div class="list" id="ol" style="margin-top:10px"></div><div class="foot">기관별 영역은 최근 채용공고 기준 · 공고마다 바뀔 수 있음</div>';
+    $app.innerHTML = '<div class="wrap">' + h + '</div>';
+    function draw() {
+      var v = document.getElementById("oq").value.trim();
+      document.getElementById("ol").innerHTML = ORGS.map(function (o, i) { return [o, i]; }).filter(function (x) { return !v || x[0].n.indexOf(v) >= 0; }).map(function (x) {
+        return '<button class="li" data-go="#/org/' + x[1] + '"><div><div class="t">' + esc(x[0].n) + '</div><div class="d">' + esc(x[0].k) + ' · ' + esc(x[0].t) + ' · 직무 ' + x[0].j.length + '</div></div><div class="r">›</div></button>';
+      }).join("") || '<div class="empty">없음</div>';
+    }
+    document.getElementById("oq").oninput = draw; draw();
+  }
+  function orgJobs(i) {
+    var o = ORGS[i]; if (!o) { location.hash = "#/org"; return; }
+    top({ back: "#/org" });
+    var h = '<h2 class="sec">' + esc(o.n) + '</h2><div class="src" style="margin-bottom:8px">' + esc(o.t) + ' 공고 기준 · 직무를 고르세요</div><div class="list">';
+    o.j.forEach(function (j, k) {
+      h += '<button class="li" data-job="' + k + '"><div><div class="t">' + esc(j.n) + '</div><div class="d">' + j.a.map(esc).join(" · ") + (j.q ? ' · ' + j.q + '문항' : '') + (j.m ? ' · ' + j.m + '분' : '') + '</div>' +
+        (j.s.length ? '<div class="d">전공 ' + j.s.map(esc).join(", ") + '</div>' : '') + '</div></button>';
+    });
+    $app.innerHTML = '<div class="wrap">' + h + '</div></div>';
+    $app.querySelectorAll("[data-job]").forEach(function (b) { b.onclick = function () { S.org = { o: o.n, j: o.j[+b.getAttribute("data-job")].n }; save(); location.hash = "#/"; }; });
+  }
+  function orgMock() {
+    var c = curJob(); if (!c) { location.hash = "#/org"; return; }
+    var ar = c.j.a.filter(function (a) { return areaStat(a).n; }), n = Math.min(c.j.q || 50, 60), per = {}, ids = [];
+    ar.forEach(function (a, k) { per[a] = Math.floor(n / ar.length) + (k < n % ar.length ? 1 : 0); });
+    ar.forEach(function (a) { ids = ids.concat(pickSet(function (q) { return q.a === a && !q.g; }, per[a])); });
+    S.om = { key: "org", name: c.o.n + " " + c.j.n + " 모의고사", form: "기관형", min: c.j.m || ids.length, ids: ids }; save();
+    location.hash = "#/mock/org";
+  }
 
   /* ── 머리띠 ── */
   function top(opt) {
@@ -130,6 +175,7 @@
     var h = '<div class="hero"><div class="sub">푼 문항</div><div class="big">' + solved.toLocaleString() + ' <span style="font-size:16px;color:#c9ced6">/ ' + tot.toLocaleString() + '</span></div>' +
       '<div class="sub">정답률 ' + (solved ? Math.round(ok / solved * 100) + "%" : "—") + '</div>' +
       '<div class="row"><button class="btn red full" data-go="#/go/' + encodeURIComponent(w) + '">' + esc(w) + ' 10문항</button></div></div>';
+    h += orgCard();
     h += '<h2 class="sec">영역별 진단</h2><div class="areas">';
     AREAS.forEach(function (a) {
       var st = areaStat(a); if (!st.n) return; var t = tierOf(st), weak = a === w && st.solved >= 10;
@@ -295,6 +341,9 @@
       case "area": return area(p[1]);
       case "go": return startPractice(pickSet(function (q) { return q.a === p[1] && (!p[2] || q.t === p[2]); }, 10), "#/area/" + encodeURIComponent(p[1]), p[1]);
       case "wrong": return startPractice(shuffle(D.items.filter(function (q) { return S.h[q.i] && !S.h[q.i][1] && (!p[1] || q.a === p[1]); })).slice(0, 10).map(function (q) { return q.i; }), p[1] ? "#/area/" + encodeURIComponent(p[1]) : "#/", "틀린 문항");
+      case "org": return p[1] ? orgJobs(+p[1]) : orgList();
+      case "goorg": var cj = curJob(); return cj ? startPractice(pickSet(function (q) { return cj.j.a.indexOf(q.a) >= 0; }, 10), "#/", cj.o.n + " 맞춤") : (location.hash = "#/org");
+      case "orgmock": return orgMock();
       case "play": return play();
       case "mocks": return mockList();
       case "mock": return mockIntro(p[1]);
