@@ -24,17 +24,17 @@
       line: "합격선", goal: "목표", cut: "최근 합격선", bonus: "가산점", fail: "과락", sum: "과목 목표를 더하면", subj: "과목", strat: "전략", def: "방어", base: "기본",
       why: "왜", hold: "여기까지는 맞힌다", drop: "버려도 되는 문항", ex: "기출로 보기", must: "필수", fight: "승부", skipq: "버림", ans: "정답", order: "시험장에서",
       rate: "합격률", writ: "필기", prac: "실기", src: "출처", rep: "반복 출제", newq: "신출", range: "범위", start: "시작",
-      pick: "목표 고르기", tiers: "공부 범위", m_all: "공부", m_lite: "간단히", m_guess: "찍기", pt: "점" },
+      pick: "목표 고르기", gcut: "등급컷", passz: "합격", failz: "불합격", tiers: "공부 범위", m_all: "공부", m_lite: "간단히", m_guess: "찍기", pt: "점" },
     ja: { btn: "合格戦略", next: "次へ", end: "閉じる", skip: "スキップ", close: "閉じる", tour: "ガイドを見る", abs: "絶対評価", rel: "相対評価",
       line: "合格ライン", goal: "目標", cut: "最近の合格ライン", bonus: "加点", fail: "足切り", sum: "科目目標の合計", subj: "科目", strat: "得点源", def: "守り", base: "基本",
       why: "理由", hold: "ここまでは必ず取る", drop: "捨ててよい問題", ex: "過去問で見る", must: "必須", fight: "勝負", skipq: "捨て", ans: "正解", order: "試験当日",
       rate: "合格率", writ: "筆記", prac: "実技", src: "出典", rep: "再出題", newq: "新出", range: "範囲", start: "はじめる",
-      pick: "目標を選ぶ", tiers: "学習範囲", m_all: "学習", m_lite: "軽く", m_guess: "勘で", pt: "点" },
+      pick: "目標を選ぶ", gcut: "等級ライン", passz: "合格", failz: "不合格", tiers: "学習範囲", m_all: "学習", m_lite: "軽く", m_guess: "勘で", pt: "点" },
     en: { btn: "Pass plan", next: "Next", end: "Close", skip: "Skip", close: "Close", tour: "Guided tour", abs: "Fixed cutoff", rel: "Curved / ranked",
       line: "Pass line", goal: "Target", cut: "Recent cutoffs", bonus: "Bonus points", fail: "Minimum per section", sum: "Section targets add up to", subj: "Sections", strat: "Score", def: "Defend", base: "Core",
       why: "Why", hold: "Must-get level", drop: "Questions to skip", ex: "From past exams", must: "Must", fight: "Decider", skipq: "Skip", ans: "Answer", order: "On exam day",
       rate: "Pass rate", writ: "Written", prac: "Practical", src: "Sources", rep: "Repeat rate", newq: "New", range: "Scope", start: "Start",
-      pick: "Pick your target", tiers: "Study scope", m_all: "Study", m_lite: "Skim", m_guess: "Guess", pt: "" }
+      pick: "Pick your target", gcut: "Grade cuts", passz: "Pass", failz: "Fail", tiers: "Study scope", m_all: "Study", m_lite: "Skim", m_guess: "Guess", pt: "" }
   }[LANG];
   var ROLE = { "전략": "s", "방어": "d", "기본": "b" }, VERD = { "필수": "m", "승부": "f", "버림": "x" };
   var MODE = { "전부": "a", "공부": "a", "간단": "l", "간단히": "l", "찍기": "g", "버림": "g" };
@@ -110,6 +110,32 @@
     "#zs .stack{display:flex;height:30px;border-radius:9px;overflow:hidden;margin:10px 0 6px;background:#ECE9E2}",
     "#zs .stack i{display:flex;align-items:center;justify-content:center;font:800 11.5px/1 system-ui,sans-serif;color:#fff;font-style:normal;border-right:2px solid var(--zs-card);overflow:hidden;white-space:nowrap;min-width:0;transition:width .4s}",
     "#zs .stack i.s{background:var(--zs-red)}#zs .stack i.d{background:var(--zs-blue)}#zs .stack i.b{background:#8A8F9A}",
+    /* 점수 그래프 A·B·C */
+    "#zs .gw{padding:6px 0 0;margin:10px 0 6px}",
+    "#zs .ga{position:relative;padding:40px 2px 0}#zs .ga .bar{position:relative;height:40px;border-radius:12px;overflow:hidden;background:#EFECE5}",
+    "#zs .ga .z{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center}#zs .ga .z.rest{background:#E7E3DA}",
+    "#zs .ga .z em{font:900 13px/1 system-ui,sans-serif;color:#fff;font-style:normal;white-space:nowrap}#zs .ga .z.rest em{color:#8A8F9A}",
+    "#zs .ga .f{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,var(--c) 0 3px,transparent 3px 8px);opacity:.55}",
+    "#zs .ga .ticks{position:relative;height:42px}",
+    "#zs .ga .tk{position:absolute;top:8px;transform:translateX(-50%);font:800 12px/1 system-ui,sans-serif;white-space:nowrap}#zs .ga .tk.dn{top:26px}",
+    "#zs .ga .ax{position:absolute;top:8px;font:700 11px/1 system-ui,sans-serif;color:#A0A4AE}#zs .ga .ax.l{left:0}#zs .ga .ax.r{right:0}",
+    "#zs .gp{position:absolute;top:0;transform:translateX(-50%);z-index:2;transition:left .4s cubic-bezier(.2,1,.3,1)}",
+    "#zs .gp b{display:block;background:var(--zs-tx);color:#fff;font:900 12.5px/1 system-ui,sans-serif;padding:7px 9px;border-radius:8px;white-space:nowrap}",
+    "#zs .gp::after{content:'';position:absolute;left:50%;top:100%;margin-left:-1.5px;width:3px;height:52px;background:var(--zs-tx)}",
+    "#zs .gb{--lw:92px;position:relative;padding-top:30px}",
+    "#zs .gb .rw{display:flex;align-items:center;min-height:38px;padding:3px 0}#zs .gb .rn{flex:none;width:var(--lw);font-weight:700;font-size:12px;line-height:1.25;color:#4A4F5C;padding-right:8px;word-break:keep-all}",
+    "#zs .gb .tr{position:relative;flex:1;align-self:stretch;min-height:32px}#zs .gb .ln{position:absolute;left:0;right:0;top:50%;height:2px;background:#E5E2DA}",
+    "#zs .gb .dt{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}",
+    "#zs .gb .dt s{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);text-decoration:none;font:800 11px/1 system-ui,sans-serif;color:#4A4F5C;white-space:nowrap}",
+    "#zs .gb .rw.ax{height:18px}#zs .gb .rw.ax s{position:absolute;top:0;text-decoration:none;font:700 11px/1 system-ui,sans-serif;color:#A0A4AE}",
+    "#zs .gb .gline{position:absolute;top:0;bottom:46px;width:0;border-left:2.5px dashed var(--zs-red);z-index:1}",
+    "#zs .gb .gline b{position:absolute;top:0;left:50%;transform:translate(-50%,-2px);background:var(--zs-red);color:#fff;font:900 12px/1 system-ui,sans-serif;padding:6px 8px;border-radius:7px;white-space:nowrap}",
+    "#zs .gb .lg{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font:700 12px/1 system-ui,sans-serif;color:#4A4F5C}#zs .gb .lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}",
+    "#zs .gc{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}",
+    "#zs .gc .cd{border:2px solid var(--zs-line);border-radius:14px;padding:12px;background:#fff}#zs .gc .cd.on{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}",
+    "#zs .gc .cn{font:900 13px/1 system-ui,sans-serif;color:var(--c)}#zs .gc .cv{font:900 26px/1.1 system-ui,sans-serif;margin:8px 0 4px}#zs .gc .cv small{font-size:13px;color:var(--zs-sub);margin-left:2px}",
+    "#zs .gc .cs{font:700 12px/1.3 inherit;color:var(--zs-sub)}#zs .gc .cg{margin-top:8px;display:inline-block;background:var(--c);color:#fff;font:900 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:7px}",
+    "#zs .hit{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:var(--zs-soft);font:800 14px/1.45 inherit;word-break:keep-all}",
     /* 과목 카드 */
     "#zs .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}",
     "#zs .sc{position:relative;background:var(--zs-card);border:2px solid var(--zs-line);border-radius:16px;padding:14px 14px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}",
@@ -172,23 +198,104 @@
   function style() { if (D.getElementById("zs-style")) return; var st = D.createElement("style"); st.id = "zs-style"; st.textContent = docCss; D.head.appendChild(st); }
 
   /* ── 브리핑 화면 ── */
+  /* ── 점수 그래프 (10-21 대표님 「점수 구간 그래프 너무 별로」 → 세 안: A 구간 막대 · B 회차별 점 · C 등급 카드) ──
+   *  대입처럼 등급으로 끊는 시험은 데이터 `등급컷: [{이름:"2026.6 학평", 컷:{1:50, 2:46, 3:41}, 비고}]`.
+   *  합불 시험은 기존 `합격선.커트` 를 한 줄씩 행으로 쓴다. 안 고르기: 데이터 `그래프:"A|B|C"` > ZZSTRAT.graph > 주소 ?zsg=B > A */
+  var GCOL = { "1": "#E1101C", "2": "#2563EB", "3": "#0E8F57", "4": "#B7791F", "5": "#7C3AED", P: "#0E8F57" };
+  function isGrade(d) { return !!(d.등급컷 && d.등급컷.length); }
+  function gName(k) { return k === "P" ? L.passz : LANG === "ko" ? k + "등급" : LANG === "ja" ? k + "等級" : "Grade " + k; }
+  function cName(k) { return k === "P" ? L.line : LANG === "ko" ? k + "컷" : LANG === "ja" ? k + "等級ライン" : "Grade " + k + " cut"; }
+  function rowsOf(d) {
+    var max = num((d.합격선 || {}).만점);
+    if (isGrade(d)) {
+      var ks = {};
+      var rows = d.등급컷.map(function (r) { var c = {}; Object.keys(r.컷 || {}).forEach(function (k) { var v = num(r.컷[k]); if (v > 0 && !(v > max)) { c[k] = v; ks[k] = 1; } }); return { name: r.이름 || "", cuts: c, note: r.비고 || "" }; });
+      return { grade: true, keys: Object.keys(ks).sort(function (a, b) { return num(a) - num(b); }), rows: rows };
+    }
+    var cs = ((d.합격선 || {}).커트 || []).filter(function (c) { var v = num(c.점수); return v > 0 && !(v > max); });
+    if (!cs.length) return null;
+    return { grade: false, keys: ["P"], rows: cs.map(function (c) { return { name: ((c.연도 || "") + " " + (c.구분 || "")).trim(), cuts: { P: num(c.점수) }, note: c.비고 || "" }; }) };
+  }
+  function span(R, k) { var v = R.rows.map(function (r) { return r.cuts[k]; }).filter(function (x) { return x > 0; }); return v.length ? { lo: Math.min.apply(null, v), hi: Math.max.apply(null, v), n: v.length } : null; }
+  function fmt(a, b) { return a === b ? String(a) : a + "~" + b; }
+  /* 목표 점수면 최근 회차에서 몇 번 몇 등급인가 — 데이터에서 센 사실 */
+  function hitText(d, R, G) {
+    if (!(G > 0) || !R) return "";
+    var n = R.rows.length;
+    if (!R.grade) {
+      var ok = R.rows.filter(function (r) { return G >= r.cuts.P; }).length;
+      return LANG === "ko" ? L.goal + " " + G + " → 최근 커트 " + n + "개 중 " + ok + "개 위" : LANG === "ja" ? L.goal + " " + G + " → 直近" + n + "回中" + ok + "回合格ライン以上" : "Target " + G + " clears " + ok + " of " + n + " recent cutoffs";
+    }
+    var cnt = {}, below = 0;
+    R.rows.forEach(function (r) { var got = null; R.keys.forEach(function (k) { if (got == null && r.cuts[k] > 0 && G >= r.cuts[k]) got = k; }); if (got == null) below++; else cnt[got] = (cnt[got] || 0) + 1; });
+    var parts = R.keys.filter(function (k) { return cnt[k]; }).map(function (k) { return LANG === "ko" ? gName(k) + " " + cnt[k] + "회" : gName(k) + " " + cnt[k]; });
+    if (below) parts.push(LANG === "ko" ? "그 아래 " + below + "회" : "below " + below);
+    return LANG === "ko" ? L.goal + " " + G + "점이면 최근 " + n + "회 중 " + parts.join(" · ") : L.goal + " " + G + " → " + parts.join(" · ");
+  }
+  function scale(d, R, goal) {
+    var max = num((d.합격선 || {}).만점), lows = [goal > 0 ? goal : max];
+    if (R) R.keys.forEach(function (k) { var s = span(R, k); if (s) lows.push(s.lo); });
+    (d.선택 || []).forEach(function (c) { if (num(c.목표) > 0) lows.push(num(c.목표)); });
+    var a0 = Math.max(0, Math.floor((Math.min.apply(null, lows) - max * .12) / 5) * 5);
+    return { a0: a0, max: max, pct: function (v) { return Math.max(0, Math.min(100, (v - a0) / (max - a0) * 100)); } };
+  }
+  function graphKind(d) {
+    var q = ""; try { q = (location.search.match(/[?&]zsg=([ABC])/) || [])[1] || ""; } catch (e) { }
+    return d.그래프 || W.ZZSTRAT_GRAPH || q || "A";
+  }
+  function goalPin(S, goal) { return goal > 0 ? '<div class="gp" data-zs="goal" style="left:' + S.pct(goal) + '%"><b>' + L.goal + ' ' + goal + '</b></div>' : ""; }
+  /* A — 구간 막대: 등급(또는 합격) 구역을 색으로 칠하고, 회차마다 흔들린 컷 범위는 빗금, 목표는 위에 깃발 */
+  function graphA(d, R, S, goal) {
+    var o = '<div class="ga">' + goalPin(S, goal) + '<div class="bar">';
+    var ks = R.keys.slice(), top = S.max;
+    ks.forEach(function (k, i) {
+      var s = span(R, k); if (!s) return; var col = GCOL[k] || "#555";
+      var w = S.pct(top) - S.pct(s.hi);
+      if (w > 0) o += '<i class="z" style="left:' + S.pct(s.hi) + '%;width:' + w + '%;background:' + col + '">' + (w > 13 ? '<em>' + gName(k) + '</em>' : '') + '</i>';
+      if (s.hi > s.lo) o += '<i class="f" style="left:' + S.pct(s.lo) + '%;width:' + (S.pct(s.hi) - S.pct(s.lo)) + '%;--c:' + col + '"></i>';
+      top = s.lo;
+    });
+    o += '<i class="z rest" style="left:0;width:' + S.pct(top) + '%">' + (S.pct(top) > 18 ? '<em>' + (R.grade ? (LANG === "ko" ? "그 아래" : "below") : L.failz) + '</em>' : '') + '</i></div><div class="ticks">';
+    ks.forEach(function (k, i) { var s = span(R, k); if (s) o += '<span class="tk' + (i % 2 ? ' dn' : '') + '" style="left:' + S.pct((s.lo + s.hi) / 2) + '%;color:' + (GCOL[k] || "#555") + '">' + cName(k) + ' ' + fmt(s.lo, s.hi) + '</span>'; });
+    return o + '<span class="ax l">' + S.a0 + '</span><span class="ax r">' + S.max + '</span></div></div>';
+  }
+  /* B — 회차별 점: 회차(또는 연도·구분)마다 한 줄, 컷을 점으로 찍고 목표를 세로선으로 내리긋는다 */
+  function graphB(d, R, S, goal) {
+    var o = '<div class="gb">' + (goal > 0 ? '<div class="gline" style="left:calc(var(--lw) + (100% - var(--lw)) * ' + (S.pct(goal) / 100) + ')"><b>' + L.goal + ' ' + goal + '</b></div>' : '');
+    R.rows.forEach(function (r) {
+      o += '<div class="rw"><span class="rn">' + esc(r.name) + '</span><span class="tr"><i class="ln"></i>';
+      R.keys.forEach(function (k) { var v = r.cuts[k]; if (v > 0) o += '<i class="dt" style="left:' + S.pct(v) + '%;background:' + (GCOL[k] || "#555") + '"><s>' + v + '</s></i>'; });
+      o += '</span></div>';
+    });
+    o += '<div class="rw ax"><span class="rn"></span><span class="tr"><s style="left:0">' + S.a0 + '</s><s style="right:0">' + S.max + '</s></span></div>';
+    o += '<div class="lg">' + R.keys.map(function (k) { return '<span><i style="background:' + (GCOL[k] || "#555") + '"></i>' + cName(k) + '</span>'; }).join("") + '</div>';
+    return o + '</div>';
+  }
+  /* C — 등급 카드: 등급(또는 합격선)마다 카드 한 장, 컷 범위 숫자를 크게. 목표가 든 카드에 테 */
+  function graphC(d, R, S, goal) {
+    var o = '<div class="gc">', top = S.max;
+    R.keys.forEach(function (k) {
+      var s = span(R, k); if (!s) return; var col = GCOL[k] || "#555";
+      var mine = goal > 0 && goal >= s.lo && goal <= top;
+      o += '<div class="cd' + (mine ? ' on' : '') + '" style="--c:' + col + '"><div class="cn">' + gName(k) + '</div><div class="cv">' + fmt(s.lo, s.hi) + '<small>' + (LANG === "ko" ? "점" : "") + '</small></div><div class="cs">' + cName(k) + ' · ' + s.n + (LANG === "ko" ? "회" : "") + '</div>' + (mine ? '<div class="cg">' + L.goal + ' ' + goal + '</div>' : '') + '</div>';
+      top = s.lo;
+    });
+    return o + '</div>';
+  }
   function gaugeHTML(d, g) {
-    var h = d.합격선 || {}, max = num(h.만점), goal = totalGoal(d, g);
-    if (!(max > 0)) return "";
-    var cuts = (h.커트 || []).map(function (c) { return num(c.점수); }).filter(function (v) { return v > 0 && v <= max; });
-    cuts.sort(function (a, b) { return a - b; });
-    var hi = cuts.length ? cuts[cuts.length - 1] : NaN, lo = cuts.length ? cuts[0] : NaN;
-    d._hi = hi; d._lo = lo;
-    /* 눈금은 커트·목표 근처만 확대: 왼쪽 끝 = 가장 낮은 값(모든 선택지 목표 포함)에서 만점의 20% 내려간 곳(10 단위) */
-    var lows = [lo > 0 ? lo : max, goal > 0 ? goal : max].concat((d.선택 || []).map(function (c) { return num(c.목표) > 0 ? num(c.목표) : max; }));
-    var a0 = Math.max(0, Math.floor((Math.min.apply(null, lows) - max * .2) / 10) * 10);
-    var pct = function (v) { return Math.max(0, Math.min(100, (v - a0) / (max - a0) * 100)); };
-    var o = '<div class="gw" data-zs="gauge"><div class="gauge"><span class="ax" style="left:0">' + a0 + '</span><span class="ax" style="right:0">' + max + '</span>';
-    if (lo > 0) o += '<div class="fl" style="width:' + pct(lo) + '%"></div><div class="rg" style="left:' + pct(lo) + '%;width:' + (pct(hi) - pct(lo)) + '%"></div>';
-    cuts.forEach(function (v) { o += '<div class="mk" style="left:' + pct(v) + '%"></div>'; });
-    if (lo > 0) o += '<span class="rl" style="left:' + ((pct(lo) + pct(hi)) / 2) + '%">' + (d.방식 === "상대" ? L.cut : L.line) + ' ' + (lo === hi ? hi : lo + '~' + hi) + '</span>';
-    if (goal > 0) o += '<div class="gl" data-zs="goal" style="left:' + pct(goal) + '%"><span>' + L.goal + ' ' + goal + '</span></div>';
-    return o + '</div></div>';
+    var max = num((d.합격선 || {}).만점), goal = totalGoal(d, g), R = rowsOf(d);
+    if (!(max > 0) || !R) return "";
+    var all = []; R.keys.forEach(function (k) { var s = span(R, k); if (s) all.push(s); });
+    d._hi = all.length ? all[0].hi : NaN; d._lo = all.length ? all[0].lo : NaN;   /* 가장 높은 등급(1컷) 또는 합격선 */
+    var S = scale(d, R, goal), kind = graphKind(d);
+    var body = kind === "B" ? graphB(d, R, S, goal) : kind === "C" ? graphC(d, R, S, goal) : graphA(d, R, S, goal);
+    var ht = hitText(d, R, goal);
+    return '<div class="gw" data-zs="gauge">' + body + (ht ? '<div class="hit" data-zs="hit">' + esc(ht) + '</div>' : '') + '</div>';
+  }
+  function cutTable(d) {
+    var R = rowsOf(d); if (!R || !R.grade) return "";
+    return '<table data-zs="cuts"><tr><th></th>' + R.keys.map(function (k) { return '<th style="color:' + (GCOL[k] || "") + '">' + cName(k) + '</th>'; }).join("") + '</tr>' +
+      R.rows.map(function (r) { return '<tr><td>' + esc(r.name) + (r.note ? ' <span class="mu">' + esc(r.note) + '</span>' : '') + '</td>' + R.keys.map(function (k) { return '<td class="n">' + (r.cuts[k] > 0 ? r.cuts[k] : "–") + '</td>'; }).join("") + '</tr>'; }).join("") + '</table>';
   }
   function stackHTML(d, g) {
     var sub = d.과목 || [], h = d.합격선 || {}, max = num(h.만점);
@@ -253,7 +360,7 @@
     o += '<span class="chip r">' + (d.방식 === "상대" ? L.rel : L.abs) + '</span>' + (h.과락 ? '<span class="chip">' + L.fail + ' · ' + esc(h.과락) + '</span>' : '') + '</div>';
     o += pickHTML(d, g);
     /* 합격선 */
-    o += '<section data-zs="line"><h2>' + L.line + '</h2>';
+    o += '<section data-zs="line"><h2>' + (isGrade(d) ? L.gcut : L.line) + '</h2>';
     if (tg > 0) o += '<div class="big">' + tg + '<small>/ ' + (num(h.만점) || "") + ' ' + L.goal + '</small></div>';
     if (h.설명) o += '<p class="desc" style="margin-top:10px">' + esc(h.설명) + '</p>';
     o += gaugeHTML(d, g);
@@ -261,7 +368,8 @@
     if (c && c.근거) o += '<p class="desc" data-zs="goalwhy">' + esc(c.근거) + '</p>';
     else if (h.목표근거) o += '<p class="desc" data-zs="goalwhy">' + esc(h.목표근거) + '</p>';
     o += stackHTML(d, g);
-    if (h.커트 && h.커트.length) o += '<table data-zs="cuts"><tr><th>' + L.cut + '</th><th></th><th></th></tr>' + h.커트.map(function (x) { return '<tr><td>' + esc(x.연도 || "") + '</td><td>' + esc(x.구분 || "") + (x.비고 ? ' <span class="mu">' + esc(x.비고) + '</span>' : '') + '</td><td class="n">' + esc(x.점수) + '</td></tr>'; }).join("") + '</table>';
+    if (isGrade(d)) o += cutTable(d);
+    else if (h.커트 && h.커트.length) o += '<table data-zs="cuts"><tr><th>' + L.cut + '</th><th></th><th></th></tr>' + h.커트.map(function (x) { return '<tr><td>' + esc(x.연도 || "") + '</td><td>' + esc(x.구분 || "") + (x.비고 ? ' <span class="mu">' + esc(x.비고) + '</span>' : '') + '</td><td class="n">' + esc(x.점수) + '</td></tr>'; }).join("") + '</table>';
     if (h.가산점 && h.가산점.length) o += '<table data-zs="bonus" style="margin-top:14px"><tr><th>' + L.bonus + '</th><th></th><th></th></tr>' + h.가산점.map(function (x) { return '<tr><td>' + esc(x.항목) + '</td><td class="n">' + esc(x.점수) + '</td><td class="mu">' + esc(x.비고 || "") + '</td></tr>'; }).join("") + '</table>';
     var pr = d.합격률 || h.합격률;
     if (pr && pr.length) o += '<table data-zs="rate" style="margin-top:14px"><tr><th>' + L.rate + '</th><th>' + L.writ + '</th><th>' + L.prac + '</th></tr>' + pr.map(function (x) { return '<tr><td>' + esc(x.연도 || "") + (x.비고 ? ' <span class="mu">' + esc(x.비고) + '</span>' : '') + '</td><td class="n">' + esc(x.필기 || "") + '</td><td class="n">' + esc(x.실기 || "") + '</td></tr>'; }).join("") + '</table>';
@@ -354,9 +462,10 @@
     if ((d.선택 || []).length) st.push({ el: q("pick"), h: L.pick, pick: true, t: d.선택.map(function (x) { return x.이름 + (num(x.목표) > 0 ? " " + num(x.목표) + (h.단위 != null ? h.단위 : L.pt) : ""); }).join(" / ") });   /* 만점이 문항 수인 시험은 합격선.단위:"개" */
     var tg = totalGoal(d, g);
     if (tg > 0) {
-      var t = (d._hi > 0 ? (d.방식 === "상대" ? L.cut : L.line) + " " + d._hi + (d._lo > 0 && d._lo !== d._hi ? " (" + d._lo + "~" + d._hi + ")" : "") + ". " : "") + L.goal + " " + tg + " / " + num(h.만점) + ".";
+      var R = rowsOf(d), ht = hitText(d, R, tg);
+      var t = ht ? ht + "." : (d._hi > 0 ? (d.방식 === "상대" ? L.cut : L.line) + " " + fmt(d._lo, d._hi) + ". " : "") + L.goal + " " + tg + " / " + num(h.만점) + ".";
       var why = c && c.근거 ? c.근거 : h.목표근거;
-      st.push({ el: q("gauge"), h: L.line, t: t + (why ? " " + lead(why) : "") });
+      st.push({ el: q("gauge"), h: isGrade(d) ? L.gcut : L.line, t: t + (why ? " " + lead(why) : "") });
     } else if (h.설명) st.push({ el: q("line"), h: L.line, t: lead(h.설명) });
     if (h.가산점 && h.가산점.length) st.push({ el: q("bonus"), h: L.bonus, t: h.가산점.slice(0, 2).map(function (x) { return x.항목 + " " + x.점수; }).join(" · ") });
     if (box.querySelector('[data-zs="stack"]')) st.push({ el: q("stack"), h: L.sum, t: sub.map(function (s) { return s.이름 + " " + subGoal(s, g); }).join(" + ") });
