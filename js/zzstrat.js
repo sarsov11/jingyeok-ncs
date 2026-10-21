@@ -241,7 +241,11 @@
   }
   function graphKind(d) {
     var q = ""; try { q = (location.search.match(/[?&]zsg=([ABC])/) || [])[1] || ""; } catch (e) { }
-    return d.그래프 || W.ZZSTRAT_GRAPH || q || "A";
+    if (d.그래프 || W.ZZSTRAT_GRAPH || q) return d.그래프 || W.ZZSTRAT_GRAPH || q;
+    /* 10-21 대표님: 등급컷은 C(등급 카드), 소방처럼 지역·연도별 커트가 여럿이면 B(회차별 점), 커트가 하나뿐이면 A(구간 막대) */
+    if (isGrade(d)) return "C";
+    var R = rowsOf(d);
+    return R && R.rows.length >= 3 ? "B" : "A";
   }
   function goalPin(S, goal) { return goal > 0 ? '<div class="gp" data-zs="goal" style="left:' + S.pct(goal) + '%"><b>' + L.goal + ' ' + goal + '</b></div>' : ""; }
   /* A — 구간 막대: 등급(또는 합격) 구역을 색으로 칠하고, 회차마다 흔들린 컷 범위는 빗금, 목표는 위에 깃발 */
