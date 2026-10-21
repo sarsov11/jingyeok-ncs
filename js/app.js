@@ -184,8 +184,11 @@
   /* ── 머리띠 ── */
   function top(opt) {
     opt = opt || {};
+    var th = document.querySelector(".th-home");
     $top.innerHTML = '<div class="in">' + (opt.back ? '<button class="back" data-go="' + opt.back + '">‹ 뒤로</button>' : '<div class="logo">진격의 <b>NCS</b></div>') + (opt.right || "") + '<div class="sp"></div></div>';
+    if (th) $top.querySelector(".in").appendChild(th);   /* 테라러닝 홈 단추(terrahome.js)는 머리줄을 다시 그려도 오른쪽 끝에 남긴다 */
   }
+  document.addEventListener("DOMContentLoaded", function () { var th = document.querySelector(".th-home"), i = $top.querySelector(".in"); if (th && i) i.appendChild(th); });
   document.addEventListener("click", function (e) { var g = e.target.closest("[data-go]"); if (g && !g.disabled) { e.preventDefault(); stopTimer(); location.hash = g.getAttribute("data-go"); } });
 
   /* ── 홈 ── */
