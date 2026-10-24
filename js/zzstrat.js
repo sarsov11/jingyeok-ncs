@@ -23,17 +23,17 @@
     ko: { btn: "합격전략", next: "다음", end: "닫기", skip: "건너뛰기", close: "닫기", tour: "짚어 보기", abs: "절대평가", rel: "상대평가",
       line: "합격선", goal: "목표", cut: "최근 합격선", bonus: "가산점", fail: "과락", sum: "과목 목표를 더하면", subj: "과목", strat: "전략", def: "방어", base: "기본",
       why: "왜", hold: "여기까지는 맞힌다", drop: "버려도 되는 문항", ex: "기출로 보기", must: "필수", fight: "승부", skipq: "버림", ans: "정답", order: "시험장에서",
-      rate: "합격률", writ: "필기", prac: "실기", src: "출처", rep: "반복 출제", newq: "신출", range: "범위", start: "시작",
+      rate: "합격률", writ: "필기", prac: "실기", vid: "근거 영상", src: "출처", rep: "반복 출제", newq: "신출", range: "범위", start: "시작",
       pick: "목표 고르기", gcut: "등급컷", passz: "합격", failz: "불합격", tiers: "공부 범위", m_all: "공부", m_lite: "간단히", m_guess: "찍기", pt: "점" },
     ja: { btn: "合格戦略", next: "次へ", end: "閉じる", skip: "スキップ", close: "閉じる", tour: "ガイドを見る", abs: "絶対評価", rel: "相対評価",
       line: "合格ライン", goal: "目標", cut: "最近の合格ライン", bonus: "加点", fail: "足切り", sum: "科目目標の合計", subj: "科目", strat: "得点源", def: "守り", base: "基本",
       why: "理由", hold: "ここまでは必ず取る", drop: "捨ててよい問題", ex: "過去問で見る", must: "必須", fight: "勝負", skipq: "捨て", ans: "正解", order: "試験当日",
-      rate: "合格率", writ: "筆記", prac: "実技", src: "出典", rep: "再出題", newq: "新出", range: "範囲", start: "はじめる",
+      rate: "合格率", writ: "筆記", prac: "実技", vid: "根拠の動画", src: "出典", rep: "再出題", newq: "新出", range: "範囲", start: "はじめる",
       pick: "目標を選ぶ", gcut: "等級ライン", passz: "合格", failz: "不合格", tiers: "学習範囲", m_all: "学習", m_lite: "軽く", m_guess: "勘で", pt: "点" },
     en: { btn: "Pass plan", next: "Next", end: "Close", skip: "Skip", close: "Close", tour: "Guided tour", abs: "Fixed cutoff", rel: "Curved / ranked",
       line: "Pass line", goal: "Target", cut: "Recent cutoffs", bonus: "Bonus points", fail: "Minimum per section", sum: "Section targets add up to", subj: "Sections", strat: "Score", def: "Defend", base: "Core",
       why: "Why", hold: "Must-get level", drop: "Questions to skip", ex: "From past exams", must: "Must", fight: "Decider", skipq: "Skip", ans: "Answer", order: "On exam day",
-      rate: "Pass rate", writ: "Written", prac: "Practical", src: "Sources", rep: "Repeat rate", newq: "New", range: "Scope", start: "Start",
+      rate: "Pass rate", writ: "Written", prac: "Practical", vid: "Evidence videos", src: "Sources", rep: "Repeat rate", newq: "New", range: "Scope", start: "Start",
       pick: "Pick your target", gcut: "Grade cuts", passz: "Pass", failz: "Fail", tiers: "Study scope", m_all: "Study", m_lite: "Skim", m_guess: "Guess", pt: "" }
   }[LANG];
   var ROLE = { "전략": "s", "방어": "d", "기본": "b" }, VERD = { "필수": "m", "승부": "f", "버림": "x" };
@@ -166,6 +166,11 @@
     "#zs .q.x .qt,#zs .q.x ol{opacity:.55}",
     "#zs .q .qe{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #D9D5CB;font-size:14px;word-break:keep-all}",
     "#zs ol.ord{margin:0;padding-left:20px}#zs ol.ord li{margin:0 0 6px}",
+    "#zs .vl{list-style:none;margin:0;padding:0}#zs .vl li{border-top:1px solid var(--zs-line)}#zs .vl li:first-child{border-top:0}",
+    "#zs .vl a,#zs .vl span{display:block;padding:10px 0 10px 28px;position:relative;color:inherit;text-decoration:none}",
+    "#zs .vl i{position:absolute;left:0;top:11px;width:20px;height:20px;border-radius:6px;background:#E1101C;color:#fff;font:900 12px/20px system-ui;text-align:center;font-style:normal}",
+    "#zs .vl b{display:block;font:800 13.5px/1.35 inherit}#zs .vl em{display:block;font-style:normal;font-size:14px;color:#3A3E48;margin-top:2px;word-break:keep-all}",
+    "#zs .vl.sm a,#zs .vl.sm span{padding:7px 0 7px 26px}#zs .vl.sm i{top:8px}#zs .vl.sm em{font-size:13.5px}",
     "#zs .src{font-size:12px;color:#8A8F9A;margin-top:18px;word-break:break-all}",
     "#zs .go{display:block;width:100%;margin:22px 0 0;background:var(--zs-red);color:#fff;border:0;border-radius:14px;padding:16px;font:900 17px/1 inherit;cursor:pointer}",
     /* 스포트라이트 */
@@ -342,6 +347,14 @@
     });
     return o + '</div></section>';
   }
+  /* 근거 영상(10-25 대입 창: 데이터의 근거영상 칸을 학생 화면에도) — 누구 · 요지, 누르면 유튜브 */
+  function vidHTML(list, small) {
+    if (!list || !list.length) return "";
+    return '<ul class="vl' + (small ? ' sm' : '') + '">' + list.map(function (v) {
+      var u = String(v.url || ""); if (!/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(u)) u = "";
+      return '<li>' + (u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' : '<span>') + '<i>▶</i><b>' + esc(v.누구 || "") + '</b>' + (v.요지 ? '<em>' + esc(v.요지) + '</em>' : '') + (u ? '</a>' : '</span>') + '</li>';
+    }).join("") + '</ul>';
+  }
   function qHTML(q) {
     var v = VERD[q.판정] || "f", ans = num(q.정답);
     var o = '<div class="q ' + v + '" data-zs="q-' + v + '"><div class="st ' + v + '">' + ({ m: L.must, f: L.fight, x: L.skipq })[v] + '</div>';
@@ -367,6 +380,7 @@
     if (s.이유) o += '<div class="kv" data-zs="why-' + i + '"><b>' + L.why + '</b><p>' + esc(s.이유) + '</p></div>';
     if (s.선) o += '<div class="kv hold" data-zs="hold-' + i + '"><b>' + L.hold + '</b><p>' + esc(s.선) + '</p></div>';
     if (s.버림) o += '<div class="kv"><b>' + L.drop + '</b><p>' + esc(s.버림) + '</p></div>';
+    if (s.근거영상 && s.근거영상.length) o += '<div class="kv"><b>' + L.vid + '</b>' + vidHTML(s.근거영상, 1) + '</div>';
     if (s.예시 && s.예시.length) o += '<div class="kv" style="margin:0"><b>' + L.ex + '</b></div>' + s.예시.map(qHTML).join("");
     return o + '</div>';
   }
@@ -415,6 +429,7 @@
     }
     if (d.순서 && d.순서.length) o += '<section><h2>' + L.order + '</h2><ol class="ord">' + d.순서.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ol></section>';
     o += '<button type="button" class="go">' + L.start + '</button>';
+    if (d.근거영상 && d.근거영상.length) o += '<section data-zs="vids"><h2>' + L.vid + '</h2>' + vidHTML(d.근거영상) + '</section>';
     if (d.출처 && d.출처.length) o += '<div class="src">' + L.src + ' · ' + d.출처.map(esc).join(" · ") + '</div>';
     return o + '</div>';
   }
