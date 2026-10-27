@@ -110,7 +110,9 @@
     return '<div class="opts">' + q.c.map(function (c, i) { var v = i + 1; return '<button class="opt' + (picked === v ? ' pick' : '') + '" data-v="' + v + '"><b>' + CIR[v] + '</b><span>' + esc(c) + '</span></button>'; }).join("") + '</div>';
   }
   function explHtml(q) {
-    var e = q.e || {}, h = '<div class="expl"><div class="lab">풀이</div><ol class="steps">' + (e.풀이 || []).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ol>';
+    /* 풀이 단계는 화살표로 잇는 순서 도식으로(2026-10-27 대표님 「모든 과목 개념을 도식으로」) — 데이터 그대로, js/diagram.js */
+    var e = q.e || {}, st = e.풀이 || [];
+    var h = '<div class="expl"><div class="lab">풀이</div>' + (window.DIAGRAM && st.length >= 2 ? DIAGRAM.html({ t: "flow", steps: st }) : '<ol class="steps">' + st.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ol>');
     if ((e.선지 || []).length) h += '<div class="lab">선지 분석</div><ul class="why">' + e.선지.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>';
     if (e.함정) h += '<div class="trap"><b>함정</b> ' + esc(e.함정) + '</div>';
     return h + '</div>';

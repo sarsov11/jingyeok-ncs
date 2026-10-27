@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>진격의 NCS</title>
+<meta name="theme-color" content="#111419">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="css/tera-tokens.css">
+<link rel="stylesheet" href="css/app.css?v=1020g">
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="app"></main>
+<script src="data/items.js?v=1020g"></script>
+<script src="data/orgs.js?v=1020g"></script>
+<script src="js/ink.js?v=1020g"></script>
+<script src="js/app.js?v=1021h"></script>
+<script src="js/zzsfx.js?v=1009a" defer></script>
+<script src="js/zzajan.js?v=1009a" defer></script>
+<script src="js/zzstrat.js?v=3247d7fa"></script><script src="js/zzstrat_ncs.js?v=1025c"></script>
+<script>
+/* 합격전략 — 첫 방문의 「목표 기업과 직렬」 고르기가 끝난 뒤 한 번 튜토리얼, 이후엔 오른쪽 아래 「합격전략」 버튼 */
+(function () {
+  function go() {
+    if (document.getElementById("oq") && !document.querySelector(".card.org")) return false;
+    ZZSTRAT.auto("ncs"); return true;
+  }
+  if (go()) return;
+  var mo = new MutationObserver(function () { if (go()) mo.disconnect(); });
+  mo.observe(document.getElementById("app"), { childList: true });
+})();
+</script>
+<script src="js/terrahome.js?v=1021h" data-slot="#top .in" defer></script>
+</body>
+</html>

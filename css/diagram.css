@@ -1,0 +1,111 @@
+/* 개념 도식 (js/diagram.js 짝). 색은 스킨 변수만 쓰고, 변수가 없는 사이트를 위해 기본값을 둔다. */
+.dg{--dg-ink:var(--ink,#16181d);--dg-ink3:var(--ink-3,#6b7280);--dg-line:var(--line-2,#d9dce3);
+  --dg-bg:var(--surface-2,#f5f6f8);--dg-key:var(--cta,#e5484d);--dg-key-soft:var(--cta-soft,rgba(229,72,77,.09));
+  --dg-a:var(--fam-geo,#2f7de0);--dg-b:var(--fam-soc,#e5484d);
+  margin:14px 0 4px;font-size:15px;line-height:1.55;color:var(--dg-ink);min-width:0;max-width:100%}
+.dg-kid,.dg-col,.dg-box,.dg-node,.dg-flow li,.dg-root{min-width:0;overflow-wrap:anywhere}
+.dg .katex-display,.dg .katex{max-width:100%;overflow-x:auto;overflow-y:hidden}
+.dg b{font-weight:900}
+.dg-t{font-size:14.5px;font-weight:800;color:var(--dg-ink3);margin:0 0 9px}
+.dg ul{list-style:none;margin:0;padding:0}
+.dg ul li{position:relative;padding:3px 0 3px 13px}
+.dg ul li::before{content:"";position:absolute;left:1px;top:12px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.45}
+
+/* def — 개념어 상자 */
+.dg-def{border:1.5px solid var(--dg-key);border-radius:12px;overflow:hidden}
+.dg-def .dg-term{background:var(--dg-key);color:#fff;font-weight:900;font-size:16px;padding:8px 14px}
+.dg-def .dg-dtext{padding:11px 14px;font-size:15.5px;line-height:1.65}
+.dg-def .dg-ex{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:0 14px 12px}
+.dg-def .dg-ex span{font-size:13px;font-weight:800;color:var(--dg-ink3);margin-right:2px}
+.dg-def .dg-exl{padding:0 14px 11px;font-size:14.5px}
+.dg-def .dg-exl>span{font-size:13px;font-weight:800;color:var(--dg-ink3)}
+.dg-def .dg-ex i{font-style:normal;font-size:14px;padding:3px 9px;border-radius:99px;background:var(--dg-key-soft);border:1px solid var(--dg-line)}
+
+/* flow — 차례 */
+.dg-flow ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:stretch}
+.dg-flow li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--dg-line);border-radius:10px;background:var(--dg-bg)}
+.dg-flow li.dg-arr{border:0;background:none;padding:0;justify-content:center;color:var(--dg-key);font-weight:900;font-size:16px;line-height:1.3}
+.dg-n{flex:0 0 22px;height:22px;border-radius:7px;background:var(--dg-ink);color:var(--bg,#fff);font-weight:900;font-size:13px;display:grid;place-items:center;margin-top:1px}
+
+/* cause — 원인 → 핵심 → 결과 */
+.dg-cause .dg-lab{font-size:13px;font-weight:800;color:var(--dg-ink3);margin:2px 0 5px}
+.dg-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:7px}
+.dg-box{border:1px solid var(--dg-line);border-radius:10px;background:var(--dg-bg);padding:9px 11px;font-size:14.5px}
+.dg-box.dg-eff{border-color:var(--dg-key);background:var(--dg-key-soft)}
+.dg-cause .dg-arr{text-align:center;color:var(--dg-key);font-weight:900;margin:3px 0}
+.dg-core{border:2px solid var(--dg-ink);border-radius:11px;padding:10px 13px;font-weight:800;text-align:center}
+
+/* tree — 갈래 */
+.dg-root{display:block;width:fit-content;max-width:100%;margin:0 auto;padding:9px 16px;border:2px solid var(--dg-key);border-radius:11px;background:var(--dg-key-soft);font-weight:800;text-align:center;position:relative}
+.dg-kids{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px;margin-top:22px}
+.dg-kids::before{content:"";position:absolute;left:50%;top:-22px;height:11px;border-left:2px solid var(--dg-line)}
+.dg-kids::after{content:"";position:absolute;left:calc(100%/var(--n)/2);right:calc(100%/var(--n)/2);top:-11px;border-top:2px solid var(--dg-line)}
+.dg-kid{position:relative;border:1px solid var(--dg-line);border-radius:10px;background:var(--dg-bg);padding:9px 10px;font-size:14px;line-height:1.5}
+.dg-kid::before{content:"";position:absolute;left:50%;top:-12px;height:11px;border-left:2px solid var(--dg-line)}
+.dg-kid .dg-kn{display:block;font-size:15px;margin-bottom:3px}
+.dg-kid span{color:var(--dg-ink)}
+
+/* vs — 견주기 */
+.dg-cols{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:stretch}
+.dg-cols[style*="--n:3"]{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr)}
+.dg-vsb{align-self:center;font-weight:900;font-size:12px;color:var(--dg-ink3);font-family:var(--mono,monospace)}
+.dg-col{border:1px solid var(--dg-line);border-radius:11px;overflow:hidden;background:var(--surface,#fff)}
+.dg-col .dg-ch{padding:8px 11px;font-weight:900;font-size:15px;border-bottom:1px solid var(--dg-line)}
+.dg-col ul{padding:7px 10px 9px}
+.dg-col li{font-size:14.5px}
+.dg-c0 .dg-ch{background:color-mix(in srgb,var(--dg-a) 14%,transparent);border-top:3px solid var(--dg-a)}
+.dg-c1 .dg-ch{background:var(--dg-bg);border-top:3px solid var(--dg-ink)}
+.dg-c2 .dg-ch{background:var(--dg-bg);border-top:3px solid var(--dg-ink3)}
+
+/* venn — 공통점·차이점 */
+.dg-vsvg{display:block;width:120px;height:38px;margin:0 auto 8px}
+.dg-vsvg circle{fill-opacity:.16;stroke-width:1.5}
+.dg-vsvg circle:first-child{fill:var(--dg-a);stroke:var(--dg-a)}
+.dg-vsvg circle:last-child{fill:var(--dg-ink);stroke:var(--dg-ink)}
+.dg-vcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.dg-both .dg-ch{background:var(--dg-bg);border-top:3px solid var(--dg-ink)}
+
+/* cycle — 고리 */
+.dg-cwrap{position:relative;width:min(300px,100%);aspect-ratio:1;margin:0 auto}
+.dg-ring{position:absolute;inset:0;width:100%;height:100%}
+.dg-ring path{fill:none;stroke:var(--dg-key);stroke-width:1.1}
+.dg-ring marker path{fill:var(--dg-key);stroke:none}
+.dg-node{position:absolute;transform:translate(-50%,-50%);width:34%;text-align:center;font-size:13.5px;font-weight:800;line-height:1.35;
+  background:var(--surface,#fff);border:1.5px solid var(--dg-line);border-radius:10px;padding:6px 6px}
+.dg-node span{display:block;font-size:11px;color:var(--dg-key);font-family:var(--mono,monospace)}
+.dg-clist{display:none}
+
+/* axis — 양 끝 사이 */
+.dg-ends{display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:var(--dg-ink3);gap:10px}
+.dg-ends span:last-child{text-align:right}
+.dg-line{position:relative;height:8px;margin:14px 10px 18px;background:linear-gradient(90deg,var(--dg-a),var(--dg-b));border-radius:99px;opacity:.85}
+.dg-line i{position:absolute;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--surface,#fff);border:2.5px solid var(--dg-ink);font-style:normal;font-size:11px;font-weight:900;display:grid;place-items:center;font-family:var(--mono,monospace)}
+.dg-mn{display:inline-grid;place-items:center;width:19px;height:19px;border-radius:50%;border:2px solid var(--dg-ink);font-size:10.5px;font-weight:900;margin-right:7px;font-family:var(--mono,monospace);vertical-align:1px}
+.dg-marks{counter-reset:m}
+.dg-marks li{padding:4px 0}
+.dg-marks li::before{display:none}
+.dg-marks li b{margin-right:6px}
+
+/* table */
+.dg-tw{overflow-x:auto}
+.dg-table table{width:100%;border-collapse:collapse;font-size:14.5px;line-height:1.5}
+.dg-table th,.dg-table td{border:1px solid var(--dg-line);padding:8px 9px;text-align:left;vertical-align:top}
+.dg-table thead th{background:var(--dg-bg);font-weight:800}
+.dg-table tbody th{background:var(--dg-bg);font-weight:800;white-space:nowrap}
+
+@media(max-width:520px){
+  .dg-kids{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dg-kids::after{left:25%;right:25%}
+  .dg-kids[style*="--n:1"]{grid-template-columns:minmax(0,1fr)}
+  .dg-cols,.dg-cols[style*="--n:3"]{grid-template-columns:minmax(0,1fr)}
+  .dg-vsb{text-align:center}
+  .dg-vcols{grid-template-columns:minmax(0,1fr)}
+  .dg-node{font-size:12.5px;width:36%}
+  .dg-table table{table-layout:fixed;font-size:13.5px}
+  .dg-table th,.dg-table td{padding:7px 6px;overflow-wrap:anywhere;word-break:keep-all}
+  .dg-table tbody th{white-space:normal}
+}
+@media(max-width:380px){
+  .dg-cwrap{display:none}
+  .dg-clist{display:block;margin:0;padding-left:20px}
+}
