@@ -195,6 +195,9 @@
     "#zsy .pk.on{border-color:var(--zs-red);box-shadow:0 0 0 3px color-mix(in srgb,var(--zs-red) 15%,transparent)}",
     "#zsy .end{display:flex;flex-direction:column;gap:10px;margin-top:26px}",
     "#zsy .end button{border-radius:999px;padding:14px;font:700 15px/1 var(--zf);cursor:pointer;border:1.5px solid var(--zs-tx);background:none;color:var(--zs-tx)}#zsy .end .main{background:var(--zs-tx);color:#fff}",
+    /* 글써지는 효과(10-27 대표님: 한 줄씩 집중해 읽는 합격전략에만. 카테고리·목표 고르기에는 안 쓴다) */
+    "#zsy .ln .cu{display:inline-block;width:2px;height:1.05em;margin-left:2px;vertical-align:-.15em;background:currentColor;animation:zsyCu .8s steps(1) infinite}@keyframes zsyCu{50%{opacity:0}}",
+    "#zsy .ln.typing{animation:none}#zsy .ln .rs{opacity:0}#zsy .ln .cu{margin-right:-2px}",
     "@media (prefers-reduced-motion:reduce){#zsy,#zsy .ln.in{animation:none}}",
     /* 스포트라이트 */
     "#zst{position:fixed;inset:0;z-index:2147482000}#zst.pass{pointer-events:none}#zst.pass .bub{pointer-events:auto}",
@@ -630,6 +633,29 @@
     return out.filter(Boolean);
   }
   function fmtLine(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+  /* 한 줄을 한 글자씩 써 나간다. **굵게** 는 쓰는 동안에도 굵게. 누르면 그 줄을 바로 다 보인다(다음 줄로 넘어가지 않음) */
+  function typeLine(p, t, done) {
+    var seg = [], re = /\*\*(.+?)\*\*/g, k = 0, m;
+    while ((m = re.exec(t))) { if (m.index > k) seg.push([t.slice(k, m.index), 0]); seg.push([m[1], 1]); k = re.lastIndex; }
+    if (k < t.length) seg.push([t.slice(k), 0]);
+    var total = seg.reduce(function (a, x) { return a + Array.from(x[0]).length; }, 0), n = 0, tm = null;
+    var ms = Math.max(18, Math.min(45, 1400 / Math.max(total, 1)));   /* 긴 줄도 1.4초 안팎에 다 써진다 */
+    function draw(full) {
+      /* 남은 글자는 투명하게 미리 깔아 둔다 — 가운데 정렬 줄이 써질 때마다 좌우로 흔들리지 않게 */
+      var left = full ? total : n, h = "", rest = "";
+      seg.forEach(function (x) {
+        var ch = Array.from(x[0]), k = Math.max(0, Math.min(ch.length, left)), c = ch.slice(0, k).join(""), r = ch.slice(k).join(""); left -= ch.length;
+        if (c) h += x[1] ? "<b>" + esc(c) + "</b>" : esc(c);
+        if (r) rest += x[1] ? "<b>" + esc(r) + "</b>" : esc(r);
+      });
+      p.innerHTML = h + (full ? "" : '<span class="cu"></span><span class="rs">' + rest + "</span>");
+    }
+    function tick() { n++; draw(false); if (n >= total) return fin(); tm = setTimeout(tick, ms); }
+    function fin() { clearTimeout(tm); tm = null; draw(true); p.classList.remove("typing"); p._typing = null; if (done) done(); }
+    p.classList.add("typing"); p._typing = fin;
+    if (RM || !total) return fin();
+    draw(false); tm = setTimeout(tick, 120);
+  }
   function story(id, opt) {
     opt = opt || {};
     var d = DB[id]; if (!d) return false;
@@ -664,14 +690,15 @@
       bar.style.width = Math.round((i + 1) / total * 100) + "%";
       if (kind === "B") {
         col.querySelectorAll(".ln").forEach(function (x) { x.classList.add("old"); x.classList.remove("in"); });
-        var p = D.createElement("p"); p.className = "ln in"; p.innerHTML = fmtLine(lines[i]); col.appendChild(p);
+        var p = D.createElement("p"); p.className = "ln in"; col.appendChild(p); typeLine(p, lines[i]);
         while (col.scrollHeight > box.querySelector(".stage").clientHeight * .8 && col.firstChild) col.removeChild(col.firstChild);
       } else {
-        col.innerHTML = '<p class="ln in">' + fmtLine(lines[i]) + '</p>' + (i === 0 ? '<div class="tap">' + (LANG === "ko" ? "화면을 누르면 다음 줄" : LANG === "ja" ? "タップで次へ" : "Tap for next") + '</div>' : '');
+        col.innerHTML = '<p class="ln in"></p>' + (i === 0 ? '<div class="tap">' + (LANG === "ko" ? "화면을 누르면 다음 줄" : LANG === "ja" ? "タップで次へ" : "Tap for next") + '</div>' : '');
+        typeLine(col.querySelector(".ln"), lines[i]);
       }
       try { if (W.ZZ && W.ZZ.play) W.ZZ.play("pick", { vol: .25 }); } catch (e) { }
     }
-    function next() { if (ended) return; i++; show(); }
+    function next() { if (ended) return; var w = col.querySelector(".ln.typing"); if (w && w._typing) return w._typing(); i++; show(); }
     box.addEventListener("click", function (e) {
       if (e.target.closest(".sk")) return finish(false);
       var pk = e.target.closest(".pk");
