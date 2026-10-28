@@ -16,7 +16,11 @@
 (function(){
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   /* 사이트가 글꼴 함수를 주면(수학 $…$ 수식 등) 그것으로 그린다 — 함수는 이스케이프까지 맡는다 */
-  function b(t){ if(window.DIAGRAM&&window.DIAGRAM.글꼴) return window.DIAGRAM.글꼴(String(t==null?"":t)).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); return esc(t).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); }
+  function b(t){ if(window.DIAGRAM&&window.DIAGRAM.글꼴) return 조문(window.DIAGRAM.글꼴(String(t==null?"":t)).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")); return 조문(esc(t).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")); }
+  /* 괄호 속 조문 번호 「(민사집행법 제58조)」「(제30조, 제40조)」는 글줄에서 빼 작은 단추로(1028 대표님) */
+  var 조 = "(?:[가-힣]+(?:법|령|규칙|규정)\\s*)?제[\\d·]+조(?:의\\d+)?(?:\\s*제[\\d·]+항)?(?:\\s*제[\\d·]+호)?",
+      조괄호 = new RegExp("\\s*\\((" + 조 + "(?:\\s*[,·]\\s*" + 조 + ")*)\\)", "g");
+  function 조문(h){ return h.replace(조괄호, function(_, 안){ return ' <span class="dg-laws">'+안.split(/\s*,\s*/).map(function(x){ return '<span class="dg-law">'+x+'</span>'; }).join("")+'</span>'; }); }
   /* 가운뎃점으로 이은 칸은 줄을 바꾼다(통사 0915 규칙). 줄이 여럿이면 줄마다 점을 찍어 사실 하나씩 보이게(1028 「너저분한 것은 용납 안 됨」) */
   function 칸(t){ var 줄=b(t).split(" · "); return 줄.length>1 ? 줄.map(function(l){ return '<span class="dg-ln">'+l+'</span>'; }).join("") : 줄[0]; }
   function 제목(t){ return t ? '<div class="dg-t">'+b(t).split(" · ").join(", ")+'</div>' : ""; }
