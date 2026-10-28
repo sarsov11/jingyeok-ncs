@@ -121,6 +121,6 @@
 .dg-rn{font-weight:900;font-size:15px;margin-bottom:3px}
 .dg-rv{font-size:14.5px;line-height:1.55}
 /* 조문 번호 단추 (1028 대표님 「제30조 40조 이런 건 따로 빼서 버튼형으로 작게」) */
-.dg-law{display:inline-block;vertical-align:1px;margin-left:4px;padding:0 7px;border-radius:99px;font-size:11.5px;font-weight:700;line-height:1.75;letter-spacing:0;white-space:nowrap;color:var(--dg-ink3);background:var(--dg-bg);border:1px solid var(--dg-line)}
+.dg-law{display:inline-block;vertical-align:1px;margin-left:4px;padding:0 7px;border-radius:99px;font-size:11.5px;font-weight:700;line-height:1.75;letter-spacing:0;white-space:nowrap;color:var(--dg-key);background:none;border:1px solid var(--dg-key)}
 .dg-law+.dg-law{margin-left:3px}
 .dg-laws{display:inline-block;white-space:nowrap}
