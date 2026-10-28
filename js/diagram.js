@@ -17,8 +17,8 @@
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   /* 사이트가 글꼴 함수를 주면(수학 $…$ 수식 등) 그것으로 그린다 — 함수는 이스케이프까지 맡는다 */
   function b(t){ if(window.DIAGRAM&&window.DIAGRAM.글꼴) return window.DIAGRAM.글꼴(String(t==null?"":t)).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); return esc(t).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); }
-  /* 가운뎃점으로 이은 칸은 줄을 바꾼다(통사 0915 규칙) */
-  function 칸(t){ return b(t).split(" · ").join("<br>"); }
+  /* 가운뎃점으로 이은 칸은 줄을 바꾼다(통사 0915 규칙). 줄이 여럿이면 줄마다 점을 찍어 사실 하나씩 보이게(1028 「너저분한 것은 용납 안 됨」) */
+  function 칸(t){ var 줄=b(t).split(" · "); return 줄.length>1 ? 줄.map(function(l){ return '<span class="dg-ln">'+l+'</span>'; }).join("") : 줄[0]; }
   function 제목(t){ return t ? '<div class="dg-t">'+b(t).split(" · ").join(", ")+'</div>' : ""; }
   function 목록(xs){ return (xs&&xs.length) ? '<ul>'+xs.map(function(x){ return '<li>'+b(x)+'</li>'; }).join("")+'</ul>' : ""; }
   function 맨글(t){ return String(t||"").replace(/\*\*/g,""); }
@@ -91,6 +91,10 @@
         '<ul class="dg-marks">'+m.map(function(k,n){ return '<li><span class="dg-mn">'+(n+1)+'</span><b>'+b(k.name)+'</b>'+(k.text?'<span>'+b(k.text)+'</span>':'')+'</li>'; }).join("")+'</ul></div>';
     },
     table: function(x){
+      /* 두 칸 표(이름 | 내용)는 좁은 칸에 글이 끼므로 줄 카드로 그린다(1028) */
+      var 칸수=(x.head&&x.head.length)||((x.rows||[])[0]||[]).length;
+      if(칸수===2) return '<div class="dg dg-rl">'+제목(x.title)+(x.rows||[]).map(function(r){
+          return '<div class="dg-ri"><div class="dg-rn">'+b(r[0])+'</div><div class="dg-rv">'+칸(r[1])+'</div></div>'; }).join("")+'</div>';
       return '<div class="dg dg-table">'+제목(x.title)+'<div class="dg-tw"><table>'+
         ((x.head&&x.head.length)?'<thead><tr>'+x.head.map(function(h){ return '<th>'+칸(h)+'</th>'; }).join("")+'</tr></thead>':'')+
         '<tbody>'+(x.rows||[]).map(function(r){ return '<tr>'+r.map(function(c,n){ return (n===0&&x.head&&x.head.length?'<th>':'<td>')+칸(c)+(n===0&&x.head&&x.head.length?'</th>':'</td>'); }).join("")+'</tr>'; }).join("")+'</tbody></table></div></div>';

@@ -2,7 +2,7 @@
 .dg{--dg-ink:var(--ink,#16181d);--dg-ink3:var(--ink-3,#6b7280);--dg-line:var(--line-2,#d9dce3);
   --dg-bg:var(--surface-2,#f5f6f8);--dg-key:var(--cta,#e5484d);--dg-key-soft:var(--cta-soft,rgba(229,72,77,.09));
   --dg-a:var(--fam-geo,#2f7de0);--dg-b:var(--fam-soc,#e5484d);
-  margin:14px 0 4px;font-size:15px;line-height:1.55;color:var(--dg-ink);min-width:0;max-width:100%}
+  margin:14px 0 4px;font-size:15px;line-height:1.55;color:var(--dg-ink);min-width:0;max-width:100%;word-break:keep-all}
 .dg-kid,.dg-col,.dg-box,.dg-node,.dg-flow li,.dg-root{min-width:0;overflow-wrap:anywhere}
 .dg .katex-display,.dg .katex{max-width:100%;overflow-x:auto;overflow-y:hidden}
 .dg b{font-weight:900}
@@ -109,3 +109,14 @@
   .dg-cwrap{display:none}
   .dg-clist{display:block;margin:0;padding-left:20px}
 }
+
+/* 여러 줄 칸 — 줄마다 점 (1028) */
+.dg-ln{display:block;position:relative;padding-left:12px;margin:2px 0}
+.dg-ln::before{content:"";position:absolute;left:1px;top:.68em;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.45}
+.dg-core .dg-ln,.dg-root .dg-ln{text-align:left}
+/* 두 칸 표 → 줄 카드 (1028) */
+.dg-rl{display:flex;flex-direction:column;gap:7px}
+.dg-rl .dg-t{margin-bottom:2px}
+.dg-ri{border:1px solid var(--dg-line);border-left:4px solid var(--dg-key);border-radius:10px;background:var(--surface,#fff);padding:9px 12px}
+.dg-rn{font-weight:900;font-size:15px;margin-bottom:3px}
+.dg-rv{font-size:14.5px;line-height:1.55}
