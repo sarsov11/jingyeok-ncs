@@ -12,6 +12,10 @@
      cycle {title, steps:[...]}                           되풀이 고리
      axis  {title, left, right, marks:[{at:0~100, name, text}]}   양 끝 사이 위치
      table {title, head:[...], rows:[[...]]}              표
+     scene {title, who:[{k,name,sub,kind}], steps:[{from,to,text,cut}], result:[{ok,text}]}  상황도(누가 누구에게, 차례대로)
+
+   상황도 단추(1029 대표님 「법적인 상황은 문장을 누르면 옆에 그림으로」): 사이트가 DIAGRAM.장면({줄 글: scene}) 으로
+   등록해 두면 그 줄 끝에 「그림」 단추가 붙는다. 폰은 아래에서 올라오는 판, 폭 1000px 이상은 오른쪽 옆 칸.
 */
 (function(){
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
@@ -22,9 +26,14 @@
       조괄호 = new RegExp("\\s*\\((" + 조 + "(?:\\s*[,·]\\s*" + 조 + ")*)\\)", "g");
   function 조문(h){ return h.replace(조괄호, function(_, 안){ return ' <span class="dg-laws">'+안.split(/\s*,\s*/).map(function(x){ return '<span class="dg-law">'+x+'</span>'; }).join("")+'</span>'; }); }
   /* 가운뎃점으로 이은 칸은 줄을 바꾼다(통사 0915 규칙). 줄이 여럿이면 줄마다 점을 찍어 사실 하나씩 보이게(1028 「너저분한 것은 용납 안 됨」) */
-  function 칸(t){ var 줄=b(t).split(" · "); return 줄.length>1 ? 줄.map(function(l){ return '<span class="dg-ln">'+l+'</span>'; }).join("") : 줄[0]; }
+  var 장면들 = {};
+  function 열쇠(t){ return 맨글(t).replace(조괄호,"").replace(/\s+/g,""); }
+  function 단추(t){ var k=열쇠(t); return 장면들[k] ? '<button type="button" class="sc-btn" data-sc="'+esc(k)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" style="fill:none;stroke:#fff;stroke-width:2.2"/><path d="M6.5 16l3.5-4.5 3 3.5 2-2 2.5 3z"/></svg>그림</button>' : ""; }
+  function 칸(t){ var 원=String(t==null?"":t).split(" · "), 줄=b(t).split(" · ");
+    if(원.length!==줄.length) 원=[String(t==null?"":t)];
+    return 줄.length>1 ? 줄.map(function(l,n){ return '<span class="dg-ln">'+l+단추(원[n])+'</span>'; }).join("") : 줄[0]+단추(원[0]); }
   function 제목(t){ return t ? '<div class="dg-t">'+b(t).split(" · ").join(", ")+'</div>' : ""; }
-  function 목록(xs){ return (xs&&xs.length) ? '<ul>'+xs.map(function(x){ return '<li>'+b(x)+'</li>'; }).join("")+'</ul>' : ""; }
+  function 목록(xs){ return (xs&&xs.length) ? '<ul>'+xs.map(function(x){ return '<li>'+b(x)+단추(x)+'</li>'; }).join("")+'</ul>' : ""; }
   function 맨글(t){ return String(t||"").replace(/\*\*/g,""); }
 
   var 그리개 = {
@@ -40,7 +49,7 @@
     flow: function(x){
       return '<div class="dg dg-flow">'+제목(x.title)+'<ol>'+(x.steps||[]).map(function(s,n){
         var 쪽=String(s).split(" · ");   /* 「이름 · 설명」 이면 이름을 굵게 */
-        return '<li><span class="dg-n">'+(n+1)+'</span><span class="dg-s">'+(쪽.length>1?'<b>'+b(쪽[0])+'</b><br>'+쪽.slice(1).map(b).join("<br>"):b(s))+'</span></li>';
+        return '<li><span class="dg-n">'+(n+1)+'</span><span class="dg-s">'+(쪽.length>1?'<b>'+b(쪽[0])+'</b><br>'+쪽.slice(1).map(b).join("<br>"):b(s))+단추(s)+'</span></li>';
       }).join('<li class="dg-arr" aria-hidden="true">↓</li>')+'</ol></div>';
     },
     cause: function(x){
@@ -105,6 +114,46 @@
     }
   };
 
+  /* 상황도 — 사람마다 세로 점선, ①②③ 화살표, 끊긴 행위는 빨간 점선 ✕, 맨 아래 된다/안 된다 */
+  var 사람그림 = {
+    person:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>',
+    court:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7h20z"/><rect x="4" y="9" width="2.6" height="9"/><rect x="10.7" y="9" width="2.6" height="9"/><rect x="17.4" y="9" width="2.6" height="9"/><rect x="2" y="19" width="20" height="3"/></svg>',
+    thing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8v10H3z"/></svg>'
+  };
+  그리개.scene = function(x){
+    var who=x.who||[], n=who.length, at={};
+    who.forEach(function(w,i){ at[w.k]=i+1; });
+    var h='<div class="dg sc" style="--n:'+n+'">'+제목(x.title)+'<div class="sc-grid">';
+    for(var i=0;i<n;i++) h+='<div class="sc-line" style="left:calc('+(i+.5)+' / '+n+' * 100%)"></div>';
+    who.forEach(function(w,i){ var k=사람그림[w.kind]?w.kind:"person"; h+='<div class="sc-who sc-'+k+'" style="grid-column:'+(i+1)+'">'+사람그림[k]+'<b>'+b(w.name)+'</b>'+(w.sub?'<span>'+b(w.sub)+'</span>':'')+'</div>'; });
+    (x.steps||[]).forEach(function(s,k){
+      var a=at[s.from], c=at[s.to]; if(!a||!c) return;
+      var lo=Math.min(a,c), hi=Math.max(a,c);
+      if(a===c) h+='<div class="sc-self" style="grid-row:'+(k+2)+';grid-column:'+a+'"><i>'+(k+1)+'</i>'+b(s.text)+'</div>';
+      else h+='<div class="sc-step'+(s.cut?' sc-cut':'')+(a>c?' sc-left':'')+'" style="grid-row:'+(k+2)+';grid-column:'+lo+' / '+(hi+1)+';margin:0 calc(100% / '+(2*(hi-lo+1))+')"><span class="sc-lab"><i>'+(k+1)+'</i>'+b(s.text)+'</span><span class="sc-arr"></span></div>';
+    });
+    h+='</div>';
+    (x.result||[]).forEach(function(r){ h+='<div class="sc-res '+(r.ok?'sc-ok':'sc-no')+'"><b>'+(r.ok?'된다':'안 된다')+'</b>'+b(r.text)+'</div>'; });
+    return h+'</div>';
+  };
+  /* 「그림」 단추 — 폰은 바닥 판, 폭 1000px 이상은 오른쪽 옆 칸 */
+  function 닫기(){ document.querySelectorAll(".sc-dim,.sc-sheet,.sc-side").forEach(function(e){ e.remove(); });
+    document.documentElement.classList.remove("sc-with-side"); document.querySelectorAll(".sc-on").forEach(function(e){ e.classList.remove("sc-on"); }); }
+  function 열기(btn){
+    var k=btn.getAttribute("data-sc"), x=장면들[k]; if(!x) return;
+    닫기();
+    var 줄=btn.closest(".dg-ln,li,.dg-s,.dg-rv,.dg-dtext,span,td")||btn.parentNode; 줄.classList.add("sc-on");
+    var 물음=줄.textContent.replace(/그림$/,"").trim();
+    var 판='<button type="button" class="sc-x" aria-label="닫기">✕</button><div class="sc-q">'+esc(물음)+'</div>'+그리개.scene(x);
+    if(window.innerWidth>=1000){ document.body.insertAdjacentHTML("beforeend",'<aside class="sc-side">'+판+'</aside>'); document.documentElement.classList.add("sc-with-side"); }
+    else document.body.insertAdjacentHTML("beforeend",'<div class="sc-dim"></div><div class="sc-sheet" role="dialog"><div class="sc-grab"></div>'+판+'</div>');
+  }
+  document.addEventListener("click", function(e){
+    var t=e.target.closest&&e.target.closest(".sc-btn"); if(t){ e.preventDefault(); e.stopPropagation(); 열기(t); return; }
+    if(e.target.closest&&e.target.closest(".sc-x,.sc-dim")) 닫기();
+  }, true);
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") 닫기(); });
+
   /* 검사·개념어 문항이 카드 글을 읽을 때 쓰는 맨 글 */
   function 글(x){
     if(!x) return "";
@@ -122,6 +171,7 @@
     글꼴: null,
     has: function(t){ return !!그리개[t]; },
     html: function(x){ var f=그리개[x&&x.t]; return f ? f(x) : ""; },
-    text: 글
+    text: 글,
+    장면: function(m){ for(var k in m) 장면들[열쇠(k)]=m[k]; }
   };
 })();
