@@ -21,7 +21,7 @@
   var LANG = (function () { var l = (D.documentElement.getAttribute("lang") || "ko").toLowerCase(); return l.indexOf("ja") === 0 ? "ja" : l.indexOf("en") === 0 ? "en" : "ko"; })();
   var L = {
     ko: { btn: "합격전략", next: "다음", end: "닫기", skip: "건너뛰기", close: "닫기", tour: "짚어 보기", abs: "절대평가", rel: "상대평가",
-      line: "합격선", goal: "목표", cut: "최근 합격선", bonus: "가산점", fail: "과락", sum: "과목 목표를 더하면", subj: "과목", strat: "전략", def: "방어", base: "기본",
+      line: "합격선", goal: "목표", cut: "최근 합격선", bonus: "가산점", fail: "과락", sum: "과목 목표를 더하면", subj: "과목", strat: "전략", def: "면과락", base: "기본",
       why: "왜", hold: "여기까지는 맞힌다", drop: "버려도 되는 문항", ex: "기출로 보기", must: "필수", fight: "승부", skipq: "버림", ans: "정답", order: "시험장에서",
       rate: "합격률", writ: "필기", prac: "실기", vid: "근거 영상", src: "출처", rep: "반복 출제", newq: "신출", range: "범위", start: "시작",
       pick: "목표 고르기", replay: "처음부터 듣기", gcut: "등급컷", passz: "합격", failz: "불합격", tiers: "공부 범위", m_all: "공부", m_lite: "간단히", m_guess: "찍기", pt: "점" },
