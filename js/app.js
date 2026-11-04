@@ -80,6 +80,7 @@
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="ch">' + o + '</svg>' + lg;
   }
   function qBody(q, no) {
+    window.NCS_CUR = q; window.NCS_PICK = null;   /* 학습 비서(assist.js)가 지금 문항을 알아본다 */
     var lead = q.g && GROUP[q.g] && GROUP[q.g][0] !== q.i ? BYID[GROUP[q.g][0]] : null;   // 공통 지문은 묶음 첫 문항에만 있다
     return '<div class="qcard">' + (lead ? '<div class="shared">' + blocks(lead.m) + '</div>' : '') +
       '<div class="stem">' + (no ? '<b class="qn">' + no + '.</b> ' : '') + esc(q.p) + '</div>' + blocks(q.m) + '</div>';
@@ -276,6 +277,8 @@
 
   /* ── 연습 세트 (0초부터 올라가는 시계) ── */
   var P = null;
+  /* 비서(coach.js)가 같은 유형 문항 하나를 지금 세트의 다음 차례에 끼워 넣는다 */
+  window.NCS_APP = { insertNext: function (id) { if (!P || P.i >= P.ids.length || !BYID[id]) return false; P.ids.splice(P.i + 1, 0, id); var nx = document.getElementById("nx"); if (nx) nx.textContent = "다음 문제"; return true; } };
   function startPractice(ids, back, title) {
     if (!ids.length) { location.hash = back; return; }
     P = { ids: ids, i: 0, ok: 0, back: back, title: title, done: false, res: [] };
@@ -291,11 +294,12 @@
     $app.innerHTML = '<div class="wrap">' + h + '</div>'; scrollTo(0, 0); padMount();
     var t0 = Date.now(); stopTimer();
     tick = setInterval(function () { var t = document.getElementById("tm"); if (!t) return stopTimer(); var sec = (Date.now() - t0) / 1000; t.textContent = ms2(sec); t.classList.toggle("low", sec > target(q)); }, 1000);
+    window.NCS_LAST_SHOW = { q: q, mode: "practice", t0: t0, i: P.i, n: P.ids.length }; document.dispatchEvent(new CustomEvent("ncs:show", { detail: window.NCS_LAST_SHOW }));   /* 선제안 비서(coach.js) */
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         if (P.done) return; P.done = true; stopTimer();
         var v = +b.getAttribute("data-v"), ok = v === q.x, sec = Math.round((Date.now() - t0) / 1000), slow = isSlow(q, sec);
-        rec(q.i, ok); if (ok) P.ok++;
+        rec(q.i, ok); if (ok) P.ok++; window.NCS_PICK = v;
         S.tm[q.i] = [sec, ok ? 1 : 0]; save(); P.res.push({ id: q.i, ok: ok, sec: sec });
         var tm = document.getElementById("tm"); if (tm) tm.textContent = ms2(sec);
         b.setAttribute("data-s", ok ? "ok" : "no");
@@ -308,6 +312,7 @@
           (slow || !ok ? skillBox(q, ok ? "목표 시간 안에 푸는 법" : "이 유형 푸는 순서") : '') + explHtml(q) +
           '<div class="dock"><button class="btn red full" id="nx">' + (P.i + 1 < P.ids.length ? '다음 문제' : '결과 보기') + '</button></div>';
         document.getElementById("nx").onclick = function () { P.i++; P.done = false; play(); };
+        document.dispatchEvent(new CustomEvent("ncs:answer", { detail: { q: q, v: v, ok: ok, sec: sec, i: P.i, n: P.ids.length, pok: P.ok } }));
         setTimeout(function () { a.scrollIntoView({ behavior: "smooth", block: "start" }); }, 350);
       };
     });
@@ -365,6 +370,7 @@
       qBody(q, no) + padHtml(q) + opts(q, M.ans[id]) + '</div>' +
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn line" style="flex:1" id="pv"' + (M.i ? '' : ' disabled') + '>이전</button><button class="btn dark" style="flex:1" id="nx2">' + (M.i + 1 < M.m.ids.length ? '다음' : '마지막') + '</button></div><div style="height:70px"></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>' + omr(); scrollTo(0, 0); padMount();
+    document.dispatchEvent(new CustomEvent("ncs:show", { detail: { q: q, mode: "mock" } }));
     $app.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         M.ans[id] = +b.getAttribute("data-v");
