@@ -34,3 +34,59 @@ tr.cb-hlrow>*{background:#FFF1A8!important}
 .cs-ch{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .cs-b{min-height:40px;border:2px solid var(--line,#D8DBE0);background:#fff;border-radius:10px;padding:0 14px;font-weight:800;font-size:14px;font-family:inherit;color:var(--ink,#111)}
 .cs-b.on{background:#111419;color:#fff;border-color:#111419}
+/* ── 비서 색 시안 (11-05 대표님 「검은색 맘에 안 듦」) — html[data-cbskin] 으로 고른다 ── */
+/* A: 흰 카드 + 빨간 테두리 */
+html[data-cbskin="a"] .cb{background:#fff;color:#111419;border:2px solid #E5202E;box-shadow:0 4px 14px -6px rgba(229,32,46,.35)}
+html[data-cbskin="a"] .cb-who{color:#E5202E}
+html[data-cbskin="a"] .cb-body{color:#2B2F36}
+html[data-cbskin="a"] .cb-src{color:#6B7280}
+html[data-cbskin="a"] .cb-q{background:#FFF1F2}
+html[data-cbskin="a"] .cb-b{border-color:#D8DBE0;color:#111419;background:#fff}
+html[data-cbskin="a"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
+html[data-cbskin="a"] .as-fab{background:#fff;color:#E5202E;border:2px solid #E5202E}
+/* B: 연한 빨강 바탕 */
+html[data-cbskin="b"] .cb{background:#FFF1F2;color:#111419;box-shadow:0 2px 8px -4px rgba(229,32,46,.30)}
+html[data-cbskin="b"] .cb-who{color:#E5202E}
+html[data-cbskin="b"] .cb-body{color:#2B2F36}
+html[data-cbskin="b"] .cb-src{color:#6B7280}
+html[data-cbskin="b"] .cb-q{background:#fff}
+html[data-cbskin="b"] .cb-b{border-color:#F3C2C6;color:#111419;background:#fff}
+html[data-cbskin="b"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
+html[data-cbskin="b"] .as-fab{background:#E5202E;color:#fff}
+/* C: 연한 하늘색 바탕(비서만 다른 색으로 구분) */
+html[data-cbskin="c"] .cb{background:#EAF4FF;color:#0B1F3A;box-shadow:0 2px 8px -4px rgba(37,99,235,.30)}
+html[data-cbskin="c"] .cb-who{color:#2563EB}
+html[data-cbskin="c"] .cb-body{color:#1F2A3C}
+html[data-cbskin="c"] .cb-src{color:#5B6B82}
+html[data-cbskin="c"] .cb-q{background:#fff;border-left-color:#2563EB}
+html[data-cbskin="c"] .cb-b{border-color:#BFD6F6;color:#0B1F3A;background:#fff}
+html[data-cbskin="c"] .cb-b.y{color:#fff;background:#2563EB;border-color:#2563EB}
+html[data-cbskin="c"] .as-fab{background:#2563EB;color:#fff}
+/* D: 흰 카드 + 회색 테두리 + 빨간 점 머리(메신저 말풍선) */
+html[data-cbskin="d"] .cb{background:#fff;color:#111419;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
+html[data-cbskin="d"] .cb-who{color:#111419;display:flex;align-items:center;gap:6px}
+html[data-cbskin="d"] .cb-who::before{content:"";width:8px;height:8px;border-radius:50%;background:#E5202E}
+html[data-cbskin="d"] .cb-body{color:#2B2F36}
+html[data-cbskin="d"] .cb-src{color:#6B7280}
+html[data-cbskin="d"] .cb-q{background:#F6F7F9}
+html[data-cbskin="d"] .cb-b{border-color:#D8DBE0;color:#111419;background:#fff}
+html[data-cbskin="d"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
+html[data-cbskin="d"] .as-fab{background:#fff;color:#111419;border:1px solid #D8DBE0}
+/* 시안별 「이 유형 푸는 순서」 상자(app.css .skill)도 같은 색으로 */
+html[data-cbskin="a"] .skill{background:#fff;color:#111419;border:2px solid #E5202E}
+html[data-cbskin="a"] .skill .sk-t{color:#E5202E}
+html[data-cbskin="b"] .skill{background:#FFF1F2;color:#111419}
+html[data-cbskin="b"] .skill .sk-t{color:#E5202E}
+html[data-cbskin="c"] .skill{background:#EAF4FF;color:#0B1F3A}
+html[data-cbskin="c"] .skill .sk-t{color:#2563EB}
+html[data-cbskin="d"] .skill{background:#fff;color:#111419;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
+html[data-cbskin="d"] .skill .sk-t{color:#E5202E}
+/* C 확정(11-05 대표님 「연한 하늘」): 질문창·설정 창의 검은 칸도 같은 파랑으로 */
+html[data-cbskin="c"] .as-m.me{background:#2563EB;color:#fff}
+html[data-cbskin="c"] .as-in button{background:#2563EB;color:#fff}
+html[data-cbskin="c"] .cs-b.on{background:#2563EB;border-color:#2563EB;color:#fff}
+html[data-cbskin="c"] .cs-now{color:#2563EB}
+html[data-cbskin="c"] .as-a{background:#EAF4FF;color:#0B1F3A}
+html[data-cbskin="c"] .as-a.two{background:#fff;border-color:#BFD6F6}
+html[data-cbskin="c"] .as-q{border-left-color:#2563EB}
+html[data-cbskin="c"] .as-h{color:#1D4ED8}
