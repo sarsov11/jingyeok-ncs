@@ -58,7 +58,7 @@
     hist.forEach(function (h) { if (dayStart(h[3]) === dk) { n++; k += h[1] ? 1 : 0; } });
     back = { days: gap, n: n, k: k };
   })();
-  var SS = { ans: [], streak: 0, best: 0, wrongRun: 0, typeWrong: {}, sinceMot: 99, start: 0, xp0: readXP(), muted: {}, watch: null, backDone: false, askShown: false, fatigueAt: 0, wrongMsgAt: -1, setEnd: {}, off3: {} };
+  var SS = { ans: [], streak: 0, best: 0, wrongRun: 0, typeWrong: {}, sinceMot: 99, start: 0, xp0: readXP(), muted: {}, watch: null, backDone: false, askShown: false, fatigueAt: 0, wrongMsgAt: -1, setEnd: {}, off3: {}, yqUsed: {}, yqOk: 0 };
   var cur = null, tickId = 0, act = 0, optIn = false;
 
   /* ───────── 성향 ───────── */
@@ -143,6 +143,47 @@
     d.remove();
   }
   function accepted() { ST.decl = 0; ST.halved = false; save(); }
+
+  /* ───────── 예상질문표 (11-05) ─────────
+   * data/yesang.js 의 문항별 질문(때·수준·막힘·선지·제안·답)을 학생 수준에 맞춰 먼저 꺼낸다.
+   * 수준: 그 영역에서 푼 문항 5개 이상일 때 정답률 50% 미만 기초, 80% 이하 보통, 넘으면 심화. 연속 오답 2개 이상이면 기초.
+   * 표에 맞는 질문이 없으면 기존 일반 제안(멍·틀림 등)으로 넘어간다. */
+  var YQ = root.NCS_YQ || {};
+  var LV_ORDER = { 기초: ["기초", "보통", "심화"], 보통: ["보통", "기초", "심화"], 심화: ["심화", "보통", "기초"] };
+  function level(a) {
+    if (SS.wrongRun >= 2) return "기초";
+    var S = readS(), n = 0, k = 0;
+    Object.keys(S.h).forEach(function (id) { var x = BYID[id], h = S.h[id]; if (!x || x.a !== a || !h || !h[0]) return; n++; k += h[1] ? 1 : 0; });
+    if (n < 5) return "보통";
+    var r = k / n; return r < .5 ? "기초" : r <= .8 ? "보통" : "심화";
+  }
+  function yqPick(q, when, opt) {
+    var list = (YQ[q.i] || []).filter(function (y) { return y["때"] === when && !SS.yqUsed[q.i + "#" + y.k]; });
+    if (!list.length) return null;
+    opt = opt || {};
+    if (opt.pick) { var hit = list.filter(function (y) { return (y["선지"] || []).indexOf(opt.pick) >= 0; }); if (hit.length) return hit[0]; if (when === "오답후") return null; }
+    var order = LV_ORDER[opt.lv || level(q.a)];
+    for (var i = 0; i < order.length; i++) {
+      if (opt.only && order[i] !== opt.only) continue;
+      var m = list.filter(function (y) { return y["수준"] === order[i]; });
+      if (m.length) return m[0];
+      if (opt.strict) return null;
+    }
+    return null;
+  }
+  function showYQ(y, q, after) {
+    SS.yqUsed[q.i + "#" + y.k] = 1;
+    var d = cardEl("prop", y["제안"], "", [{ a: "y", t: ETC["볼게요"] || "볼게요", cls: "y" }, { a: "n", t: ETC["괜찮아요"], cls: "n" }]);
+    d.classList.add("live"); d.setAttribute("data-key", "yq"); d.setAttribute("data-yq", q.i + "#" + y.k);
+    d._q = q;
+    d._yes = function (c) {
+      accepted();
+      var r = cardEl("res", y["말"], '<p class="cb-p">' + esc(y["답"]) + '</p>', []); r.classList.add("live"); r.setAttribute("data-yq", q.i + "#" + y.k);
+      c.replaceWith(r); reveal(r);
+      if (after) setTimeout(function () { if (cur && cur.q === q) after(); }, 900);
+    };
+    return put(d, true);
+  }
 
   /* 빠르게 푸는 법 / 유형 핵심: 유형팁을 그 자리에 펼친다 */
   function speedBody(q, mySec) {
@@ -363,6 +404,20 @@
     if (document.querySelector(".as-sheet.on")) return;
     var el = (Date.now() - cur.t0) / 1000, q = cur.q;
     if (SS.muted[q.i]) return;
+    /* 예상질문표: 기초 수준이면 풀기 전 낱말·개념 질문을 먼저(입력이 없을 때 8초 뒤) */
+    if (el > 8 && !act && !cur.fired.pre && !cur.fired.idle && !cur.fired.slow) {
+      cur.fired.pre = 1;
+      var yp = level(q.a) === "기초" ? yqPick(q, "풀기전", { lv: "기초", strict: true }) : null;
+      if (yp && propAllowed()) { var dp = showYQ(yp, q); if (dp) { reveal(dp); return; } }
+    }
+    if (el > cur.target / 2 && !act && !cur.fired.idle && !cur.fired.slow && !cur.fired.yqIdle) {
+      var yi = yqPick(q, "풀이중");
+      if (yi) {
+        cur.fired.yqIdle = 1; cur.fired.idle = 1;
+        if (propAllowed()) { var di = showYQ(yi, q); if (di) reveal(di); }
+        return;
+      }
+    }
     if (el > cur.target && !cur.fired.slow) {
       cur.fired.slow = 1;
       if (!(TIPS[q.t] && (TIPS[q.t].k || []).length)) return;
@@ -422,6 +477,11 @@
           return;
         }
         if (!ST.on) return;
+        /* 예상질문표: 심화 수준 학생이 목표 시간 안에 맞히면 세 번에 한 번 지름길·확장 질문 */
+        if (ratio <= 1 && !SS.muted[q.i] && level(q.a) === "심화") {
+          var yo = yqPick(q, "정답후", { only: "심화", lv: "심화" });
+          if (yo && (SS.yqOk++ % 3 === 0) && propAllowed()) { showYQ(yo, q); return; }
+        }
         var f = fatigue();   // 쉬어 가자는 말은 간격 제한을 받지 않는다(열 문항에 한 번만 나온다)
         if (f) { SS.fatigueAt = SS.ans.length; if (motiv(f.kind, f.v, ctx)) return; }
         if (!canMot()) return;
@@ -444,7 +504,12 @@
         showProp("찍기", { sec: sec, goal: cur.target }, function (c) { accepted(); c.remove(); delete SS.muted[q.i]; playNext(q.i); });
         return;
       }
-      if (propAllowed()) stepWhy(ctx);
+      if (propAllowed()) {
+        /* 예상질문표: 고른 오답 선지에 붙은 질문이 있으면 그 학생 생각을 짚는 말이 먼저, 이어서 근거 → 한 문제 더 */
+        var yw = yqPick(q, "오답후", { pick: d.v });
+        if (yw && showYQ(yw, q, function () { stepEvidence(ctx); })) return;
+        stepWhy(ctx);
+      }
     }, ivDelay);
   }
 

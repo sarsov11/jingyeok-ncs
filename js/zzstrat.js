@@ -216,6 +216,61 @@
     "#zst .nx[hidden]{display:none}",
     "@media (prefers-reduced-motion:reduce){#zs,#zs.out,#zst .bub.in{animation:none}}"
   ].join("\n");
+  /* ── 11-05 대표님 「베이지 배경 싫음. 검은 색 배경으로 흰색과 다른 포인트 색깔」 ──
+   *  기본은 검은 화면(남색 검정 #070B14 + 흰 글씨 + 포인트 한 색). 옛 밝은 종이는 ZZSTRAT_THEME="light" 일 때만.
+   *  포인트: 데이터 포인트색 > ZZSTRAT_POINT > 주소 ?zsc=sky|lime|amber|coral > 하늘색(테라러닝 검은 화면 표준 #4FC3E8). 빨강은 오답·과락 표시에만. */
+  var POINTS = { sky: "#4FC3E8", lime: "#C8F25A", amber: "#FFB547", coral: "#FF6B5E" };
+  var darkCss = [
+    "#zs,#zst,#zsy{--zs-bg:#070B14;--zs-card:#0F1522;--zs-line:#1E2738;--zs-tx:#F4F6FA;--zs-sub:#8B93A7;--zs-blue:#5B6478;--zs-gold:#8B93A7;--zs-soft:#141B2A;--zs-mute:#C3C9D6;--zs-dim:#6B7488;--zs-ink:#04121A;color-scheme:dark}",
+    "#zs .top{background:linear-gradient(var(--zs-bg) 72%,rgba(7,11,20,0))}",
+    "#zs .chip,#zs .desc,#zs .pk .pd,#zs .gb .rn,#zs .gb .dt s,#zs .gb .lg,#zs .sc.b .rb,#zs .sc .sq,#zs .vl em{color:var(--zs-mute)}",
+    "#zs section{box-shadow:none}",
+    "#zs .pk.on{background:color-mix(in srgb,var(--zs-red) 10%,var(--zs-card))}#zs .pk .ck{background:transparent}#zs .pk.on .ck{box-shadow:inset 0 0 0 4px var(--zs-card)}",
+    "#zs .tg.a{color:var(--zs-bg)}#zs .tg.l{background:transparent}#zs .tg.g{color:var(--zs-dim);border-color:#3A4356}",
+    "#zs .gauge,#zs .stack,#zs .ga .bar,#zs .sc .bar{background:#1A2232}#zs .ga .z.rest{background:#151C2B}",
+    "#zs .gauge .fl{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--zs-red) 30%,transparent) 0 6px,color-mix(in srgb,var(--zs-red) 14%,transparent) 6px 12px)}",
+    "#zs .gauge .ax,#zs .ga .ax,#zs .gb .rw.ax s,#zs td .mu,#zs .tl li.g span.tx,#zs .ga .z.rest em,#zs .src{color:var(--zs-dim)}#zs .gauge .mk{background:#5B6478}",
+    "#zs .stack i.b,#zs .sc.b .bar b,#zs .stack i.d,#zs .sc.d .bar b{background:#4A5368}#zs .sc.d{border-color:#3A4356}",
+    "#zs .gp b{color:var(--zs-bg)}#zs .gb .ln{background:#232C3D}#zs .gb .dt{border-color:var(--zs-bg);box-shadow:none}",
+    "#zs .gc .cd{background:var(--zs-card)}#zs .gc .cg,#zs .gb .gline b{color:var(--zs-ink)}#zs .sc.on{background:var(--zs-soft)}",
+    "#zs .sc.s .rb,#zs .go,#zs .vl i{color:var(--zs-ink)}#zs .vl i{background:var(--zs-red)}",
+    "#zs .q{background:var(--zs-card);color:var(--zs-tx)}#zs .q .qs{color:var(--zs-sub)}#zs .q li::before{border-color:#5B6478}",
+    "#zs .q li.a::before{background:var(--zs-tx);color:var(--zs-bg);border-color:var(--zs-tx)}",
+    "#zs .q .st.f{color:#9AA3B8;border-color:#9AA3B8}#zs .q .st.x{color:var(--zs-dim);border-color:var(--zs-dim)}#zs .q .qe{border-color:#232C3D}",
+    /* 이야기 화면: 한두 줄, 흰 글씨 + 포인트 한 색 */
+    "#zsy{background:radial-gradient(120% 70% at 50% 42%,#0E1626 0,#070B14 70%)}",
+    "#zsy .ln{font-size:clamp(20px,5.4vw,24px);line-height:1.55;color:var(--zs-tx)}#zsy .ln b{color:var(--zs-red)}",
+    "#zsy.B .ln.old{color:#4A5368}",
+    "#zsy .pg{background:#1A2232}#zsy .pg i{background:var(--zs-red)}",
+    "#zsy .nx,#zsy .end .main{background:var(--zs-red);color:var(--zs-ink);border-color:var(--zs-red)}#zsy .end button{border-color:#3A4356}",
+    "#zsy .pk.on{background:color-mix(in srgb,var(--zs-red) 10%,var(--zs-card))}",
+    "#zst .hole{box-shadow:0 0 0 200vmax rgba(3,5,10,.72)}",
+    "#zst .bub{background:#0F1522;color:#F4F6FA;border:1px solid #1E2738;box-shadow:0 14px 34px rgba(0,0,0,.5)}",
+    "#zst .dots i{background:#2A3346}#zst .nx{color:#04121A}"
+  ].join("\n");
+  function isDark(d) { var t = (d && d.테마) || W.ZZSTRAT_THEME; return t !== "light"; }
+  function pointColor(d) {
+    var q = ""; try { q = (location.search.match(/[?&]zsc=([a-z]+)/) || [])[1] || ""; } catch (e) { }
+    var p = (d && d.포인트색) || W.ZZSTRAT_POINT || q || "sky";
+    return POINTS[p] || p;
+  }
+  /* ── 진동(11-05 대표님 「한줄한줄 알려줄 때 손에 진동」) ──
+   *  안드로이드: navigator.vibrate. 아이폰(사파리 18+): vibrate 가 없어 「스위치 체크박스」를 누를 때 나는 기기 햅틱을 쓴다.
+   *  둘 다 사용자가 한 번은 화면을 누른 뒤부터 울린다(브라우저 규칙). 동작 줄이기 설정이면 울리지 않는다. */
+  var HAP = null;
+  function haptic(ms) {
+    if (RM) return;
+    try { if (navigator.vibrate) { navigator.vibrate(ms || 14); return; } } catch (e) { }
+    try {
+      if (!HAP || !HAP.isConnected) {
+        HAP = D.createElement("label"); HAP.setAttribute("aria-hidden", "true");
+        HAP.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden";
+        var i = D.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); i.tabIndex = -1; HAP.appendChild(i); D.body.appendChild(HAP);
+      }
+      HAP.click();
+    } catch (e) { }
+  }
+  if (!W.TERRA_HAPTIC) W.TERRA_HAPTIC = haptic;
   /* 앱 문서에 들어가는 것은 구석 버튼뿐. 브리핑·튜토리얼은 Shadow DOM 안이라 앱 CSS(.row .chip .q 등)가 섞이지 않는다 */
   var docCss = [
     ".zs-fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147480000;display:flex;align-items:center;gap:6px;",
@@ -238,9 +293,15 @@
       return lum > 0.78 || lum < 0.08 ? "#E1101C" : "rgb(" + v[0] + "," + v[1] + "," + v[2] + ")";   /* 흰색·검정 테마색이면 기본 빨강 */
     } catch (e) { return "#E1101C"; }
   }
-  function themeVars() {
-    var a = appAccent(), f = appFont() || "'Pretendard','Noto Sans KR','Noto Sans JP',system-ui,sans-serif";
-    GCOL["1"] = a; GCOL.P = a;
+  function themeVars(d) {
+    var f = appFont() || "'Pretendard','Noto Sans KR','Noto Sans JP',system-ui,sans-serif";
+    if (isDark(d)) {
+      var p = pointColor(d);
+      GCOL["1"] = p; GCOL.P = p; GCOL["2"] = "#C3C9D6"; GCOL["3"] = "#8B93A7"; GCOL["4"] = "#5B6478"; GCOL["5"] = "#3A4356";
+      return "\n" + darkCss + "\n#zs,#zst,#zsy{--zs-red:" + p + ";--zf:" + f + "}";
+    }
+    var a = appAccent();
+    GCOL["1"] = a; GCOL.P = a; GCOL["2"] = "#2B2F38"; GCOL["3"] = "#8A8F9A"; GCOL["4"] = "#B3B6BD"; GCOL["5"] = "#CDD0D5";
     return "\n#zs,#zst,#zsy{--zs-red:" + a + ";--zf:" + f + "}";
   }
   function style() { if (D.getElementById("zs-style")) return; var st = D.createElement("style"); st.id = "zs-style"; st.textContent = docCss; D.head.appendChild(st); }
@@ -511,7 +572,7 @@
     var old = D.getElementById("zs-host"); if (old) old.remove();
     var host = D.createElement("div"); host.id = "zs-host"; host.style.cssText = "all:initial"; D.body.appendChild(host);
     SR = host.attachShadow ? host.attachShadow({ mode: "open" }) : host;
-    var sst = D.createElement("style"); sst.textContent = css + themeVars() +
+    var sst = D.createElement("style"); sst.textContent = css + themeVars(d) +
       (LANG === "ja" ? "\n#zs,#zs *,#zst,#zst *{word-break:normal!important;line-break:strict;overflow-wrap:anywhere}" : ""); SR.appendChild(sst);
     var box = D.createElement("div"); box.id = "zs"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", L.btn);
     var g = getGoal(id); if (g && !choice(d, g)) g = null;
@@ -519,7 +580,7 @@
     cur = { id: id, ov: D.documentElement.style.overflow }; D.documentElement.style.overflow = "hidden";
     box.addEventListener("click", function (e) {
       var pk = e.target.closest(".pk");
-      if (pk) { setGoal(id, pk.getAttribute("data-g")); rerender(id, box); box.dispatchEvent(new CustomEvent("zsgoal")); try { if (opt.onGoal) opt.onGoal(pk.getAttribute("data-g")); } catch (x) { } return; }
+      if (pk) { haptic(10); setGoal(id, pk.getAttribute("data-g")); rerender(id, box); box.dispatchEvent(new CustomEvent("zsgoal")); try { if (opt.onGoal) opt.onGoal(pk.getAttribute("data-g")); } catch (x) { } return; }
       var sc = e.target.closest(".sc"); if (sc) return openDet(box, +sc.getAttribute("data-i"));
       if (e.target.closest(".x") || e.target.closest(".go")) { mark(id); close(); if (opt.onClose) try { opt.onClose(); } catch (x) { } return; }
       if (e.target.closest(".tr")) tour(id, box);
@@ -609,6 +670,7 @@
       bub.classList.remove("in"); void bub.offsetWidth; bub.classList.add("in");
       place(); setTimeout(place, RM ? 0 : 380);
       try { if (W.ZZ && W.ZZ.play) W.ZZ.play("pick", { vol: .3 }); } catch (x) { }   /* 음 높이는 고정(단계마다 올리지 않는다) */
+      haptic(12);
     }
     function next() { if (++i >= list.length) return end(); show(); }
     nx.onclick = function (e) { e.stopPropagation(); next(); };
@@ -623,13 +685,30 @@
    *  마지막에 목표 고르기(선택이 있으면) → 「전략 자세히 보기」(브리핑) / 「시작」.
    *  이야기 칸이 없으면 한줄·합격선·전략과목·방어과목에서 만든다(임시. 시험마다 이야기 칸을 쓰는 것이 원칙).
    *  두 안: A 한 줄씩 바뀜(기본) / B 앞 줄이 위로 쌓이며 흐려짐. 데이터 이야기방식:"B" · ZZSTRAT_STORY · 주소 ?zss=B */
-  function storyLines(d) {
+  /* 11-05 대표님 「한두 줄로」: 두 문장이 든 줄은 문장마다 한 화면으로 나눈다(폰에서 두 줄 안) */
+  function splitLines(a) {
+    var out = [];
+    a.forEach(function (t) {
+      var plain = String(t).replace(/\*\*/g, "");
+      if (plain.length <= 30) return out.push(t);
+      var parts = String(t).match(/(?:[^.!?。]|\.(?=\d))+[.!?。]?\s*/g) || [t];
+      parts = parts.map(function (x) { return x.trim(); }).filter(Boolean);
+      if (parts.length < 2) return out.push(t);
+      /* 굵게 표시가 문장 경계에 걸쳐 있으면 나누지 않는다 */
+      if (parts.some(function (x) { return (x.match(/\*\*/g) || []).length % 2; })) return out.push(t);
+      out.push.apply(out, parts);
+    });
+    return out;
+  }
+  function storyLines(d) { return splitLines(storyLines0(d)); }
+  function storyLines0(d) {
     if (d.이야기 && d.이야기.length) return d.이야기.slice();
     var h = d.합격선 || {}, sub = d.과목 || [], out = [];
     if (d.한줄) out.push(d.한줄);
-    if (h.설명) out.push(lead(h.설명));
-    sub.filter(function (s) { return role(s) === "s"; }).slice(0, 2).forEach(function (s) { out.push(s.이름 + " — " + (s.목표문항 ? s.목표문항 + ". " : "") + lead(s.이유)); });
-    sub.filter(function (s) { return role(s) === "d"; }).slice(0, 1).forEach(function (s) { out.push(s.이름 + " — " + lead(s.선 || s.이유)); });
+    if (h.설명) out.push(first(h.설명));
+    /* 11-05: 한 화면 한두 줄 — 과목 이름은 포인트색, 근거는 첫 문장만 */
+    sub.filter(function (s) { return role(s) === "s"; }).slice(0, 2).forEach(function (s) { out.push("**" + s.이름 + "** · " + first(s.이유)); });
+    sub.filter(function (s) { return role(s) === "d"; }).slice(0, 1).forEach(function (s) { out.push("**" + s.이름 + "** · " + first(s.선 || s.이유)); });
     return out.filter(Boolean);
   }
   function fmtLine(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
@@ -663,7 +742,7 @@
     var old = D.getElementById("zs-host"); if (old) old.remove();
     var host = D.createElement("div"); host.id = "zs-host"; host.style.cssText = "all:initial"; D.body.appendChild(host);
     SR = host.attachShadow ? host.attachShadow({ mode: "open" }) : host;
-    var sst = D.createElement("style"); sst.textContent = css + themeVars() + (LANG === "ja" ? "\n#zsy,#zsy *{word-break:normal!important;line-break:strict}" : ""); SR.appendChild(sst);
+    var sst = D.createElement("style"); sst.textContent = css + themeVars(d) + (LANG === "ja" ? "\n#zsy,#zsy *{word-break:normal!important;line-break:strict}" : ""); SR.appendChild(sst);
     var q = ""; try { q = (location.search.match(/[?&]zss=([AB])/) || [])[1] || ""; } catch (e) { }
     var kind = d.이야기방식 || W.ZZSTRAT_STORY || q || "A";
     var box = D.createElement("div"); box.id = "zsy"; box.className = kind; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", L.btn);
@@ -697,12 +776,13 @@
         typeLine(col.querySelector(".ln"), lines[i]);
       }
       try { if (W.ZZ && W.ZZ.play) W.ZZ.play("pick", { vol: .25 }); } catch (e) { }
+      haptic(14);   /* 줄이 바뀔 때마다 손에 짧은 진동 */
     }
     function next() { if (ended) return; var w = col.querySelector(".ln.typing"); if (w && w._typing) return w._typing(); i++; show(); }
     box.addEventListener("click", function (e) {
       if (e.target.closest(".sk")) return finish(false);
       var pk = e.target.closest(".pk");
-      if (pk) { setGoal(id, pk.getAttribute("data-g")); box.querySelectorAll(".pk").forEach(function (x) { x.classList.toggle("on", x === pk); }); return; }
+      if (pk) { haptic(10); setGoal(id, pk.getAttribute("data-g")); box.querySelectorAll(".pk").forEach(function (x) { x.classList.toggle("on", x === pk); }); return; }
       var a = e.target.closest("[data-a]");
       if (a) return finish(a.getAttribute("data-a") === "brief");
       next();
@@ -727,15 +807,42 @@
     var b = D.createElement("button"); b.type = "button"; b.className = "zs-btn"; b.innerHTML = ICON + '<span>' + L.btn + '</span>';
     b.onclick = function () { open(id); }; h.appendChild(b); return b;
   }
+  /* 11-05: 첫 진입은 학생 조사(zzsetup.js, KB국민은행식) → 이야기 화면. zzsetup.js 는 zzstrat.js 와 같은 폴더에서 불러온다 */
+  var BASE = (function () { try { var s = D.currentScript && D.currentScript.src; return s ? s.replace(/[^\/?#]*([?#].*)?$/, "") : ""; } catch (e) { return ""; } })();
+  function needSetup(cb) {
+    if (W.ZZSETUP) return cb(true);
+    if (!BASE) return cb(false);
+    var s = D.createElement("script"); s.src = BASE + "zzsetup.js?v=1105"; s.onload = function () { cb(!!W.ZZSETUP); }; s.onerror = function () { cb(false); }; D.head.appendChild(s);
+  }
+  function setupThenStory(id, opt) {
+    var su = opt.setup != null ? opt.setup : W.ZZSTRAT_SETUP;
+    if (su === false) return story(id);
+    needSetup(function (ok) {
+      if (!ok) return story(id);
+      su = su || {};
+      var key = su.key || id, d = DB[id];
+      if (W.ZZSETUP.get(key) && !su.again) return story(id);
+      W.ZZSETUP.run(key, {
+        이름: su.이름 || d.이름 || "", 포인트색: d.포인트색, 끝말: su.끝말 || (LANG === "ko" ? "좋아요. 이제 **이 시험 붙는 길**부터 볼게요." : ""),
+        steps: (su.steps || []).concat(su.common === false ? [] : W.ZZSETUP.common(d)),
+        done: function (ans) {
+          if (ans.goal && choice(d, ans.goal)) setGoal(id, ans.goal);
+          var nid = su.pickId ? su.pickId(ans) || id : id;
+          if (su.done) try { su.done(ans); } catch (e) { }
+          story(DB[nid] ? nid : id);
+        }
+      });
+    });
+  }
   function auto(id, opt) {
     opt = opt || {};
     function go() {
       if (!DB[id]) return;
       if (opt.fab !== false) fab(id);
-      if (!seen(id)) setTimeout(function () { story(id); }, opt.delay == null ? 500 : opt.delay);   /* 10-25: 첫 진입은 이야기 화면 */
+      if (!seen(id)) setTimeout(function () { setupThenStory(id, opt); }, opt.delay == null ? 500 : opt.delay);   /* 학생 조사 → 이야기 화면 */
     }
     if (D.readyState === "loading") D.addEventListener("DOMContentLoaded", go); else go();
   }
   function add(d) { if (d && d.id) DB[d.id] = d; }
-  W.ZZSTRAT = { add: add, open: open, story: story, auto: auto, fab: fab, button: button, reset: reset, seen: seen, close: close, goal: getGoal, data: DB };
+  W.ZZSTRAT = { add: add, open: open, story: story, setup: function (id, o) { return setupThenStory(id, o || {}); }, haptic: haptic, auto: auto, fab: fab, button: button, reset: reset, seen: seen, close: close, goal: getGoal, data: DB };
 })();

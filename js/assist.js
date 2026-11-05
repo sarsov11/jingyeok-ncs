@@ -218,8 +218,25 @@
     if (!w) return null;
     return { text: stripNo(w), src: "해설 선지 분석 " + CIR[k] };
   }
+  /* 예상질문표(11-05): 학생이 친 말이 그 문항 표의 말과 글자 조각으로 60% 넘게 겹치면 표의 답을 먼저 낸다.
+   * 풀기 전에는 오답후·정답후 질문을 쓰지 않는다(정답이 샐 수 있다). */
+  function bi(s) { s = String(s || "").replace(/[\s?!.,~'"“”‘’]/g, ""); var o = {}; for (var i = 0; i < s.length - 1; i++) o[s.substr(i, 2)] = 1; return o; }
+  function yqMatch(text, q, solved) {
+    var list = (root.NCS_YQ || {})[q.i]; if (!list) return null;
+    var A0 = bi(text), na = Object.keys(A0).length, best = null, bs = 0;
+    if (na < 3) return null;
+    list.forEach(function (y) {
+      if (!solved && (y["때"] === "오답후" || y["때"] === "정답후")) return;
+      var B = bi(y["말"]), nb = Object.keys(B).length, c = 0;
+      Object.keys(A0).forEach(function (g) { if (B[g]) c++; });
+      var r = c / Math.max(1, Math.min(na, nb)); if (r > bs) { bs = r; best = y; }
+    });
+    return bs >= .6 ? best : null;
+  }
   function answer(text, ctx) {
     ctx = ctx || {}; var q = ctx.q, solved = !!ctx.solved, p = parse(text, q), e = q.e || {}, tp = TIPS[q.t] || {}, parts = [], k, w, ev, pk = ctx.pick, I = p.intent;
+    var yq = yqMatch(text, q, solved);
+    if (yq) return { stage: 1, intent: "YQ", head: yq["말"], parts: [say(yq["답"], "예상질문표")] };
     if (I === "OTHER") return packet(text, q, "의도 규칙에 걸리지 않음");
     var needSolved = { WHY_WRONG: 1, WHY_RIGHT: 1, EVIDENCE: 1, TRAP: 1, ANSWER: 1 };
     if (needSolved[I] && !solved) return gatedAns(I);
