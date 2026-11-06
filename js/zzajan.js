@@ -237,9 +237,8 @@
     var s = Math.max(30, Math.min(54, r.height * .55));
     setTimeout(function () { add("zz-chk", "left:" + (r.right - s * .75) + "px;top:" + (r.top + r.height / 2) + "px;--s:" + s + "px",
       '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="19"/><path d="M11 21 L17.5 27 L29 14"/></svg>', 950); }, 100);
-    setTimeout(function () { gainXp(10, r); }, 160);
+    /* LV 막대·XP 는 뺐다(2026-11-06 대표님). 연속 배너도 함께 */
     var T = null; for (var i = TIERS.length - 1; i >= 0; i--) if (combo === TIERS[i].n) { T = TIERS[i]; break; }
-    if (T) setTimeout(function () { tierBanner(T); }, 260);
   }
   function tierBanner(T) {
     var first = !seenTier[T.n]; seenTier[T.n] = 1; saveCombo(); bannerUntil = Date.now() + 1650;
