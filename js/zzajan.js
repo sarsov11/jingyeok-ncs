@@ -382,7 +382,7 @@
 
   W.ZZ.ok = function (el) { lastJudge = 0; judge(true, el, true); };
   W.ZZ.no = function (el) { lastJudge = 0; judge(false, el, true); };
-  W.ZZ.levelUp = levelUp; W.ZZ.promote = promote; W.ZZ.stars = stars;
+  W.ZZ.levelUp = W.ZZ.promote = W.ZZ.stars = function () { };   /* 별·레벨업·승급 장면은 뺐다(2026-11-06 대표님) */
   W.ZZ.quiet = function (ms) { quietUntil = Date.now() + (ms || 600); if (pend) { clearTimeout(pend); pend = 0; } };
   W.ZZ.setCombo = function (c) { combo = c | 0; seenTier = {}; saveCombo(); };
   W.ZZ.combo = function () { return combo; };
