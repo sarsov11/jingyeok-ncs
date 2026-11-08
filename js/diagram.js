@@ -175,3 +175,145 @@
     장면: function(m){ for(var k in m) 장면들[열쇠(k)]=m[k]; }
   };
 })();
+/*tnote-start*/
+/* term popup + sentence note (2026-11-06). Source: hub/common/termnote/engine.js. Appended to every diagram.js by apply.py.
+   Hover (mouse) or tap a concept word: small popup. Click or tap a sentence: side panel (wide) or bottom sheet (phone).
+   Data: DIAGRAM.terms({word:{d:meaning,r:[related]}}), DIAGRAM.notes({line:text}). Only touches text inside .dg blocks,
+   so question stems stay clean. No Hangul literals: the JP and EN apps reject them at deploy time. */
+(function(){
+  if(!window.DIAGRAM||window.__TN) return; window.__TN=1;
+  var lang=(document.documentElement.lang||"ko").slice(0,2);
+  var L={ko:{term:"\uac1c\ub150\uc5b4",rel:"\uad00\ub828 \uac1c\ub150",note:"\ud480\uc774",close:"\ub2eb\uae30"},
+         ja:{term:"\u7528\u8a9e",rel:"\u95a2\u9023",note:"\u89e3\u8aac",close:"\u9589\u3058\u308b"},
+         en:{term:"Key terms",rel:"Related",note:"Explanation",close:"Close"}}[lang]||null;
+  if(!L) L={term:"Key terms",rel:"Related",note:"Explanation",close:"Close"};
+  var terms={},own={},notes={},scenes={},ver=1,rx=null,triedFile=false,harvested={};
+  var LAW=new RegExp("\\s*\\((?:[\\uac00-\\ud7a3]+(?:\\ubc95|\\ub839|\\uaddc\\uce59|\\uaddc\\uc815)\\s*)?\\uc81c[\\d\\u00b7]+\\uc870[^()]*\\)","g");
+  function key(t){ return String(t==null?"":t).replace(/\*\*/g,"").replace(LAW,"").replace(/[\s\u00b7\u30fb]/g,""); }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function plain(t){ return String(t==null?"":t).replace(/\*\*/g,""); }
+  function bump(){ ver++; rx=null; schedule(); }
+
+  var oldScene=DIAGRAM["\uc7a5\uba74"];
+  if(oldScene) DIAGRAM["\uc7a5\uba74"]=function(m){ for(var k in m) scenes[key(k)]=m[k]; oldScene(m); schedule(); };
+  DIAGRAM.terms=function(m){ for(var k in m){ var v=m[k]; if(!v) continue; own[k]=1; terms[k]=typeof v==="string"?{d:v}:v; } bump(); };
+  DIAGRAM.notes=function(m){ for(var k in m) notes[key(k)]=m[k]; bump(); };
+  /* data files may load before this engine: they push to window.TNQ */
+  DIAGRAM.tnFlush=function(){ var q=window.TNQ||[]; window.TNQ=[]; q.forEach(function(x){ if(x.terms) DIAGRAM.terms(x.terms); if(x.notes) DIAGRAM.notes(x.notes); }); };
+  DIAGRAM.tnFlush();
+
+  /* definitions already on the page need no new data */
+  function addDef(t,d){ t=plain(t).trim(); d=plain(d).replace(/\s\u00b7\s/g,", ").trim();
+    if(t.length<2||t.length>14||!d||own[t]||terms[t]) return false; terms[t]={d:d.length>130?d.slice(0,130)+"\u2026":d}; return true; }
+  function walkDef(o,depth){ var hit=false; if(!o||depth>6||typeof o!=="object") return false;
+    if(Array.isArray(o)){ for(var i=0;i<o.length;i++) if(walkDef(o[i],depth+1)) hit=true; return hit; }
+    if(o.t==="def"&&o.term) return addDef(o.term,o.text);
+    for(var k in o) if(typeof o[k]==="object"&&walkDef(o[k],depth+1)) hit=true; return hit; }
+  function harvest(){ var hit=false;
+    ["DOSIK","YODO","TG_DOSIK"].forEach(function(g){ var o=window[g]; if(!o||typeof o!=="object") return;
+      for(var k in o){ var id=g+"/"+k; if(harvested[id]) continue; harvested[id]=1; if(walkDef(o[k],0)) hit=true; } });
+    if(hit){ ver++; rx=null; } }
+
+  function regex(){ if(rx) return rx; var a=Object.keys(terms).filter(function(k){ return k.length>=2; }).sort(function(p,q){ return q.length-p.length; });
+    if(!a.length) return null; rx=new RegExp(a.map(function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }).join("|"),"g"); return rx; }
+  var HANGUL=/[\uac00-\ud7a3]/, LATIN=/[A-Za-z0-9]/;
+  function boundary(s,i,w){ var p=s.charAt(i-1), n=s.charAt(i+w.length);
+    if(p&&HANGUL.test(w.charAt(0))&&HANGUL.test(p)) return false;
+    if(LATIN.test(w.charAt(0))&&p&&LATIN.test(p)) return false;
+    if(LATIN.test(w.charAt(w.length-1))&&n&&LATIN.test(n)) return false;
+    return true; }
+  var NOWRAP=".tn-t,.sc-btn,.dg-law,.dg-laws,.dg-term,.dg-t,.dg-n,.dg-rn,.dg-ch,.dg-kn,.dg-root,th,.katex,svg,button,a,script,style";
+  function annotate(block){
+    var r=regex(); if(!r) return; var seen={};
+    block.querySelectorAll(".tn-t").forEach(function(e){ seen[e.getAttribute("data-t")]=1; });
+    var w=document.createTreeWalker(block,NodeFilter.SHOW_TEXT,null), list=[], n;
+    while((n=w.nextNode())){ if(n.nodeValue.trim()&&!(n.parentNode.closest&&n.parentNode.closest(NOWRAP))) list.push(n); }
+    list.forEach(function(node){
+      var s=node.nodeValue, m, last=0, frag=null; r.lastIndex=0;
+      while((m=r.exec(s))){ var t=m[0];
+        if(seen[t]||!boundary(s,m.index,t)) continue;
+        seen[t]=1; frag=frag||document.createDocumentFragment();
+        if(m.index>last) frag.appendChild(document.createTextNode(s.slice(last,m.index)));
+        var sp=document.createElement("span"); sp.className="tn-t"; sp.setAttribute("data-t",t); sp.setAttribute("tabindex","0"); sp.textContent=t; frag.appendChild(sp);
+        last=m.index+t.length; }
+      if(frag){ if(last<s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+        /* in a flex or grid parent each new node would become its own column: keep the text together */
+        var disp=getComputedStyle(node.parentNode).display;
+        if(/flex|grid/.test(disp)){ var keep=document.createElement("span"); keep.className="tn-w"; keep.appendChild(frag); frag=keep; }
+        node.parentNode.replaceChild(frag,node); }
+    }); }
+
+  var SENT=".dg-ln,.dg-s,.dg-rv,.dg-dtext,.dg-box,.dg-core,.dg-kid>span,.dg-marks li>span:last-child,.dg li:not(.dg-arr),.dg td";
+  function lineOf(el){ var c=el.cloneNode(true); c.querySelectorAll(".sc-btn,.dg-laws,.dg-law,.dg-n,.dg-mn").forEach(function(e){ e.remove(); });
+    c.querySelectorAll("br").forEach(function(e){ e.replaceWith(" \u00b7 "); }); return c.textContent.trim(); }
+  function termsIn(text){ var r=regex(), out=[]; if(!r) return out; r.lastIndex=0; var m; while((m=r.exec(text))){ if(out.indexOf(m[0])<0&&boundary(text,m.index,m[0])) out.push(m[0]); } return out; }
+  function mark(block){ block.querySelectorAll(SENT).forEach(function(el){
+      if(el.querySelector(".dg-ln,.dg-s,.dg-rv,.dg-dtext,.dg-box")) return;   /* the line inside takes the tap */
+      var k=key(lineOf(el)), on=!!(notes[k]||scenes[k]||el.querySelector(".tn-t"));
+      el.classList.toggle("tn-s",on); }); }
+
+  function inPanel(e){ return e.closest&&e.closest(".tn-panel,.sc-side,.sc-sheet"); }
+  function scan(){ sch=0; var blocks=document.querySelectorAll(".dg"); if(!blocks.length) return;
+    harvest();
+    var changed=false;
+    document.querySelectorAll(".dg-def").forEach(function(d){ if(d.getAttribute("data-tnd")) return; d.setAttribute("data-tnd","1");
+      var a=d.querySelector(".dg-term"), b=d.querySelector(".dg-dtext"); if(a&&b&&addDef(a.textContent,lineOf(b))) changed=true; });
+    if(changed){ ver++; rx=null; }
+    blocks.forEach(function(b){ if(b.getAttribute("data-tnv")===String(ver)||inPanel(b)||b.classList.contains("sc")) return;
+      b.setAttribute("data-tnv",String(ver)); annotate(b); mark(b); });
+    if(!triedFile&&!Object.keys(notes).length){ triedFile=true; var s=document.createElement("script"); s.src=window.TN_NOTES_URL||"notes.js"; s.async=true; s.onerror=function(){ s.remove(); }; document.head.appendChild(s); } }
+  var sch=0; function schedule(){ if(sch) return; sch=(window.requestAnimationFrame||setTimeout)(scan); }
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+
+  /* popup */
+  var pop=null, hideT=0, showT=0;
+  function related(t){ var v=terms[t]||{}, a=(v.r||[]).filter(function(x){ return terms[x]&&x!==t; });
+    if(!a.length) a=termsIn(v.d||"").filter(function(x){ return x!==t; }); return a.slice(0,4); }
+  function popHtml(t){ var v=terms[t]||{}, r=related(t);
+    return '<b class="tn-pn">'+esc(t)+'</b><div class="tn-pd">'+esc(plain(v.d))+'</div>'+
+      (r.length?'<div class="tn-pr"><span>'+esc(L.rel)+'</span>'+r.map(function(x){ return '<button type="button" class="tn-chip" data-t="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>':""); }
+  function place(anchor){ if(!pop) return; var a=anchor.getBoundingClientRect(), W=window.innerWidth, H=window.innerHeight, w=pop.offsetWidth, h=pop.offsetHeight;
+    var x=Math.max(8,Math.min(W-w-8,a.left+a.width/2-w/2)), y=a.bottom+8; if(y+h>H-8&&a.top-h-8>=8) y=a.top-h-8; else if(y+h>H-8) y=Math.max(8,H-h-8);
+    pop.style.left=x+"px"; pop.style.top=y+"px"; }
+  function showPop(anchor,t){ clearTimeout(hideT); if(!terms[t]) return; if(!pop){ pop=document.createElement("div"); pop.className="tn-pop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop); }
+    pop.innerHTML=popHtml(t); document.querySelectorAll(".tn-t.tn-act").forEach(function(e){ e.classList.remove("tn-act"); }); if(anchor.classList.contains("tn-t")) anchor.classList.add("tn-act"); place(anchor); }
+  function hidePop(){ clearTimeout(showT); clearTimeout(hideT); if(pop){ pop.remove(); pop=null; } document.querySelectorAll(".tn-t.tn-act").forEach(function(e){ e.classList.remove("tn-act"); }); }
+  document.addEventListener("pointerover",function(e){ if(e.pointerType!=="mouse"||!e.target.closest) return;
+    if(e.target.closest(".tn-pop")){ clearTimeout(hideT); return; }
+    var t=e.target.closest(".tn-t"); if(t){ clearTimeout(hideT); clearTimeout(showT); showT=setTimeout(function(){ showPop(t,t.getAttribute("data-t")); },90); } },true);
+  document.addEventListener("pointerout",function(e){ if(e.pointerType!=="mouse"||!e.target.closest) return;
+    if(e.target.closest(".tn-t,.tn-pop")){ clearTimeout(showT); hideT=setTimeout(hidePop,220); } },true);
+  document.addEventListener("focusin",function(e){ var t=e.target.closest&&e.target.closest(".tn-t"); if(t) showPop(t,t.getAttribute("data-t")); });
+  document.addEventListener("focusout",function(e){ if(e.target.closest&&e.target.closest(".tn-t")) hideT=setTimeout(hidePop,220); });
+
+  /* sentence panel */
+  function closePanel(){ document.querySelectorAll(".tn-dim,.tn-panel").forEach(function(e){ e.remove(); }); document.documentElement.classList.remove("tn-with-side");
+    document.querySelectorAll(".tn-on").forEach(function(e){ e.classList.remove("tn-on"); }); }
+  function closeOldScene(){ var x=document.querySelector(".sc-side .sc-x,.sc-sheet .sc-x"); if(x) x.click(); }
+  function openPanel(el){ var text=lineOf(el).trim(), k=key(text), note=notes[k], sc=scenes[k], ts=termsIn(text).slice(0,5);
+    if(!note&&!sc&&!ts.length) return false;
+    closePanel(); closeOldScene(); hidePop(); el.classList.add("tn-on");
+    var h='<button type="button" class="tn-x" aria-label="'+esc(L.close)+'">\u2715</button><div class="tn-q">'+esc(text)+'</div>';
+    if(note) h+='<div class="tn-h">'+esc(L.note)+'</div><div class="tn-note">'+esc(plain(note))+'</div>';
+    if(sc) h+=DIAGRAM.html(sc);
+    if(ts.length) h+='<div class="tn-h">'+esc(L.term)+'</div>'+ts.map(function(t){ return '<div class="tn-def"><b>'+esc(t)+'</b><span>'+esc(plain((terms[t]||{}).d))+'</span></div>'; }).join("");
+    if(window.innerWidth>=1000){ document.body.insertAdjacentHTML("beforeend",'<aside class="tn-panel tn-side">'+h+'</aside>'); document.documentElement.classList.add("tn-with-side"); }
+    else document.body.insertAdjacentHTML("beforeend",'<div class="tn-dim"></div><div class="tn-panel tn-sheet" role="dialog"><div class="tn-grab"></div>'+h+'</div>');
+    return true; }
+  document.addEventListener("click",function(e){ var g=e.target; if(!g.closest) return;
+    if(g.closest(".sc-btn")){ closePanel(); hidePop(); return; }
+    if(g.closest(".tn-x,.tn-dim")){ closePanel(); e.stopPropagation(); return; }
+    var chip=g.closest(".tn-chip"); if(chip){ e.preventDefault(); e.stopPropagation(); showPop(pop||chip,chip.getAttribute("data-t")); return; }
+    if(g.closest(".tn-pop")){ e.stopPropagation(); return; }
+    var t=g.closest(".tn-t"); if(t&&!inPanel(t)){ e.preventDefault(); e.stopPropagation(); showPop(t,t.getAttribute("data-t")); return; }
+    hidePop();
+    if(inPanel(g)||g.closest("a,button,input,select,textarea,summary,label")) return;
+    var sel=window.getSelection&&String(window.getSelection()); if(sel) return;
+    var el=g.closest(".tn-s"); if(el&&el.closest(".dg")&&openPanel(el)){ e.preventDefault(); e.stopPropagation(); }
+  },true);
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ hidePop(); closePanel(); }
+    if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("tn-t")) showPop(e.target,e.target.getAttribute("data-t")); });
+  window.addEventListener("scroll",function(){ if(pop) hidePop(); },{passive:true,capture:false});
+  schedule();
+})();
+/*tnote-end*/
