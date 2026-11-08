@@ -194,6 +194,18 @@
   function plain(t){ return String(t==null?"":t).replace(/\*\*/g,""); }
   function bump(){ ver++; rx=null; schedule(); }
 
+  /* 1108: a table with 5+ columns stacks letters vertically on a phone. Phones get one card per row instead. */
+  var baseHtml=DIAGRAM.html;
+  DIAGRAM.html=function(x){
+    var h=baseHtml(x); if(!x||x.t!=="table") return h;
+    var head=x.head||[], rows=x.rows||[], n=head.length||Math.max.apply(null,[0].concat(rows.map(function(r){ return r.length; })));
+    if(n<5) return h;
+    var cards=rows.map(function(r){
+      var pairs=[]; for(var i=1;i<r.length;i++){ var c=String(r[i]==null?"":r[i]).trim(); if(c&&c!=="-") pairs.push([head[i]||"",c]); }
+      return pairs.length?baseHtml({t:"table",title:String(r[0]||""),rows:pairs}):"";
+    }).join("");
+    return '<div class="dg-wide">'+h+'<div class="dg-wcards">'+(x.title?'<div class="dg-t">'+String(x.title).replace(/\*\*/g,"").replace(/[&<>]/g,"")+'</div>':"")+cards+'</div></div>';
+  };
   var oldScene=DIAGRAM["\uc7a5\uba74"];
   if(oldScene) DIAGRAM["\uc7a5\uba74"]=function(m){ for(var k in m) scenes[key(k)]=m[k]; oldScene(m); schedule(); };
   DIAGRAM.terms=function(m){ for(var k in m){ var v=m[k]; if(!v) continue; own[k]=1; terms[k]=typeof v==="string"?{d:v}:v; } bump(); };
@@ -254,11 +266,7 @@
 
   function inPanel(e){ return e.closest&&e.closest(".tn-panel,.sc-side,.sc-sheet"); }
   function scan(){ sch=0; var blocks=document.querySelectorAll(".dg"); if(!blocks.length) return;
-    harvest();
-    var changed=false;
-    document.querySelectorAll(".dg-def").forEach(function(d){ if(d.getAttribute("data-tnd")) return; d.setAttribute("data-tnd","1");
-      var a=d.querySelector(".dg-term"), b=d.querySelector(".dg-dtext"); if(a&&b&&addDef(a.textContent,lineOf(b))) changed=true; });
-    if(changed){ ver++; rx=null; }
+    /* 1108: definitions on the page are no longer turned into popups (they produced obvious words) */
     blocks.forEach(function(b){ if(b.getAttribute("data-tnv")===String(ver)||inPanel(b)||b.classList.contains("sc")) return;
       b.setAttribute("data-tnv",String(ver)); annotate(b); mark(b); });
     if(!triedFile&&!Object.keys(notes).length){ triedFile=true; var s=document.createElement("script"); s.src=window.TN_NOTES_URL||"notes.js"; s.async=true; s.onerror=function(){ s.remove(); }; document.head.appendChild(s); } }
