@@ -17,7 +17,7 @@
  * 색: 앱의 --pt(없으면 --t-app, --cta). 클래스는 전부 tm- 로 시작한다(앱 css 와 겹치지 않게).
  */
 (function () {
-  if (window.TERA_MAP && window.TERA_MAP.version >= 3.1) return;
+  if (window.TERA_MAP && window.TERA_MAP.version >= 3.2) return;
   var d = document, styled = false;
   var CSS = [
     ".tm{--p:var(--pt,var(--t-app,var(--cta,#E5202E)));--pi:color-mix(in srgb,var(--p) 80%,#111419);--pf:color-mix(in srgb,var(--p) 20%,#fff);",
@@ -86,8 +86,13 @@
     ".tm-l em{flex:none;width:30px;text-align:right;font-weight:700;font-size:11.5px;line-height:1;color:#5F6670}.tm-l.tm-ld em{color:var(--pi);font-weight:800}",
     ".tm-more{justify-content:center;font-weight:700;font-size:11.5px;color:#5F6670;background:#F6F7F9}",
     ".tm-key{display:flex;align-items:center;gap:14px;font-weight:600;font-size:11.5px;line-height:1;color:#5F6670;margin:-8px 0 14px}",
-    ".tm-key span{display:inline-flex;align-items:center;gap:6px}.tm-key i{display:inline-block;width:26px;height:10px;border-radius:999px;background:linear-gradient(90deg,var(--pf) 60%,#EFF1F4 0)}.tm-key i.b{height:5px;background:linear-gradient(90deg,var(--p) 70%,#EFF1F4 0)}",
-    "@media(max-width:959px){.tm-dt .tm-row{columns:1}.tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}}",
+    ".tm-key span{display:inline-flex;align-items:center;gap:6px}.tm-key i{display:inline-block;padding:0;border:0;min-width:0;box-shadow:none;width:26px;height:10px;border-radius:999px;background:linear-gradient(90deg,var(--pf) 60%,#EFF1F4 0)}.tm-key i.tm-kb{height:5px;background:linear-gradient(90deg,var(--p) 70%,#EFF1F4 0)}",
+    /* 3.2: 카드 이름은 두 줄까지 · 폰에서는 추천 카드만 펼치고 나머지는 머리만(누르면 아래 판에 세부 단원) */
+    ".tm-dt .tm-nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.22;word-break:keep-all;overflow-wrap:anywhere}",
+    ".tm-dt .tm-t{height:auto;min-height:52px;padding-top:8px;padding-bottom:8px}",
+    "@media(max-width:959px){.tm-dt .tm-row{columns:2;column-gap:6px}.tm-dt .tm-c{margin-bottom:6px}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{column-span:all}",
+    " .tm-dt .tm-c:not(.tm-crec):not(.tm-cfirst) .tm-ll{display:none}.tm-dt .tm-q{display:none}.tm-dt .tm-crec .tm-q,.tm-dt .tm-cfirst .tm-q{display:inline}",
+    " .tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}.tm-key{flex-wrap:wrap}}",
     /* 고른 타일 판 */
     ".tm-pv{position:fixed;z-index:2147480000;right:16px;top:76px;bottom:16px;width:340px;border-radius:18px;background:#fff;box-shadow:0 26px 60px -28px rgba(17,20,25,.34),0 0 0 1px #E6E8EC;padding:18px;display:none;flex-direction:column;gap:12px}",
     ".tm-pv.tm-open{display:flex}",
@@ -151,14 +156,14 @@
       (rec.length ? '<span class="tm-next">' + rec.map(function (x, i) {
         return (i ? "<s>›</s>" : "") + '<button data-id="' + all.indexOf(x) + '"><i class="tm-no">' + (i + 1) + "</i>" + esc(x.n.name) + "</button>";
       }).join("") + "</span>" : "") + "</div>";
-    if (detail) h += '<div class="tm-key"><span><i></i>진척</span>' + (lmax ? '<span><i class="b"></i>시험 비중 · 해마다 ' + esc(unit) + "</span>" : "") + "</div>";
+    if (detail) h += '<div class="tm-key"><span><i></i>진척</span>' + (lmax ? '<span><i class="tm-kb"></i>시험 비중 · 해마다 ' + esc(unit) + "</span>" : "") + "</div>";
     h += '<div class="tm-lanes">';
     G.forEach(function (g) {
       var ga = g.nodes.reduce(function (s, n) { return s + W(n); }, 0);
       var gp = ga ? g.nodes.reduce(function (s, n) { return s + W(n) * (n.pct || 0); }, 0) / ga : 0;
       var share = tot ? Math.round(ga / tot * 100) : 0;
       h += '<section class="tm-lane"><div class="tm-lh"><b>' + esc(g.name) + "</b><span>" +
-        (noAvg ? "" : "출제 " + share + "% · ") + "진척 " + Math.round(gp) + '%</span><i><u style="width:' + Math.round(gp) + '%"></u></i></div><div class="tm-row">';
+        (noAvg || !(ga > 0) ? "" : "출제 " + share + "% · ") + "진척 " + Math.round(gp) + '%</span><i><u style="width:' + Math.round(gp) + '%"></u></i></div><div class="tm-row">';
       g.nodes.forEach(function (n) {
         var x = all.filter(function (y) { return y.n === n; })[0], p = Math.round(n.pct || 0);
         var cls = "tm-t" + (p >= 80 ? " tm-done" : "") + (n.dim ? " tm-dim" : "") + (x.order ? " tm-rec" : "") + (x.order === 1 ? " tm-first" : "");
@@ -212,5 +217,5 @@
     return { recommend: rec.map(function (x) { return x.n; }), whole: whole };
   }
 
-  window.TERA_MAP = { mount: mount, version: 3.1 };
+  window.TERA_MAP = { mount: mount, version: 3.2 };
 })();
