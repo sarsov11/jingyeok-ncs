@@ -124,5 +124,6 @@
   }
 
   window.TERA_Q = { terms: terms, annotate: annotate, toggle: toggle, badge: badge, jump: jump, coach: coach, ask: ask, hide: hide };
-  if (window.TNQ && window.TNQ.terms) terms(window.TNQ.terms);
+  // 개념어 창의 자료: window.TNQ 는 [{terms, notes}, …] 배열(먼저 실린 파일)이거나 옛 꼴 {terms}
+  if (window.TNQ) { if (Array.isArray(window.TNQ)) window.TNQ.forEach(function (x) { if (x && x.terms) terms(x.terms); }); else if (window.TNQ.terms) terms(window.TNQ.terms); }
 })();

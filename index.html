@@ -10,11 +10,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&display=swap">
 <link rel="stylesheet" href="css/tera-tokens.css">
-<link rel="stylesheet" href="css/tera-q.css?v=1110e">
-<link rel="stylesheet" href="css/app.css?v=1110e">
-<link rel="stylesheet" href="css/diagram.css?v=1027a">
-<link rel="stylesheet" href="css/assist.css?v=1105c">
-<link rel="stylesheet" href="css/coach.css?v=1105c">
+<link rel="stylesheet" href="css/tera-q.css?v=1110f">
+<link rel="stylesheet" href="css/app.css?v=1110f">
+<link rel="stylesheet" href="css/diagram.css?v=1110f">
+<link rel="stylesheet" href="css/assist.css?v=1110f">
+<link rel="stylesheet" href="css/coach.css?v=1110f">
 </head>
 <body>
 <header class="top" id="top"></header>
@@ -24,17 +24,17 @@
 <script src="js/ink.js?v=1020g"></script>
 <script src="js/diagram.js?v=1027a"></script>
 <script>window.NCS_SETUP_ON = true; window.ZZSTRAT_ACCENT = "#0E7490"; window.ZZSTRAT_POINT = "sky"; window.ZZSTRAT_TIMES = [{ v: "30", label: "30분" }, { v: "60", label: "1시간" }, { v: "90", label: "1시간 30분" }, { v: "120", label: "2시간" }, { v: "180", label: "3시간" }, { v: "240", label: "4시간" }];</script>
-<script src="js/tera-pad.js?v=1110e"></script>
-<script src="js/tera-map.js?v=1110e"></script>
-<script src="js/tera-q.js?v=1110e"></script>
-<script src="js/app.js?v=1110e"></script>
+<script src="js/tera-pad.js?v=1110f"></script>
+<script src="js/tera-map.js?v=1110f"></script>
+<script src="js/tera-q.js?v=1110f"></script>
+<script src="js/app.js?v=1110f"></script>
 <script src="data/coach_msgs.js?v=1110d"></script>
 <script src="data/yesang.js?v=1105a"></script>
-<script src="js/assist.js?v=1110d"></script>
-<script src="js/coach.js?v=1105a"></script>
+<script src="js/assist.js?v=1110f"></script>
+<script src="js/coach.js?v=1110f"></script>
 <script src="js/zzsfx.js?v=1009a" defer></script>
 <script src="js/zzajan.js?v=1009a" defer></script>
-<script src="js/zzstrat.js?v=1110d"></script><script src="js/zzstrat_ncs.js?v=1025c"></script>
+<script src="js/zzstrat.js?v=1110d"></script><script src="js/zzstrat_ncs.js?v=1025c"></script><script src="js/zzstrat_덮개.js?v=1110f"></script>
 <script>
 /* 11-05 대표님: 학생 조사 없이 과목 설명부터 하지 말 것 · 기업군마다 모을 것(발전 5사·교통공사·A/B매치 등) · KB국민은행식 질문.
    첫 방문: 첫 설정(기업군 → 기관 → 직무 → 공부 경험·시험 시기·하루 시간·목표) → 합격전략 이야기 → 홈. 기업군 전략(ncs_<기업군>)이 있으면 그걸 연다. */
@@ -62,8 +62,8 @@
   if (PRE && !groupOf(PRE)) PRE = "";
   function grp(a) { return a.group || PRE; }
   function go() {
-    if (window.NCS_HAS_ORG && window.NCS_HAS_ORG()) { ZZSTRAT.auto("ncs", { setup: false }); return; }
-    ZZSTRAT.auto("ncs", { delay: 300, setup: {
+    if (window.NCS_HAS_ORG && window.NCS_HAS_ORG()) { ZZSTRAT.auto("ncs", { fab: false, setup: false }); return; }
+    ZZSTRAT.auto("ncs", { fab: false, delay: 300, setup: {
       key: "ncs", 이름: "진격의 NCS",
       끝말: "좋아요. 이제 **이 기업군 필기 붙는 길**부터 볼게요.",
       steps: [

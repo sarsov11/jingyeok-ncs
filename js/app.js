@@ -48,7 +48,7 @@
     }
     return "";
   }
-  var PAL = ["#111419", "#E5202E", "#2563EB", "#16B364", "#F59E0B"];
+  var PAL = ["#0B3F4F", "#0E7490", "#5BA7BC", "#A9D0DB", "#9CA3AF"];
   function chart(b) {
     var W = 340, H = 200, L = 40, B = 28, T = 14, xs = b.x || [], ser = b.계열 || [];
     if (b.모양 === "원") {
@@ -199,14 +199,14 @@
   }
   function orgList(q, first) {
     top(first ? { tab: "home" } : { tab: "home", back: "#/", title: "지원 기관" });
-    var h = (first ? '<div class="hero" style="margin-bottom:6px"><div class="big" style="font-size:24px">목표 기업과 직렬</div></div>' : '') + '<h2 class="sec">지원 기관</h2><input class="search" id="oq" placeholder="기관 이름" value="' + esc(q || "") + '"><div class="list" id="ol" style="margin-top:10px"></div>' + (first ? '<button class="btn line full" id="skip" style="margin-top:12px">아직 안 정함 · 10영역 전부</button>' : '') + '<div class="foot">기관별 영역은 최근 채용공고 기준 · 공고마다 바뀔 수 있음</div>';
+    var h = (first ? '<div class="hero" style="margin-bottom:6px"><div class="big" style="font-size:26px">목표 기업과 직렬</div></div>' : '') + '<h2 class="sec">지원 기관</h2><input class="search" id="oq" placeholder="기관 이름" value="' + esc(q || "") + '"><div class="list" id="ol" style="margin-top:10px"></div>' + (first ? '<button class="btn line full" id="skip" style="margin-top:12px">아직 안 정함 · 10영역 전부</button>' : '');
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
     function draw() {
       var v = document.getElementById("oq").value.trim();
       var curI = -1; ORGS.forEach(function (o, i) { if (S.org && o.n === S.org.o) curI = i; });
       var rows = ORGS.map(function (o, i) { return [o, i]; }).filter(function (x) { return !v || x[0].n.indexOf(v) >= 0; });
       document.getElementById("ol").innerHTML = rows.map(function (x, ri) {
-        return '<button class="li" data-go="#/org/' + x[1] + '"><div><div class="t">' + esc(x[0].n) + ((curI >= 0 ? x[1] === curI : ri === 0) ? ' <i class="rcm">추천</i>' : '') + '</div><div class="d">' + esc(x[0].k) + ' · ' + esc(x[0].t) + ' · 직무 ' + x[0].j.length + '</div></div></button>';
+        return '<button class="li" data-go="#/org/' + x[1] + '"><div><div class="t">' + esc(x[0].n) + ((curI >= 0 ? x[1] === curI : ri === 0) ? ' <i class="rcm">추천</i>' : '') + '</div><div class="d">' + esc(x[0].k) + ' · ' + esc(String(x[0].t).replace(/\s*\(.*\)\s*/, '')) + ' · 직무 ' + x[0].j.length + '</div></div></button>';
       }).join("") || '<div class="empty">없음</div>';
     }
     document.getElementById("oq").oninput = draw; draw();
@@ -215,7 +215,7 @@
   function orgJobs(i) {
     var o = ORGS[i]; if (!o) { location.hash = "#/org"; return; }
     top({ tab: "home", back: "#/org", title: o.n });
-    var h = '<h2 class="sec">' + esc(o.n) + '</h2><div class="src" style="margin-bottom:8px">' + esc(o.t) + ' 공고 기준 · 직무를 고르세요</div><div class="list">';
+    var h = '<h2 class="sec">' + esc(o.n) + '</h2><div class="src" style="margin-bottom:8px">' + esc(o.t) + '</div><div class="list">';
     o.j.forEach(function (j, k) {
       h += '<button class="li" data-job="' + k + '"><div><div class="t">' + esc(j.n) + ((S.org && S.org.o === o.n ? S.org.j === j.n : k === 0) ? ' <i class="rcm">추천</i>' : '') + '</div><div class="d">' + j.a.map(esc).join(" · ") + (j.q ? ' · ' + j.q + '문항' : '') + (j.m ? ' · ' + j.m + '분' : '') + '</div>' +
         (j.s.length ? '<div class="d">전공 ' + j.s.map(esc).join(", ") + '</div>' : '') + '</div></button>';
@@ -302,7 +302,7 @@
     if (nT > 10) {
       areaSplit(cj && have.length ? have : AREAS, nT).forEach(function (x) { var st0 = areaStat(x[0]); steps.push([x[0], '푼 문항 ' + st0.solved + ' / ' + st0.n, x[1] + '문항', '#/go/' + encodeURIComponent(x[0])]); });
     } else {
-      if (cj && have.length) steps.push(['맞춤 10문항', '지원 기관 출제 영역 · ' + have.join(", "), '10문항', '#/goorg']);
+      if (cj && have.length) steps.push(['맞춤 10문항', '지원 기관 출제 영역 ' + have.length + '개', '10문항', '#/goorg']);
       else steps.push([w + ' 10문항', '가장 약한 영역부터', '10문항', '#/go/' + encodeURIComponent(w)]);
       if (cj && have.length) steps.push(['기관형 모의고사', (cj.j.q ? 'NCS ' + cj.j.q + '문항' : '기관 출제 영역으로 구성') + (cj.j.m ? ' · ' + cj.j.m + '분' : ''), (Math.min(cj.j.q || 50, 60)) + '문항', '#/orgmock']);
       else if (D.mocks.length) steps.push(['모의고사', D.mocks[0].name, (D.mocks[0].min || D.mocks[0].ids.length) + '분', '#/mocks']);
@@ -327,10 +327,13 @@
       h += '</div>';
     }
     h += '<h2 class="sec">복습</h2><div class="list"><button class="li" data-go="#/wrong"' + (wrongN ? '' : ' disabled') + '><div><div class="t">복습</div><div class="d">마지막에 틀린 것만</div></div><div class="r">' + wrongN + '</div></button></div>';
+    h += '<h2 class="sec">합격 전략</h2><div class="list"><button class="li" data-zs="1"><div><div class="t">합격 전략</div><div class="d">합격선과 영역별 목표</div></div></button></div>';
     h += '<div class="foot">테라러닝 · 진격의 NCS · 전 문항 테라러닝 자체 제작</div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
+    bindZs();
     if (window.NCS_JUMP) { window.NCS_JUMP = 0; jumpAreas(); } else scrollTo(0, 0);
   }
+  function bindZs() { $app.querySelectorAll("[data-zs]").forEach(function (b) { b.onclick = function () { if (window.ZZSTRAT) ZZSTRAT.open("ncs"); }; }); }
   function recMock() { var m = D.mocks.filter(function (x) { return !S.m[x.key]; })[0] || D.mocks[0]; return m ? m.key : ""; }
   function mockLi(m, rec) {
     var r = S.m[m.key];
@@ -350,7 +353,7 @@
       ks.forEach(function (s) { h += '<button class="chip' + (s === cur ? ' on' : '') + '" data-sub="' + esc(s) + '">' + esc(D.types[s] || s) + ' ' + subs[s] + '</button>'; });
       h += '</div>';
     }
-    h += '<div class="card" style="margin-top:12px"><div style="font-weight:900;font-size:22px">' + st.solved + ' / ' + st.n + '</div><div class="src">정답률 ' + (st.solved ? Math.round(st.rate * 100) + '%' : '—') + ' · 틀린 문항 ' + (st.solved - st.ok) + '</div>' +
+    h += '<div class="card" style="margin-top:12px"><div style="font-weight:800;font-size:20px">' + st.solved + ' / ' + st.n + '</div><div class="src">정답률 ' + (st.solved ? Math.round(st.rate * 100) + '%' : '—') + ' · 틀린 문항 ' + (st.solved - st.ok) + '</div>' +
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn red" style="flex:2" data-go="#/go/' + encodeURIComponent(a) + (cur ? '/' + encodeURIComponent(cur) : '') + '">10문항</button>' +
       '<button class="btn line" style="flex:1" data-go="#/wrong/' + encodeURIComponent(a) + '"' + (st.solved - st.ok ? '' : ' disabled') + '>복습</button></div></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
@@ -554,7 +557,7 @@
       (longQ.length ? '<div class="rs-sub">시간을 많이 쓴 문항</div><div class="rs-chips">' + longQ.map(function (x) { return '<button class="chip" data-go="#/rev/' + encodeURIComponent(key) + '/' + x[0] + '">' + (x[0] + 1) + '번 ' + ms2(dw[x[1].i] || 0) + ' / ' + ms2(target(x[1])) + '</button>'; }).join("") + '</div>' : '') +
       '</div>';
     h += '<h2 class="sec">문항별 해설</h2><div class="grid">';
-    m.ids.forEach(function (id, i) { h += '<button class="' + (r.ans[id] === BYID[id].x ? 'o' : 'x') + '" data-go="#/rev/' + encodeURIComponent(key) + '/' + i + '">' + (i + 1) + '</button>'; });
+    m.ids.forEach(function (id, i) { h += '<button class="' + (r.ans[id] === BYID[id].x ? 'ok' : 'no') + '" data-go="#/rev/' + encodeURIComponent(key) + '/' + i + '">' + (i + 1) + '</button>'; });
     h += '</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:16px"><button class="btn red full" data-go="#/mock/' + encodeURIComponent(key) + '">다시 풀기</button><button class="btn line full" data-go="#/">오늘</button></div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
     if (fresh && window.ZZ) { var x = r.s / r.t, st = x >= 1 ? 3 : x >= .7 ? 2 : x >= .4 ? 1 : 0; if (st) ZZ.stars(st); }
@@ -579,10 +582,11 @@
     var c = curJob(), m = dayMin();
     var h = '<h2 class="sec">설정</h2><section class="card setc"><h3>공부</h3>' +
       '<div class="srow"><div><b>지원 기관 · 직무</b><span>' + (c ? esc(c.o.n) + ' · ' + esc(c.j.n) : '아직 안 정했어요') + '</span></div><button class="sbtn" data-go="#/org">바꾸기</button></div>' +
+      '<div class="srow"><div><b>합격 전략</b><span>합격선과 영역별 목표</span></div><button class="sbtn" data-zs="1">열기</button></div>' +
       '<div class="slab">하루 공부 시간</div><div class="sgrid">' + MINS.map(function (x) { return '<button class="sopt' + (m === x[0] ? ' on' : '') + '" data-min="' + x[0] + '">' + x[1] + '</button>'; }).join("") + '</div>' +
-      '<p class="shelp">' + (m ? '오늘 카드가 ' + dayCount() + '문항으로 나와요. 문항당 평균 목표 시간 ' + Math.round(avgTarget()) + '초로 나눈 값이에요.' : '시간을 고르면 오늘 카드 문항 수가 맞춰져요. 지금은 10문항이에요.') + '</p></section>';
-    h += '<button class="btn red full" style="margin-top:14px" data-go="#/today">시작</button>';
+      '<p class="shelp">' + (m ? '오늘 ' + dayCount() + '문항 · 문항당 평균 ' + Math.round(avgTarget()) + '초' : '시간을 고르면 오늘 문항 수가 맞춰져요') + '</p></section>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
+    bindZs();
     $app.querySelectorAll("[data-min]").forEach(function (b) { b.onclick = function () { window.NCS_SET_MIN(+b.getAttribute("data-min")); settings(); }; });
   }
   /* ── 합격 지도 (공용 tera-map.js, 화면표준 11절) — 줄 = 영역(지원 기관 출제 영역을 위에), 칸 = 영역별 유형 ── */
@@ -623,6 +627,7 @@
   }
   /* ── 길잡이 ── */
   function route() {
+    document.querySelectorAll(".tq-coach").forEach(function (e) { e.remove(); });
     penOff();
     if (window.TERA_PAD && document.body.classList.contains("padopen")) { TERA_PAD.close(); document.body.classList.remove("padopen"); }
     var p = location.hash.replace(/^#\/?/, "").split("/").map(decodeURIComponent);
