@@ -602,7 +602,12 @@
       var ks = Object.keys(subs).sort(function (x, y) { return subs[y] - subs[x]; }), sa = areaStat(a); tS += sa.solved; tN += sa.n;
       var nodes = ks.map(function (t) {
         var st = areaStat(a, t), pct = Math.round(st.solved / st.n * 100);
-        var nd = { id: a + "|" + t, t: t, name: D.types[t] || t, pct: pct, leaves: [{ name: "푼 문항 " + st.solved + " / " + st.n, pct: pct }, { name: "정답률", pct: Math.round(st.rate * 100) }] };
+        var lv = []; [["피듈", "피듈형"], ["모듈", "모듈형"], ["PSAT", "PSAT형"]].forEach(function (fm) {
+          var its = D.items.filter(function (q) { return q.a === a && q.t === t && q.f === fm[0]; }); if (!its.length) return;
+          var dn = its.filter(function (q) { return S.h[q.i]; }).length;
+          lv.push({ name: fm[1] + " · " + its.length + "문항", f: fm[0], pct: Math.round(dn / its.length * 100) });
+        });
+        var nd = { id: a + "|" + t, t: t, name: D.types[t] || t, pct: pct, leaves: lv };
         cand.push(nd); return nd;
       });
       return { name: a, pct: Math.round(sa.solved / sa.n * 100), nodes: nodes };
@@ -611,6 +616,7 @@
     $app.innerHTML = '<div class="wrap wide"><div id="tmap"></div></div>';
     var host = document.getElementById("tmap");
     TERA_MAP.mount(host, { mark: "tier", title: cj ? cj.o.n : "공기업 NCS", sub: cj ? cj.j.n : "", unit: "문항", groups: groups, recommend: 5,
+      onLeaf: function (lf, n, g) { location.hash = "#/go/" + encodeURIComponent(g.name) + "/" + encodeURIComponent(n.t) + "/" + encodeURIComponent(lf.f); },
       onStart: function (n, g) { location.hash = "#/go/" + encodeURIComponent(g.name) + "/" + encodeURIComponent(n.t); } });
   }
   /* ── 복습 목록: 틀린 문항 + 헷갈림으로 표시한 문항 ── */
@@ -638,7 +644,7 @@
       case "today": var tn = dayCount(), tw = weakest() || AREAS[0], tc = curJob(), tset = tc ? tc.j.a : AREAS;
         return tn <= 10 ? startPractice(pickSet(function (q) { return q.a === tw; }, 10), "#/area/" + encodeURIComponent(tw), tw) : (function () { var ids = []; areaSplit(tset, tn).forEach(function (x) { ids = ids.concat(pickSet(function (q) { return q.a === x[0]; }, x[1])); }); return startPractice(ids, "#/", "오늘 " + tn + "문항"); })();
       case "area": return area(p[1]);
-      case "go": return startPractice(pickSet(function (q) { return q.a === p[1] && (!p[2] || q.t === p[2]); }, 10), "#/area/" + encodeURIComponent(p[1]), p[1]);
+      case "go": return startPractice(pickSet(function (q) { return q.a === p[1] && (!p[2] || q.t === p[2]) && (!p[3] || q.f === p[3]); }, 10), "#/area/" + encodeURIComponent(p[1]), p[1]);
       case "review": return reviewList();
       case "one": return startPractice(BYID[p[1]] ? [p[1]] : [], "#/review", "복습");
       case "wrong": return startPractice(shuffle(D.items.filter(function (q) { return S.h[q.i] && (!S.h[q.i][1] || confOf(q.i) === "half") && (!p[1] || q.a === p[1]); })).slice(0, 10).map(function (q) { return q.i; }), p[1] ? "#/area/" + encodeURIComponent(p[1]) : "#/", "복습");
