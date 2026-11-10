@@ -36,7 +36,7 @@
     Array.prototype.forEach.call(hosts, function (host) {
       if (!host) return;
       var used = {}, w = d.createTreeWalker(host, NodeFilter.SHOW_TEXT, null), nodes = [], x;
-      while ((x = w.nextNode())) { if (x.nodeValue.trim() && !x.parentNode.closest(".tq-term,a,button,script,style,input,textarea")) nodes.push(x); }
+      while ((x = w.nextNode())) { if (x.nodeValue.trim() && !x.parentNode.closest(".tq-term,.tn-t,.dg,a,button,script,style,input,textarea")) nodes.push(x); }
       nodes.forEach(function (node) {
         var s = node.nodeValue, hits = [];
         keys.forEach(function (k) {

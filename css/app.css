@@ -409,3 +409,6 @@ body.padopen .wrap.tqp,body.padopen .tq-wrap.tqe{padding-bottom:calc(64vh + 90px
 .tq-bar .tq-tool{color:#475569}
 header.top .hsub{background:#fff;color:var(--pt-ink);box-shadow:inset 0 0 0 1.5px var(--pt)}
 .tqp .tq-ask-pill{background:#fff;color:var(--pt-ink);box-shadow:inset 0 0 0 1.5px var(--pt)}
+.rtag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font:800 11.5px/1 var(--t-font);white-space:nowrap}
+.rtag.no{background:rgba(229,50,45,.08);color:#C81E1E}
+.rtag.half{background:rgba(245,158,11,.14);color:#B45309}

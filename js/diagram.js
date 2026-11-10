@@ -192,7 +192,9 @@
   function key(t){ return String(t==null?"":t).replace(/\*\*/g,"").replace(LAW,"").replace(/[\s\u00b7\u30fb]/g,""); }
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function plain(t){ return String(t==null?"":t).replace(/\*\*/g,""); }
-  function bump(){ ver++; rx=null; schedule(); }
+  /* 1110: the question-screen part (tera-q) underlines terms in stems and options. Share one term list with it. */
+  function share(){ try{ var o={}; for(var k in own) o[k]=terms[k]; var q=window.TNQ||[]; q.terms=o; window.TNQ=q; if(window.TERA_Q&&TERA_Q.terms) TERA_Q.terms(o); }catch(e){} }
+  function bump(){ ver++; rx=null; share(); schedule(); }
 
   /* 1108: a table with 5+ columns stacks letters vertically on a phone. Phones get one card per row instead. */
   var baseHtml=DIAGRAM.html;
@@ -211,7 +213,7 @@
   DIAGRAM.terms=function(m){ for(var k in m){ var v=m[k]; if(!v) continue; own[k]=1; terms[k]=typeof v==="string"?{d:v}:v; } bump(); };
   DIAGRAM.notes=function(m){ for(var k in m) notes[key(k)]=m[k]; bump(); };
   /* data files may load before this engine: they push to window.TNQ */
-  DIAGRAM.tnFlush=function(){ var q=window.TNQ||[]; window.TNQ=[]; q.forEach(function(x){ if(x.terms) DIAGRAM.terms(x.terms); if(x.notes) DIAGRAM.notes(x.notes); }); };
+  DIAGRAM.tnFlush=function(){ var q=window.TNQ||[]; window.TNQ=[]; window.TNQ.terms=q.terms; q.forEach(function(x){ if(x.terms) DIAGRAM.terms(x.terms); if(x.notes) DIAGRAM.notes(x.notes); }); };
   DIAGRAM.tnFlush();
 
   /* definitions already on the page need no new data */
@@ -234,7 +236,7 @@
     if(LATIN.test(w.charAt(0))&&p&&LATIN.test(p)) return false;
     if(LATIN.test(w.charAt(w.length-1))&&n&&LATIN.test(n)) return false;
     return true; }
-  var NOWRAP=".tn-t,.sc-btn,.dg-law,.dg-laws,.dg-term,.dg-t,.dg-n,.dg-rn,.dg-ch,.dg-kn,.dg-root,th,.katex,svg,button,a,script,style";
+  var NOWRAP=".tn-t,.tq-term,.sc-btn,.dg-law,.dg-laws,.dg-term,.dg-t,.dg-n,.dg-rn,.dg-ch,.dg-kn,.dg-root,th,.katex,svg,button,a,script,style";
   function annotate(block){
     var r=regex(); if(!r) return; var seen={};
     block.querySelectorAll(".tn-t").forEach(function(e){ seen[e.getAttribute("data-t")]=1; });

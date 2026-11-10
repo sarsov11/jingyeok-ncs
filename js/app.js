@@ -130,6 +130,7 @@
   var SV_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6.500C10.200 5 7.600 4.500 4.500 4.800v13c3.100-.300 5.700.200 7.500 1.700 1.800-1.500 4.400-2 7.500-1.700v-13c-3.100-.300-5.700.200-7.500 1.700zM12 6.500v13"/></svg>';
   var SV_PEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.500 19.500l1-4L16 5l3 3L8.500 18.500z"/></svg>';
   if (window.TERA_Q && window.DIAGRAM && DIAGRAM.terms && typeof DIAGRAM.terms === "object") { try { TERA_Q.terms(DIAGRAM.terms); } catch (e) {} }
+  var SV_CONF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.500"/><path d="M9.700 9.500a2.400 2.400 0 1 1 3.300 2.200c-.700.300-1 .800-1 1.600M12 16.500h.01" stroke-linecap="round"/></svg>';
   function penOff() { try { if (window.TERA_PAD && TERA_PAD.penHide) TERA_PAD.penHide(); } catch (e) {} }
   function askAgent(t) {
     var fab = document.querySelector(".as-fab"), f = document.querySelector(".as-sheet form"); if (!fab || !f) return;
@@ -145,7 +146,11 @@
     if (window.TERA_Q) TERA_Q.annotate($app.querySelectorAll(".stem, .tq-t"));
     var pb = document.getElementById("tqpen"); if (!pb) return;
     pb.onclick = function () { if (window.TERA_PAD && TERA_PAD.pen) TERA_PAD.pen({ key: String(q.i), onChange: function (on) { pb.classList.toggle("is-on", !!on); } }); };
-    if (window.TERA_Q) TERA_Q.coach(pb, { key: "ncs_pen", title: "펜", text: "아래 줄의 펜을 누르면 문제 위에 바로 쓸 수 있어요." });
+    if (window.TERA_Q) {
+      var cb0 = document.getElementById("tqconf"), seen = false; try { seen = localStorage.getItem("tera_q_coach_ncs_conf") === "1"; } catch (e) {}
+      if (cb0 && !seen) TERA_Q.coach(cb0, { key: "ncs_conf", title: "헷갈림", text: "답하기 전에 누르면 맞혀도 복습에 들어가요." });
+      else TERA_Q.coach(pb, { key: "ncs_pen", title: "펜", text: "아래 줄의 펜을 누르면 문제 위에 바로 쓸 수 있어요." });
+    }
   }
   function opts(q, picked, tq) {
     if (tq) return '<ul class="opts tqo tq-choices">' + q.c.map(function (c, i) { var v = i + 1; return '<li><button class="opt tq-choice" data-v="' + v + '"><span class="tq-n">' + v + '</span><span class="tq-t">' + esc(c) + '</span></button></li>'; }).join("") + '</ul>';
@@ -234,7 +239,7 @@
     { k: "home", n: "오늘", go: "#/", i: SVG('<path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>') },
     { k: "map", n: "합격 지도", go: "#/map", i: SVG('<rect x="3.5" y="4" width="6" height="6" rx="1.6"/><rect x="14.5" y="4" width="6" height="6" rx="1.6"/><rect x="9" y="14.5" width="6" height="6" rx="1.6"/><path d="M6.5 10v2.2h11V10M12 12.2v2.3"/>') },
     { k: "mock", n: "모의고사", go: "#/mocks", i: SVG('<path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M15 3.5v4h4M9 12h6M9 16h6"/>') },
-    { k: "wrong", n: "복습", go: "#/wrong", i: SVG('<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.6h-4.6"/>') },
+    { k: "wrong", n: "복습", go: "#/review", i: SVG('<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.6h-4.6"/>') },
     { k: "set", n: "설정", go: "#/set", i: SVG('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>') }
   ];
   function top(opt) {
@@ -287,7 +292,7 @@
     var tot = D.items.length, solved = 0, ok = 0;
     for (var id in S.h) if (BYID[id]) { solved++; ok += S.h[id][1]; }
     var w = weakest() || AREAS[0];
-    var wrongN = D.items.filter(function (q) { return S.h[q.i] && !S.h[q.i][1]; }).length;
+    var wrongN = reviewIds().length;
     var cj = curJob(), have = cj ? cj.j.a.filter(function (a) { return areaStat(a).n; }) : [], today = new Date().toDateString(), todayN = 0;
     for (var tid in S.h) if (BYID[tid] && S.h[tid][3] && new Date(S.h[tid][3]).toDateString() === today) todayN++;
     var h = cj ? '<div class="chips homechips">' + cj.j.a.map(function (a) { return '<span class="chip">' + esc(a) + '</span>'; }).join("") + '</div>' : "";
@@ -363,6 +368,11 @@
     return '<div class="skill"><div class="sk-t">' + esc(title) + '</div><ul>' + t.k.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join("") + '</ul></div>';
   }
   S.tm = S.tm || {};
+  /* 확신도(공시 앱 store.js 의 conf 와 같은 낱말): "sure" 확실 · "half" 헷갈림. 옛 기록에 없으면 확실로 읽는다 */
+  S.conf = S.conf || {};
+  function confOf(id) { var c = S.conf[id]; return c === "half" || c === "unsure" ? "half" : "sure"; }
+  function setConf(id, on) { S.conf[id] = on ? "half" : "sure"; save(); }
+  function reviewIds() { return D.items.filter(function (q) { return S.h[q.i] && (!S.h[q.i][1] || confOf(q.i) === "half"); }).map(function (q) { return q.i; }); }
   function timeWeak() {   // 유형별 평균 시간이 목표를 넘는 것
     var by = {};
     Object.keys(S.tm).forEach(function (id) { var q = BYID[id]; if (!q || !q.t) return; var o = by[q.t] = by[q.t] || { q: q, n: 0, sum: 0 }; o.n++; o.sum += S.tm[id][0]; });
@@ -395,10 +405,12 @@
     penOff();
     top({ notab: 1, back: P.back, title: P.title || q.a, right: '<span class="timer up" id="tm">0:00</span>' });
     var np = P.ids.length, h = '<div class="tq-prog"><i><u style="width:' + ((P.i + 1) / np * 100) + '%"></u></i><span><b>' + (np - P.i - 1) + '</b>문제 남았어요</span></div>' +
-      '<div class="tq-meta qhead"><span class="tq-no">' + (P.i + 1) + '번 문제</span><span class="pill">' + esc(q.a) + '</span><span class="pill">' + esc(typeName(q)) + '</span>' + (q.d >= 3 ? '<span class="hard">고난도</span>' : '') + '<span class="tq-sp"></span><span id="tqak"></span></div>' +
+      '<div class="tq-meta qhead"><span class="tq-no">' + (P.i + 1) + '번 문제</span><span class="pill">' + esc(q.a) + '</span><span class="pill">' + esc(typeName(q)) + '</span>' + (q.d >= 3 ? '<span class="hard">고난도</span>' : '') + (P.title === "복습" && S.h[q.i] ? (!S.h[q.i][1] ? '<span class="rtag no">틀림</span>' : '<span class="rtag half">헷갈림</span>') : '') + '<span class="tq-sp"></span><span id="tqak"></span></div>' +
       qBody(q) + padRow(q) + (isCalcQ(q) ? '' : padHtml(q)) + opts(q, undefined, true) + '<div id="after"></div>';
-    $app.innerHTML = '<div class="wrap tqp">' + h + '</div><div class="tq-bar"><button class="tq-tool" id="tqexp" type="button">' + SV_BOOK + '해설</button><button class="tq-tool" id="tqpen" type="button">' + SV_PEN + '펜</button><span class="tq-sp"></span><button class="tq-nav" type="button" disabled aria-label="이전">‹</button><span class="tq-pos">' + (P.i + 1) + ' <small>/ ' + np + '</small></span><button class="tq-nav is-next" id="nx" type="button" disabled aria-label="다음">다음 ›</button></div>';
+    $app.innerHTML = '<div class="wrap tqp">' + h + '</div><div class="tq-bar"><button class="tq-tool" id="tqconf" type="button">' + SV_CONF + '헷갈림</button><button class="tq-tool" id="tqexp" type="button">' + SV_BOOK + '해설</button><button class="tq-tool" id="tqpen" type="button">' + SV_PEN + '펜</button><span class="tq-sp"></span><button class="tq-nav" type="button" disabled aria-label="이전">‹</button><span class="tq-pos">' + (P.i + 1) + ' <small>/ ' + np + '</small></span><button class="tq-nav is-next" id="nx" type="button" disabled aria-label="다음">다음 ›</button></div>';
     scrollTo(0, 0); padMount(); padBtn(q); tqAsk(q); tqTools(q);
+    var cOn = false, cbtn = document.getElementById("tqconf");
+    cbtn.onclick = function () { cOn = !cOn; cbtn.classList.toggle("is-on", cOn); if (P.done) setConf(q.i, cOn); };
     document.getElementById("tqexp").onclick = function () { var a0 = document.getElementById("after"); if (a0 && a0.firstChild) a0.scrollIntoView({ behavior: "smooth", block: "start" }); };
     var t0 = Date.now(); stopTimer();
     tick = setInterval(function () { var t = document.getElementById("tm"); if (!t) return stopTimer(); var sec = (Date.now() - t0) / 1000; t.textContent = ms2(sec); t.classList.toggle("low", sec > target(q)); }, 1000);
@@ -407,7 +419,7 @@
       b.onclick = function () {
         if (P.done) return; P.done = true; stopTimer();
         var v = +b.getAttribute("data-v"), ok = v === q.x, sec = Math.round((Date.now() - t0) / 1000), slow = isSlow(q, sec);
-        rec(q.i, ok); if (ok) P.ok++; window.NCS_PICK = v;
+        rec(q.i, ok); setConf(q.i, cOn); if (ok) P.ok++; window.NCS_PICK = v;
         S.tm[q.i] = [sec, ok ? 1 : 0]; save(); P.res.push({ id: q.i, ok: ok, sec: sec });
         var tm = document.getElementById("tm"); if (tm) tm.textContent = ms2(sec);
         b.setAttribute("data-s", ok ? "ok" : "no"); b.classList.add(ok ? "is-ok" : "is-no");
@@ -428,7 +440,8 @@
   }
   function playEnd() {
     top({ tab: "home", back: P.back, title: "결과" });
-    var n = P.ids.length, r = P.ok / n, last = BYID[P.ids[0]], tot = 0, slowN = 0, weak = {};
+    var n = P.ids.length, r = P.ok / n, last = BYID[P.ids[0]], tot = 0, slowN = 0, weak = {}, cfNo = [];
+    P.res.forEach(function (x, k) { if (confOf(x.id) === "half") cfNo.push(k + 1); }); var cfN = cfNo.length;
     var rows = P.res.map(function (x, k) {
       var q = BYID[x.id], sl = isSlow(q, x.sec); tot += x.sec; if (x.ok && sl) slowN++;
       if (!x.ok || sl) weak[q.t] = q;
@@ -436,7 +449,7 @@
     }).join("");
     var wk = Object.keys(weak).slice(0, 3).map(function (t) { var q = weak[t]; return '<div class="card tw"><div class="tw-h"><b>' + esc(typeName(q) || q.a) + '</b></div>' + skillBox(q, "다음에 쓸 손 기술") + '<button class="btn line full" style="height:44px;font-size:14px;border-radius:12px;margin-top:8px" data-go="#/go/' + encodeURIComponent(q.a) + '/' + encodeURIComponent(q.t) + '">이 유형 10문항</button></div>'; }).join("");
     $app.innerHTML = '<div class="wrap"><div class="card res" style="margin-top:16px;text-align:center"><div class="src">' + esc(P.title || "") + '</div><div class="score">' + P.ok + ' / ' + n + '</div>' +
-      '<div class="src">정답률 ' + Math.round(r * 100) + '% · 평균 ' + ms2(tot / Math.max(1, P.res.length)) + ' · 느린 정답 ' + slowN + '</div></div>' +
+      '<div class="src">정답률 ' + Math.round(r * 100) + '% · 평균 ' + ms2(tot / Math.max(1, P.res.length)) + ' · 느린 정답 ' + slowN + '</div>' + (cfN ? '<div class="src">헷갈림 ' + cfN + '문항 · ' + cfNo.join(", ") + '번</div>' : '') + '</div>' +
       '<div class="card res" style="margin-top:10px"><table class="tt"><tr><th>#</th><th></th><th>유형</th><th>시간 / 목표</th></tr>' + rows + '</table></div>' +
       (wk ? '<h2 class="sec">이번 세트 약점</h2><div class="list">' + wk + '</div>' : '') +
       '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" data-go="#/go/' + encodeURIComponent(last.a) + '">' + esc(last.a) + ' 10문항 더</button><button class="btn line full" data-go="#/">오늘</button></div></div>';
@@ -464,7 +477,7 @@
       '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" id="st">시작</button>' +
       (r ? '<button class="btn line full" data-go="#/res/' + encodeURIComponent(key) + '">지난 해설지</button>' : '') + '</div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
-    document.getElementById("st").onclick = function () { M = { key: key, m: m, i: 0, ans: {}, dw: {}, end: Date.now() + min * 60000 }; history.replaceState(null, "", "#/exam"); exam(); };
+    document.getElementById("st").onclick = function () { M = { key: key, m: m, i: 0, ans: {}, conf: {}, dw: {}, end: Date.now() + min * 60000 }; history.replaceState(null, "", "#/exam"); exam(); };
   }
   function fmt(ms) { ms = Math.max(0, ms); var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2); }
   function leave() { if (M && M.enter) { var id = M.m.ids[M.i]; M.dw[id] = (M.dw[id] || 0) + (Date.now() - M.enter) / 1000; M.enter = 0; } }
@@ -482,10 +495,11 @@
       qBody(q, no) + padRow(q) + (isCalcQ(q) ? '' : padHtml(q)) + opts(q, M.ans[id]) + '</div>';
     var rows = M.m.ids.map(function (x, k) { var qq = BYID[x], c = ''; for (var v = 1; v <= qq.c.length; v++) c += '<i' + (M.ans[x] === v ? ' class="is-on"' : '') + '>' + v + '</i>'; return '<div class="tq-omr-row' + (k === M.i ? ' is-now' : '') + (M.ans[x] ? '' : ' is-todo') + '" data-i="' + k + '"><span class="tq-qn">' + (k + 1) + '번</span>' + c + '</div>'; }).join("");
     $app.innerHTML = '<div class="tq-wrap has-omr tqe"><main>' + h + '</main><aside class="tq-omr" id="tqomr"><span id="tqjp"></span>' + rows + '</aside></div>' +
-      '<div class="tq-bar"><button class="tq-tool" id="tqpen" type="button">' + SV_PEN + '펜</button><span class="tq-sp"></span><button class="tq-nav" id="pv" type="button"' + (M.i ? '' : ' disabled') + ' aria-label="이전">‹</button><button class="tq-pos" id="tqpos" type="button">' + (M.i + 1) + ' <small>/ ' + nT + '</small></button><button class="tq-nav is-next" id="nx2" type="button"' + (M.i + 1 < nT ? '' : ' disabled') + ' aria-label="다음">다음 ›</button></div>';
+      '<div class="tq-bar"><button class="tq-tool' + (M.conf[id] ? ' is-on' : '') + '" id="tqconf" type="button">' + SV_CONF + '헷갈림</button><button class="tq-tool" id="tqpen" type="button">' + SV_PEN + '펜</button><span class="tq-sp"></span><button class="tq-nav" id="pv" type="button"' + (M.i ? '' : ' disabled') + ' aria-label="이전">‹</button><button class="tq-pos" id="tqpos" type="button">' + (M.i + 1) + ' <small>/ ' + nT + '</small></button><button class="tq-nav is-next" id="nx2" type="button"' + (M.i + 1 < nT ? '' : ' disabled') + ' aria-label="다음">다음 ›</button></div>';
     scrollTo(0, 0); padMount(); padBtn(q);
     if (window.TERA_Q) TERA_Q.jump(document.getElementById("tqjp"), { count: nT - nA, onClick: function () { if (firstTodo >= 0) go(firstTodo); } });
     tqTools(q);
+    document.getElementById("tqconf").onclick = function () { M.conf[id] = !M.conf[id]; this.classList.toggle("is-on", !!M.conf[id]); };
     document.getElementById("tqpos").onclick = function () { document.getElementById("tqomr").classList.toggle("is-open"); };
     $app.querySelectorAll(".tq-omr-row").forEach(function (rw) { rw.onclick = function () { go(+rw.getAttribute("data-i")); }; });
     document.dispatchEvent(new CustomEvent("ncs:show", { detail: { q: q, mode: "mock" } })); placeFab();
@@ -510,8 +524,9 @@
   function grade() {
     stopTimer(); leave();
     var s = 0, t = M.m.ids.length, dw = {};
-    M.m.ids.forEach(function (id) { var ok = M.ans[id] === BYID[id].x; if (ok) s++; if (M.ans[id]) { rec(id, ok); S.tm[id] = [Math.round(M.dw[id] || 0), ok ? 1 : 0]; } dw[id] = Math.round(M.dw[id] || 0); });
-    S.m[M.key] = { s: s, t: t, ans: M.ans, dw: dw, ts: Date.now() }; save();
+    M.m.ids.forEach(function (id) { var ok = M.ans[id] === BYID[id].x; if (ok) s++; if (M.ans[id]) { rec(id, ok); setConf(id, !!M.conf[id]); S.tm[id] = [Math.round(M.dw[id] || 0), ok ? 1 : 0]; } dw[id] = Math.round(M.dw[id] || 0); });
+    var cfm = {}; M.m.ids.forEach(function (id) { if (M.ans[id] && M.conf[id]) cfm[id] = 1; });
+    S.m[M.key] = { s: s, t: t, ans: M.ans, dw: dw, cf: cfm, ts: Date.now() }; save();
     var key = M.key; M = null; history.replaceState(null, "", "#/res/" + encodeURIComponent(key)); result(key, true);
   }
   function mockLevel(m) { var n = m.ids.length, d = 0, hard = 0; m.ids.forEach(function (id) { var q = BYID[id]; d += q.d || 2; if ((q.d || 2) >= 3) hard++; }); return { avg: d / n, hard: hard, n: n }; }
@@ -526,6 +541,8 @@
     var longQ = m.ids.map(function (id, i) { var q = BYID[id]; return [i, q, (dw[id] || 0) / target(q)]; }).filter(function (x) { return x[2] > 1.3; }).sort(function (a, b) { return b[2] - a[2]; }).slice(0, 5);
     var h = '<div class="paper cover small"><div class="cv-y">' + examYear() + ' ' + esc(eo.o) + '</div><div class="cv-t" style="margin:6px 0">해 설 지</div><div class="cv-f">' + esc(m.name) + ' (' + esc(m.form) + ')</div>' +
       '<div class="score" style="text-align:center">' + r.s + ' / ' + r.t + '</div><div class="src" style="text-align:center">' + Math.round(r.s / r.t * 100) + '점 환산 · 쓴 시간 ' + ms2(used) + ' / ' + (m.min || m.ids.length) + '분</div></div>';
+    var cfIdx = []; m.ids.forEach(function (id, i) { if ((r.cf || {})[id]) cfIdx.push(i + 1); });
+    if (cfIdx.length) h += '<div class="src" style="margin-top:10px;text-align:center">헷갈림 ' + cfIdx.length + '문항 · ' + cfIdx.join(", ") + '번</div>';
     h += '<h2 class="sec">시험 총평</h2><div class="card review-sum">' +
       '<div class="rs-row"><b>난이도</b><span class="lv">' + levelName(lv.avg) + '</span><span>고난도 ' + lv.hard + '문항 / ' + lv.n + '문항</span></div>' +
       '<table class="tt"><tr><th>영역</th><th>맞힘</th><th>고난도</th></tr>' + AREAS.filter(function (a) { return by[a]; }).map(function (a) { return '<tr><td>' + a + '</td><td>' + by[a].ok + ' / ' + by[a].n + '</td><td>' + by[a].hard + '</td></tr>'; }).join("") + '</table>' +
@@ -592,6 +609,18 @@
     TERA_MAP.mount(host, { mark: "tier", title: cj ? cj.o.n : "공기업 NCS", sub: cj ? cj.j.n : "", unit: "문항", groups: groups, recommend: 5,
       onStart: function (n, g) { location.hash = "#/go/" + encodeURIComponent(g.name) + "/" + encodeURIComponent(n.t); } });
   }
+  /* ── 복습 목록: 틀린 문항 + 헷갈림으로 표시한 문항 ── */
+  function reviewList() {
+    top({ tab: "wrong", back: "#/", title: "복습" });
+    var ids = reviewIds(), h = '<h2 class="sec">복습</h2>';
+    if (ids.length) {
+      h += '<div class="list">' + ids.slice(0, 40).map(function (id) {
+        var q = BYID[id], wr = !S.h[id][1];
+        return '<button class="li" data-go="#/one/' + encodeURIComponent(id) + '"><div><div class="t">' + esc(q.p.length > 38 ? q.p.slice(0, 38) + "…" : q.p) + '</div><div class="d">' + esc(q.a) + ' · ' + esc(typeName(q)) + '</div></div><span class="rtag ' + (wr ? 'no' : 'half') + '">' + (wr ? '틀림' : '헷갈림') + '</span></button>';
+      }).join("") + '</div><button class="btn red full" style="margin-top:14px" data-go="#/wrong">시작</button>';
+    } else h += '<button class="btn red full" style="margin-top:14px" data-go="#/today">시작</button>';
+    $app.innerHTML = '<div class="wrap">' + h + '</div>';
+  }
   /* ── 길잡이 ── */
   function route() {
     penOff();
@@ -605,7 +634,9 @@
         return tn <= 10 ? startPractice(pickSet(function (q) { return q.a === tw; }, 10), "#/area/" + encodeURIComponent(tw), tw) : (function () { var ids = []; areaSplit(tset, tn).forEach(function (x) { ids = ids.concat(pickSet(function (q) { return q.a === x[0]; }, x[1])); }); return startPractice(ids, "#/", "오늘 " + tn + "문항"); })();
       case "area": return area(p[1]);
       case "go": return startPractice(pickSet(function (q) { return q.a === p[1] && (!p[2] || q.t === p[2]); }, 10), "#/area/" + encodeURIComponent(p[1]), p[1]);
-      case "wrong": return startPractice(shuffle(D.items.filter(function (q) { return S.h[q.i] && !S.h[q.i][1] && (!p[1] || q.a === p[1]); })).slice(0, 10).map(function (q) { return q.i; }), p[1] ? "#/area/" + encodeURIComponent(p[1]) : "#/", "복습");
+      case "review": return reviewList();
+      case "one": return startPractice(BYID[p[1]] ? [p[1]] : [], "#/review", "복습");
+      case "wrong": return startPractice(shuffle(D.items.filter(function (q) { return S.h[q.i] && (!S.h[q.i][1] || confOf(q.i) === "half") && (!p[1] || q.a === p[1]); })).slice(0, 10).map(function (q) { return q.i; }), p[1] ? "#/area/" + encodeURIComponent(p[1]) : "#/", "복습");
       case "org": return p[1] ? orgJobs(+p[1]) : orgList();
       case "goorg": var cj = curJob(); return cj ? startPractice(pickSet(function (q) { return cj.j.a.indexOf(q.a) >= 0; }, 10), "#/", cj.o.n + " 맞춤") : (location.hash = "#/org");
       case "orgmock": return orgMock();
