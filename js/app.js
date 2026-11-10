@@ -595,29 +595,23 @@
     document.body.classList.add("mapscr");
     var cj = curJob(), org = cj ? cj.j.a : [];
     var areas = AREAS.filter(function (a) { return areaStat(a).n; });
-    areas = areas.filter(function (a) { return org.indexOf(a) >= 0; }).concat(areas.filter(function (a) { return org.indexOf(a) < 0; }));
-    var cand = [], tS = 0, tN = 0;
-    var groups = areas.map(function (a) {
+    /* 카드 = 영역, 줄 = 그 영역의 유형(avg = 문항 수, pct = 푼 비율). 지원 기관이 출제하는 영역을 위 묶음에 */
+    function areaNode(a) {
       var subs = {}; D.items.forEach(function (q) { if (q.a === a && q.t) subs[q.t] = (subs[q.t] || 0) + 1; });
-      var ks = Object.keys(subs).sort(function (x, y) { return subs[y] - subs[x]; }), sa = areaStat(a); tS += sa.solved; tN += sa.n;
-      var nodes = ks.map(function (t) {
-        var st = areaStat(a, t), pct = Math.round(st.solved / st.n * 100);
-        var lv = []; [["피듈", "피듈형"], ["모듈", "모듈형"], ["PSAT", "PSAT형"]].forEach(function (fm) {
-          var its = D.items.filter(function (q) { return q.a === a && q.t === t && q.f === fm[0]; }); if (!its.length) return;
-          var dn = its.filter(function (q) { return S.h[q.i]; }).length;
-          lv.push({ name: fm[1] + " · " + its.length + "문항", f: fm[0], pct: Math.round(dn / its.length * 100) });
-        });
-        var nd = { id: a + "|" + t, t: t, name: D.types[t] || t, pct: pct, leaves: lv };
-        cand.push(nd); return nd;
-      });
-      return { name: a, pct: Math.round(sa.solved / sa.n * 100), nodes: nodes };
-    });
-    cand.slice().sort(function (x, y) { return x.pct - y.pct || cand.indexOf(x) - cand.indexOf(y); }).slice(0, 5).forEach(function (nd, i) { nd.order = i + 1; });
+      var ks = Object.keys(subs).sort(function (x, y) { return subs[y] - subs[x]; });
+      var lv = ks.map(function (t) { var st = areaStat(a, t); return { name: D.types[t] || t, t: t, avg: subs[t], pct: Math.round(st.solved / st.n * 100) }; });
+      var sa = areaStat(a), tot = lv.reduce(function (x, l) { return x + l.avg; }, 0);
+      return { id: a, name: a, a: a, avg: tot, pct: Math.round(sa.solved / sa.n * 100), leaves: lv };
+    }
+    var inOrg = areas.filter(function (a) { return org.indexOf(a) >= 0; }), rest = areas.filter(function (a) { return org.indexOf(a) < 0; });
+    var groups = [];
+    if (inOrg.length && rest.length) { groups.push({ name: "지원 직무 출제 영역", nodes: inOrg.map(areaNode) }); groups.push({ name: "그 밖의 영역", nodes: rest.map(areaNode) }); }
+    else groups.push({ name: "전체 영역", nodes: areas.map(areaNode) });
     $app.innerHTML = '<div class="wrap wide"><div id="tmap"></div></div>';
     var host = document.getElementById("tmap");
-    TERA_MAP.mount(host, { mark: "tier", title: cj ? cj.o.n : "공기업 NCS", sub: cj ? cj.j.n : "", unit: "문항", groups: groups, recommend: 5,
-      onLeaf: function (lf, n, g) { location.hash = "#/go/" + encodeURIComponent(g.name) + "/" + encodeURIComponent(n.t) + "/" + encodeURIComponent(lf.f); },
-      onStart: function (n, g) { location.hash = "#/go/" + encodeURIComponent(g.name) + "/" + encodeURIComponent(n.t); } });
+    TERA_MAP.mount(host, { mark: "tier", cap: 20, title: cj ? cj.o.n : "공기업 NCS", sub: cj ? cj.j.n : "", unit: "문항", groups: groups, recommend: 3,
+      onLeaf: function (lf, n, g) { location.hash = "#/go/" + encodeURIComponent(n.a) + "/" + encodeURIComponent(lf.t); },
+      onStart: function (n, g) { location.hash = "#/go/" + encodeURIComponent(n.a); } });
   }
   /* ── 복습 목록: 틀린 문항 + 헷갈림으로 표시한 문항 ── */
   function reviewList() {
