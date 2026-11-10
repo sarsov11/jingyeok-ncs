@@ -29,7 +29,6 @@
     ".th-home.fix{position:fixed;z-index:2147479000}",
     ".th-home.fix.tl{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top))}",
     ".th-home.fix.bl{left:max(12px,env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom,0px))}",
-    "@media (prefers-color-scheme:dark){.th-home.auto{background:rgba(30,32,38,.92);color:#F2F4F8;border-color:rgba(255,255,255,.16)}}",
     "@media print{.th-home{display:none!important}}"
   ].join("\n");
   /* 왼쪽 화살표 + 「테라러닝」: 앱 밖 테라러닝 홈으로 나간다 */

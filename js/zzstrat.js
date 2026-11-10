@@ -20,7 +20,7 @@
   var RM = false; try { RM = W.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { }
   var LANG = (function () { var l = (D.documentElement.getAttribute("lang") || "ko").toLowerCase(); return l.indexOf("ja") === 0 ? "ja" : l.indexOf("en") === 0 ? "en" : "ko"; })();
   var L = {
-    ko: { btn: "합격전략", next: "다음", end: "닫기", skip: "건너뛰기", close: "닫기", tour: "짚어 보기", abs: "절대평가", rel: "상대평가",
+    ko: { btn: "합격 전략", next: "다음", end: "닫기", skip: "건너뛰기", close: "닫기", tour: "짚어 보기", abs: "절대평가", rel: "상대평가",
       line: "합격선", goal: "목표", cut: "최근 합격선", bonus: "가산점", fail: "과락", sum: "과목 목표를 더하면", subj: "과목", strat: "전략", def: "면과락", base: "기본",
       why: "왜", hold: "여기까지는 맞힌다", drop: "버려도 되는 문항", ex: "기출로 보기", must: "필수", fight: "승부", skipq: "버림", ans: "정답", order: "시험장에서",
       rate: "합격률", writ: "필기", prac: "실기", vid: "근거 영상", src: "출처", rep: "반복 출제", newq: "신출", range: "범위", start: "시작",
@@ -66,13 +66,13 @@
   function modeName(m) { return { a: L.m_all, l: L.m_lite, g: L.m_guess }[m] || ""; }
 
   var css = [
-    "#zs,#zst,#zsy{--zs-bg:#F6F4EF;--zs-card:#FFFFFF;--zs-line:#E5E2DA;--zs-tx:#16181D;--zs-sub:#6B7080;--zs-red:#E1101C;--zs-blue:#3F4450;--zs-gold:#7C818C;--zs-soft:#F1EFE9}",
+    "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#E6E8EC;--zs-tx:#111419;--zs-sub:#4B5563;--zs-red:#0E7490;--zs-blue:#5F6670;--zs-gold:#5F6670;--zs-soft:#F6F7F9}",
     "#zs{position:fixed;inset:0;z-index:2147481000;background:var(--zs-bg);color:var(--zs-tx);overflow-y:auto;-webkit-overflow-scrolling:touch;",
     " font:500 15px/1.6 var(--zf);letter-spacing:-.01em;animation:zsIn .3s ease-out}",
     "@keyframes zsIn{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:none}}",
     "#zs.out{animation:zsOut .2s ease-in forwards}@keyframes zsOut{100%{opacity:0;transform:translateY(14px)}}",
     "#zs *{box-sizing:border-box}#zs .in{max-width:760px;margin:0 auto;padding:12px 16px 96px}",
-    "#zs .top{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:2;background:linear-gradient(var(--zs-bg) 72%,rgba(246,244,239,0));padding:10px 0 14px}",
+    "#zs .top{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:2;background:linear-gradient(var(--zs-bg) 72%,rgba(255,255,255,0));padding:10px 0 14px}",
     "#zs .top .t{font:800 13px/1 var(--zf);letter-spacing:.1em;color:var(--zs-red)}",
     "#zs .top button{margin-left:auto;background:var(--zs-card);border:1px solid var(--zs-line);color:var(--zs-sub);border-radius:10px;padding:8px 12px;font:700 13.5px/1 var(--zf);cursor:pointer}",
     "#zs .top .x{margin-left:6px}#zs .top .tr{margin-left:6px}",
@@ -93,8 +93,8 @@
     "#zs .pk.on .ck{border-color:var(--zs-red);background:var(--zs-red);box-shadow:inset 0 0 0 4px #fff}",
     "#zs .tm{display:flex;flex-wrap:wrap;gap:5px}",
     "#zs .tg{display:inline-flex;align-items:center;gap:4px;font:800 12px/1 var(--zf);padding:5px 7px;border-radius:7px}",
-    "#zs .tg b{font-weight:900}#zs .tg.a{background:var(--zs-tx);color:#fff}#zs .tg.l{background:#fff;color:var(--zs-tx);border:1.5px solid var(--zs-tx)}",
-    "#zs .tg.g{background:transparent;color:#9A9EA8;border:1.5px dashed #C9C6BE}",
+    "#zs .tg b{font-weight:900}#zs .tg.a{background:var(--zs-red);color:#fff}#zs .tg.l{background:#fff;color:var(--zs-tx);border:1.5px solid var(--zs-tx)}",
+    "#zs .tg.g{background:transparent;color:#5F6670;border:1.5px dashed #B4BAC3}",
     /* 게이지 */
     "#zs .gw{padding:34px 4px 32px;margin:6px 0 4px}#zs .gauge{position:relative;height:16px;border-radius:9px;background:#ECE9E2}",
     "#zs .gauge .fl{position:absolute;left:0;top:0;bottom:0;border-radius:9px 0 0 9px;background:repeating-linear-gradient(45deg,#F3D9DA 0 6px,#FBEDEE 6px 12px)}",
@@ -106,25 +106,25 @@
     "#zs .gauge .gl span{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:800;font-size:14px;line-height:1;font-family:inherit;color:var(--zs-red);background:var(--zs-card);padding:0 4px}",
     "#zs .big{font:800 26px/1 var(--zf);color:var(--zs-tx)}#zs .big small{font:700 15px/1 var(--zf);color:var(--zs-sub);margin-left:4px}",
     "#zs table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}#zs td,#zs th{padding:8px 6px;border-top:1px solid var(--zs-line);text-align:left;vertical-align:top}",
-    "#zs th{color:var(--zs-sub);font-weight:700;font-size:12.5px}#zs td.n{font-weight:800;white-space:nowrap}#zs td .mu{color:#8A8F9A}",
+    "#zs th{color:var(--zs-sub);font-weight:700;font-size:12.5px}#zs td.n{font-weight:800;white-space:nowrap}#zs td .mu{color:#5F6670}",
     "#zs .stack{display:flex;height:30px;border-radius:9px;overflow:hidden;margin:10px 0 6px;background:#ECE9E2}",
     "#zs .stack i{display:flex;align-items:center;justify-content:center;font:800 12px/1 var(--zf);color:#fff;font-style:normal;border-right:2px solid var(--zs-card);overflow:hidden;white-space:nowrap;min-width:0;transition:width .4s}",
-    "#zs .stack i.s{background:var(--zs-red)}#zs .stack i.d{background:var(--zs-blue)}#zs .stack i.b{background:#8A8F9A}",
+    "#zs .stack i.s{background:var(--zs-red)}#zs .stack i.d{background:var(--zs-blue)}#zs .stack i.b{background:#B4BAC3}",
     /* 점수 그래프 A·B·C */
     "#zs .gw{padding:6px 0 0;margin:10px 0 6px}",
     "#zs .ga{position:relative;padding:40px 2px 0}#zs .ga .bar{position:relative;height:40px;border-radius:12px;overflow:hidden;background:#EFECE5}",
     "#zs .ga .z{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center}#zs .ga .z.rest{background:#E7E3DA}",
-    "#zs .ga .z em{font:800 13px/1 var(--zf);color:#fff;font-style:normal;white-space:nowrap}#zs .ga .z.rest em{color:#8A8F9A}",
+    "#zs .ga .z em{font:800 13px/1 var(--zf);color:#fff;font-style:normal;white-space:nowrap}#zs .ga .z.rest em{color:#5F6670}",
     "#zs .ga .f{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,var(--c) 0 3px,transparent 3px 8px);opacity:.55}",
     "#zs .ga .ticks{position:relative;height:58px}",
     "#zs .ga .tk{position:absolute;top:8px;transform:translateX(-50%);font:800 12px/1 var(--zf);white-space:nowrap}#zs .ga .tk.dn{top:26px}",
     "#zs .ga .ax{position:absolute;top:44px;font:700 12px/1 var(--zf);color:#A0A4AE}#zs .ga .ax.l{left:0}#zs .ga .ax.r{right:0}",
     "#zs .gp{position:absolute;top:0;transform:translateX(-50%);z-index:2;transition:left .4s cubic-bezier(.2,1,.3,1)}",
-    "#zs .gp b{display:block;background:var(--zs-tx);color:#fff;font:800 12.5px/1 var(--zf);padding:7px 9px;border-radius:8px;white-space:nowrap}",
-    "#zs .gp::after{content:'';position:absolute;left:50%;top:100%;margin-left:-1.5px;width:3px;height:52px;background:var(--zs-tx)}",
+    "#zs .gp b{display:block;background:var(--zs-red);color:#fff;font:800 12.5px/1 var(--zf);padding:7px 9px;border-radius:8px;white-space:nowrap}",
+    "#zs .gp::after{content:'';position:absolute;left:50%;top:100%;margin-left:-1.5px;width:3px;height:52px;background:var(--zs-red)}",
     "#zs .gb{--lw:92px;position:relative;padding-top:30px}",
     "#zs .gb .rw{display:flex;align-items:center;min-height:38px;padding:3px 0}#zs .gb .rn{flex:none;width:var(--lw);font-weight:700;font-size:12px;line-height:1.25;color:#4A4F5C;padding-right:8px;word-break:keep-all}",
-    "#zs .gb .tr{position:relative;flex:1;align-self:stretch;min-height:32px}#zs .gb .ln{position:absolute;left:0;right:0;top:50%;height:2px;background:#E5E2DA}",
+    "#zs .gb .tr{position:relative;flex:1;align-self:stretch;min-height:32px}#zs .gb .ln{position:absolute;left:0;right:0;top:50%;height:2px;background:#E6E8EC}",
     "#zs .gb .dt{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}",
     "#zs .gb .dt s{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);text-decoration:none;font:800 12px/1 var(--zf);color:#4A4F5C;white-space:nowrap}",
     "#zs .gb .rw.ax{height:18px}#zs .gb .rw.ax s{position:absolute;top:0;text-decoration:none;font:700 12px/1 var(--zf);color:#A0A4AE}",
@@ -139,30 +139,30 @@
     /* 과목 카드 */
     "#zs .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}",
     "#zs .sc{position:relative;background:var(--zs-card);border:2px solid var(--zs-line);border-radius:16px;padding:14px 14px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}",
-    "#zs .sc.s{border-color:color-mix(in srgb,var(--zs-red) 45%,transparent)}#zs .sc.d{border-color:rgba(37,99,235,.45)}#zs .sc.on{background:#FBFAF7}",
+    "#zs .sc.s{border-color:color-mix(in srgb,var(--zs-red) 45%,transparent)}#zs .sc.d{border-color:rgba(95,102,112,.45)}#zs .sc.on{background:#FAFAFB}",
     "#zs .sc .rb{position:absolute;top:12px;right:12px;font:800 12px/1 var(--zf);padding:5px 8px;border-radius:7px}",
     "#zs .sc.s .rb{background:var(--zs-red);color:#fff}#zs .sc.d .rb{background:var(--zs-blue);color:#fff}#zs .sc.b .rb{background:var(--zs-soft);color:#4A4F5C}",
     "#zs .sc .sn{font:800 16.5px/1.3 var(--zf);padding-right:56px;word-break:keep-all}",
     "#zs .sc .sg{font:800 21px/1 var(--zf);margin:12px 0 4px}#zs .sc .sg small{font:700 13px/1 var(--zf);color:var(--zs-sub)}",
     "#zs .sc .sq{font-size:13.5px;color:#4A4F5C;margin-bottom:8px}",
     "#zs .sc .bar{height:6px;border-radius:4px;background:#ECE9E2;margin:2px 0 10px;overflow:hidden}#zs .sc .bar b{display:block;height:100%;transition:width .4s}",
-    "#zs .sc.s .bar b{background:var(--zs-red)}#zs .sc.d .bar b{background:var(--zs-blue)}#zs .sc.b .bar b{background:#8A8F9A}",
+    "#zs .sc.s .bar b{background:var(--zs-red)}#zs .sc.d .bar b{background:var(--zs-blue)}#zs .sc.b .bar b{background:#B4BAC3}",
     "#zs .det{display:none;grid-column:1/-1;background:var(--zs-bg);border:1px solid var(--zs-line);border-radius:16px;padding:16px 14px}#zs .det.on{display:block}",
     "#zs .det h3{font:800 17px/1.35 var(--zf);margin:0 0 12px}",
     "#zs .kv{margin:0 0 12px}#zs .kv b{display:block;font:800 12.5px/1.2 var(--zf);letter-spacing:.03em;margin-bottom:4px;color:var(--zs-sub)}",
     "#zs .kv.hold b{color:var(--zs-blue)}#zs .kv.tip b{color:var(--zs-red)}#zs .kv p{margin:0;word-break:keep-all}",
     "#zs .tl{list-style:none;margin:0;padding:0}#zs .tl li{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px dashed var(--zs-line)}#zs .tl li:first-child{border-top:0}",
-    "#zs .tl li .tg{flex:none;margin-top:2px}#zs .tl li.g span.tx{color:#8A8F9A}",
+    "#zs .tl li .tg{flex:none;margin-top:2px}#zs .tl li.g span.tx{color:#5F6670}",
     "#zs .ind{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}",
     /* 기출 카드 */
     "#zs .q{position:relative;background:#fff;color:#16181D;border:1px solid var(--zs-line);border-radius:14px;padding:16px 14px 14px;margin:12px 0 0;font-weight:500}",
     "#zs .q .qs{font:700 12px/1.3 var(--zf);color:#7A7F8A;margin-bottom:8px;padding-right:72px}",
     "#zs .q .qh{position:relative}#zs .q .qt{font-weight:700;margin:0 0 8px;word-break:keep-all}#zs .q ol{margin:0;padding-left:0;list-style:none;counter-reset:o}",
     "#zs .q li{counter-increment:o;padding:3px 0 3px 26px;position:relative;font-size:14.5px}",
-    "#zs .q li::before{content:counter(o);position:absolute;left:0;top:5px;width:18px;height:18px;border-radius:50%;border:1.5px solid #8A8F98;font:700 12px/16px var(--zf);text-align:center}",
-    "#zs .q li.a::before{background:#16181D;color:#fff;border-color:#16181D}",
+    "#zs .q li::before{content:counter(o);position:absolute;left:0;top:5px;width:18px;height:18px;border-radius:50%;border:1.5px solid #5F6670;font:700 12px/16px var(--zf);text-align:center}",
+    "#zs .q li.a::before{background:var(--zs-red);color:#fff;border-color:var(--zs-red)}",
     "#zs .q .st{position:absolute;top:12px;right:12px;font-weight:800;font-size:14px;line-height:1;font-family:inherit;padding:7px 10px;border-radius:8px;border:2.5px solid;transform:rotate(-4deg)}",
-    "#zs .q .st.m{color:var(--zs-red);border-color:var(--zs-red)}#zs .q .st.f{color:#3F4450;border-color:#3F4450}#zs .q .st.x{color:#8A8F98;border-color:#8A8F98}",
+    "#zs .q .st.m{color:var(--zs-red);border-color:var(--zs-red)}#zs .q .st.f{color:#3F4450;border-color:#3F4450}#zs .q .st.x{color:#5F6670;border-color:#5F6670}",
     "#zs .q.x .qt,#zs .q.x ol{opacity:.55}",
     "#zs .q .qe{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #D9D5CB;font-size:14px;word-break:keep-all}",
     "#zs ol.ord{margin:0;padding-left:20px}#zs ol.ord li{margin:0 0 6px}",
@@ -171,7 +171,7 @@
     "#zs .vl i{position:absolute;left:0;top:11px;width:20px;height:20px;border-radius:6px;background:#E1101C;color:#fff;font:800 12px/20px var(--zf);text-align:center;font-style:normal}",
     "#zs .vl b{display:block;font:800 13.5px/1.35 var(--zf)}#zs .vl em{display:block;font-style:normal;font-size:14px;color:#3A3E48;margin-top:2px;word-break:keep-all}",
     "#zs .vl.sm a,#zs .vl.sm span{padding:7px 0 7px 26px}#zs .vl.sm i{top:8px}#zs .vl.sm em{font-size:13.5px}",
-    "#zs .src{font-size:12px;color:#8A8F9A;margin-top:18px;word-break:break-all}",
+    "#zs .src{font-size:12px;color:#5F6670;margin-top:18px;word-break:break-all}",
     "#zs .go{display:block;width:100%;margin:22px 0 0;background:var(--zs-red);color:#fff;border:0;border-radius:14px;padding:16px;font:800 17px/1 var(--zf);cursor:pointer}",
     /* 이야기 시작 화면(10-25 대표님: 빈 화면 가운데에 한 줄씩 전략을 읽어 나가게) */
     "#zsy{position:fixed;inset:0;z-index:2147481500;background:var(--zs-bg);color:var(--zs-tx);font:500 16px/1.7 var(--zf);display:flex;flex-direction:column;animation:zsIn .35s ease-out;-webkit-tap-highlight-color:transparent}",
@@ -184,17 +184,17 @@
     "#zsy .ln{margin:0;font:700 clamp(19px,5vw,23px)/1.6 var(--zf);letter-spacing:-.02em;text-align:center;word-break:keep-all}",
     "#zsy .ln b{color:var(--zs-red);font-weight:800}",
     "#zsy .ln.in{animation:zsyIn .55s cubic-bezier(.2,.8,.2,1) both}@keyframes zsyIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}",
-    "#zsy.B .stage{justify-content:flex-end;padding-bottom:18vh}#zsy.B .ln{text-align:left;margin:0 0 18px}#zsy.B .ln.old{color:#A9ADB6;font-weight:600;font-size:16px}#zsy.B .ln.old b{color:inherit}",
+    "#zsy.B .stage{justify-content:flex-end;padding-bottom:18vh}#zsy.B .ln{text-align:left;margin:0 0 18px}#zsy.B .ln.old{color:#5F6670;font-weight:600;font-size:16px}#zsy.B .ln.old b{color:inherit}",
     "#zsy .ft{padding:0 18px max(18px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px}",
-    "#zsy .pg{flex:1;height:3px;border-radius:3px;background:var(--zs-line);overflow:hidden}#zsy .pg i{display:block;height:100%;background:var(--zs-tx);transition:width .35s}",
-    "#zsy .nx{background:var(--zs-tx);color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 14.5px/1 var(--zf);cursor:pointer;white-space:nowrap}",
+    "#zsy .pg{flex:1;height:3px;border-radius:3px;background:var(--zs-line);overflow:hidden}#zsy .pg i{display:block;height:100%;background:var(--zs-red);transition:width .35s}",
+    "#zsy .nx{background:var(--zs-red);color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 14.5px/1 var(--zf);cursor:pointer;white-space:nowrap}",
     "#zsy .tap{font:600 12.5px/1 var(--zf);color:var(--zs-sub);text-align:center;margin-top:26px;opacity:.8}",
     "#zsy .pks{display:flex;flex-direction:column;gap:10px;margin-top:22px}",
     "#zsy .pk{display:block;width:100%;text-align:left;background:var(--zs-card);border:1.5px solid var(--zs-line);border-radius:14px;padding:14px 16px;cursor:pointer;color:inherit;font:inherit}",
     "#zsy .pk b{display:block;font:800 16px/1.3 var(--zf)}#zsy .pk span{display:block;font:500 13.5px/1.5 var(--zf);color:var(--zs-sub);margin-top:4px;word-break:keep-all}",
     "#zsy .pk.on{border-color:var(--zs-red);box-shadow:0 0 0 3px color-mix(in srgb,var(--zs-red) 15%,transparent)}",
     "#zsy .end{display:flex;flex-direction:column;gap:10px;margin-top:26px}",
-    "#zsy .end button{border-radius:999px;padding:14px;font:700 15px/1 var(--zf);cursor:pointer;border:1.5px solid var(--zs-tx);background:none;color:var(--zs-tx)}#zsy .end .main{background:var(--zs-tx);color:#fff}",
+    "#zsy .end button{border-radius:999px;padding:14px;font:700 15px/1 var(--zf);cursor:pointer;border:1.5px solid var(--zs-tx);background:none;color:var(--zs-tx)}#zsy .end .main{background:var(--zs-red);color:#fff;border-color:var(--zs-red)}",
     /* 글써지는 효과(10-27 대표님: 한 줄씩 집중해 읽는 합격전략에만. 카테고리·목표 고르기에는 안 쓴다) */
     "#zsy .ln .cu{display:inline-block;width:2px;height:1.05em;margin-left:2px;vertical-align:-.15em;background:currentColor;animation:zsyCu .8s steps(1) infinite}@keyframes zsyCu{50%{opacity:0}}",
     "#zsy .ln.typing{animation:none}#zsy .ln .rs{opacity:0}#zsy .ln .cu{margin-right:-2px}",
@@ -209,9 +209,9 @@
     "#zst .bub .h{font:800 12.5px/1.3 var(--zf);color:var(--zs-red);letter-spacing:.04em;margin-bottom:8px}",
     "#zst .bub.in{animation:zstIn .3s ease-out}@keyframes zstIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}",
     "#zst .row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}",
-    "#zst .dots{display:flex;gap:5px;min-width:0;flex:1 1 auto;overflow:hidden}#zst .dots .cnt{font:800 13px/1 var(--zf);color:#8A8F98;white-space:nowrap}",
+    "#zst .dots{display:flex;gap:5px;min-width:0;flex:1 1 auto;overflow:hidden}#zst .dots .cnt{font:800 13px/1 var(--zf);color:#5F6670;white-space:nowrap}",
     "#zst .dots i{flex:none}#zst .dots i{width:7px;height:7px;border-radius:9px;background:#DADDE2}#zst .dots i.on{background:var(--zs-red);width:18px}",
-    "#zst .sk{margin-left:auto;background:none;border:0;color:#8A8F98;font:700 14px/1 var(--zf);padding:8px 6px;cursor:pointer;white-space:nowrap;flex:none}",
+    "#zst .sk{margin-left:auto;background:none;border:0;color:#5F6670;font:700 14px/1 var(--zf);padding:8px 6px;cursor:pointer;white-space:nowrap;flex:none}",
     "#zst .nx{background:var(--zs-red);color:#fff;border:0;border-radius:12px;padding:11px 18px;font:800 15px/1 var(--zf);cursor:pointer;white-space:nowrap;flex:none}",
     "#zst .nx[hidden]{display:none}",
     "@media (prefers-reduced-motion:reduce){#zs,#zs.out,#zst .bub.in{animation:none}}"
@@ -248,7 +248,8 @@
     "#zst .bub{background:#0F1522;color:#F4F6FA;border:1px solid #1E2738;box-shadow:0 14px 34px rgba(0,0,0,.5)}",
     "#zst .dots i{background:#2A3346}#zst .nx{color:#04121A}"
   ].join("\n");
-  function isDark(d) { var t = (d && d.테마) || W.ZZSTRAT_THEME; return t !== "light"; }
+  /* 11-10 대표님: 다른 앱과 같은 밝은 화면. 검은 화면은 ZZSTRAT_THEME="dark" 일 때만 */
+  function isDark(d) { var t = (d && d.테마) || W.ZZSTRAT_THEME; return t === "dark"; }
   function pointColor(d) {
     var q = ""; try { q = (location.search.match(/[?&]zsc=([a-z]+)/) || [])[1] || ""; } catch (e) { }
     var p = (d && d.포인트색) || W.ZZSTRAT_POINT || q || "sky";
@@ -274,16 +275,17 @@
   /* 앱 문서에 들어가는 것은 구석 버튼뿐. 브리핑·튜토리얼은 Shadow DOM 안이라 앱 CSS(.row .chip .q 등)가 섞이지 않는다 */
   var docCss = [
     ".zs-fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147480000;display:flex;align-items:center;gap:6px;",
-    " background:#fff;color:#16181D;border:2px solid #E1101C;border-radius:999px;padding:9px 13px 9px 10px;font-weight:800;font-size:13.5px;line-height:1;font-family:inherit;",
+    " background:#fff;color:#16181D;border:2px solid #0E7490;border-radius:999px;padding:9px 13px 9px 10px;font-weight:800;font-size:13.5px;line-height:1;font-family:inherit;",
     " box-shadow:0 6px 18px rgba(0,0,0,.14);cursor:pointer}",
-    ".zs-fab svg,.zs-btn svg{width:18px;height:18px;flex:none;color:#E1101C}",
-    ".zs-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#16181D;border:2px solid #E1101C;border-radius:12px;padding:9px 13px;font-weight:800;font-size:14px;line-height:1;font-family:inherit;cursor:pointer}",
+    ".zs-fab svg,.zs-btn svg{width:18px;height:18px;flex:none;color:#0E7490}",
+    ".zs-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#16181D;border:2px solid #0E7490;border-radius:12px;padding:9px 13px;font-weight:800;font-size:14px;line-height:1;font-family:inherit;cursor:pointer}",
     "@media print{#zs-host,.zs-fab{display:none!important}}"
   ].join("\n");
   var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>';
   /* 앱 글꼴·대표색을 이어받는다(10-25 대표님 「글씨체가 갑자기 일관성을 깨고… 색깔도 이상함」) */
   function appFont() { try { var f = getComputedStyle(D.body).fontFamily; return f && f !== "initial" ? f : ""; } catch (e) { return ""; } }
   function appAccent() {
+    if (W.ZZSTRAT_ACCENT) return W.ZZSTRAT_ACCENT;
     var m = D.querySelector('meta[name="theme-color"]'), c = m && m.getAttribute("content");
     try {
       if (!c) return "#E1101C";
@@ -301,7 +303,7 @@
       return "\n" + darkCss + "\n#zs,#zst,#zsy{--zs-red:" + p + ";--zf:" + f + "}";
     }
     var a = appAccent();
-    GCOL["1"] = a; GCOL.P = a; GCOL["2"] = "#2B2F38"; GCOL["3"] = "#8A8F9A"; GCOL["4"] = "#B3B6BD"; GCOL["5"] = "#CDD0D5";
+    GCOL["1"] = a; GCOL.P = a; GCOL["2"] = "#333941"; GCOL["3"] = "#5F6670"; GCOL["4"] = "#B3B6BD"; GCOL["5"] = "#CDD0D5";
     return "\n#zs,#zst,#zsy{--zs-red:" + a + ";--zf:" + f + "}";
   }
   function style() { if (D.getElementById("zs-style")) return; var st = D.createElement("style"); st.id = "zs-style"; st.textContent = docCss; D.head.appendChild(st); }
@@ -310,7 +312,7 @@
   /* ── 점수 그래프 (10-21 대표님 「점수 구간 그래프 너무 별로」 → 세 안: A 구간 막대 · B 회차별 점 · C 등급 카드) ──
    *  대입처럼 등급으로 끊는 시험은 데이터 `등급컷: [{이름:"2026.6 학평", 컷:{1:50, 2:46, 3:41}, 비고}]`.
    *  합불 시험은 기존 `합격선.커트` 를 한 줄씩 행으로 쓴다. 안 고르기: 데이터 `그래프:"A|B|C"` > ZZSTRAT.graph > 주소 ?zsg=B > A */
-  var GCOL = { "1": "#E1101C", "2": "#2B2F38", "3": "#8A8F9A", "4": "#B3B6BD", "5": "#CDD0D5", P: "#E1101C" };   /* 1등급·합격선 = 앱 대표색(열 때 바꿈), 나머지는 회색 단계 */
+  var GCOL = { "1": "#E1101C", "2": "#2B2F38", "3": "#5F6670", "4": "#B3B6BD", "5": "#CDD0D5", P: "#E1101C" };   /* 1등급·합격선 = 앱 대표색(열 때 바꿈), 나머지는 회색 단계 */
   function isGrade(d) { return !!(d.등급컷 && d.등급컷.length); }
   function gName(k) { return k === "P" ? L.passz : LANG === "ko" ? k + "등급" : LANG === "ja" ? k + "等級" : "Grade " + k; }
   function cName(k) { return k === "P" ? L.line : LANG === "ko" ? k + "컷" : LANG === "ja" ? k + "等級ライン" : "Grade " + k + " cut"; }

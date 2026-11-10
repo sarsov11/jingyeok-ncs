@@ -73,7 +73,7 @@
     { n: 7, name: TXT.names[2], c1: "#FF7A00", c2: "#FFC14D" },
     { n: 10, name: TXT.names[3], c1: "#E3242B", c2: "#FF8A3D" },
     { n: 15, name: TXT.names[4], c1: "#C9A100", c2: "#FFE36B" },
-    { n: 20, name: TXT.names[5], c1: "#111827", c2: "#FFD54A" }
+    { n: 20, name: TXT.names[5], c1: "#0B5C73", c2: "#FFD54A" }
   ];
 
   var st = D.createElement("style"); st.id = "zz-style";
@@ -90,7 +90,7 @@
     "#zz-hud{position:absolute;right:14px;top:12px;display:flex;align-items:center;gap:8px;padding:7px 12px 7px 8px;border-radius:999px;background:#fff;",
     " box-shadow:0 6px 18px rgba(0,0,0,.16),0 0 0 1px rgba(0,0,0,.06);font:800 13px/1 " + FONT + ";color:#111;transform:translateY(-70px);transition:transform .35s cubic-bezier(.2,1.4,.4,1)}",
     "@media (min-width:700px){#zz-hud{top:64px}}",
-    "#zz-hud.on{transform:none}#zz-hud .lv{background:#111;color:#FFD54A;border-radius:999px;padding:5px 8px;font-weight:900}",
+    "#zz-hud.on{transform:none}#zz-hud .lv{background:" + ACC + ";color:#fff;border-radius:999px;padding:5px 8px;font-weight:900}",
     "#zz-hud .bar{width:96px;height:9px;border-radius:9px;background:#EEF0F3;overflow:hidden}#zz-hud .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#FFCB3D,#F59E0B);transition:width .45s cubic-bezier(.2,1,.3,1)}",
     "#zz-hud.hit{animation:zzHit .35s cubic-bezier(.2,1.8,.4,1)}@keyframes zzHit{40%{transform:scale(1.14)}}",
     ".zz-ban{position:absolute;left:0;right:0;top:13%;height:96px;display:flex;align-items:center;justify-content:center;pointer-events:none}",
@@ -103,7 +103,7 @@
     "@keyframes zzBanTx{0%{opacity:0;transform:skewY(-4deg) translateX(-160px) scale(1.4)}14%{opacity:0}22%{opacity:1;transform:skewY(-4deg) translateX(0) scale(1.12)}",
     " 30%{transform:skewY(-4deg) scale(1)}80%{opacity:1;transform:skewY(-4deg) translateX(10px)}100%{opacity:0;transform:skewY(-4deg) translateX(160px)}}",
     "@media(max-width:560px){.zz-ban .tx{font-size:30px}.zz-ban .tx small{font-size:16px}.zz-ban{height:76px}}",
-    ".zz-dim{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(20,14,40,.55),rgba(8,6,18,.88));animation:zzDim 2.6s ease forwards}",
+    ".zz-dim{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.72),rgba(246,247,249,.94));animation:zzDim 2.6s ease forwards}",
     "@keyframes zzDim{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}",
     ".zz-emb{position:absolute;left:50%;top:44%;width:210px;height:210px;margin:-105px 0 0 -105px;display:grid;place-items:center;transform:scale(0);animation:zzEmb 2.6s cubic-bezier(.2,1.5,.3,1) forwards}",
     ".zz-emb .ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,var(--c2),var(--c1),var(--c2),var(--c1),var(--c2));animation:zzSpin 2.6s linear}",
@@ -111,8 +111,8 @@
     ".zz-emb b{position:relative;font:900 92px/1 " + FONT + ";color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.3),0 0 30px var(--c2)}",
     "@keyframes zzSpin{to{transform:rotate(360deg)}}",
     "@keyframes zzEmb{0%{transform:scale(0) rotate(-90deg)}33%{transform:scale(0) rotate(-90deg)}42%{transform:scale(1.25) rotate(8deg)}50%{transform:scale(.95) rotate(-2deg)}57%{transform:scale(1)}85%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}",
-    ".zz-big{position:absolute;left:0;right:0;top:calc(44% + 130px);text-align:center;color:#fff;font:900 54px/1 " + FONT + ";letter-spacing:.04em;",
-    " text-shadow:0 0 24px var(--c2),0 4px 0 rgba(0,0,0,.35);opacity:0;animation:zzBig 2.6s ease forwards}",
+    ".zz-big{position:absolute;left:0;right:0;top:calc(44% + 130px);text-align:center;color:#111419;font:900 54px/1 " + FONT + ";letter-spacing:.04em;",
+    " text-shadow:none;opacity:0;animation:zzBig 2.6s ease forwards}",
     ".zz-big small{display:block;margin-top:12px;font-size:20px;letter-spacing:0;font-weight:800;opacity:.9}",
     "@keyframes zzBig{0%,40%{opacity:0;transform:translateY(20px)}50%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}",
     ".zz-peek{position:absolute;left:50%;top:44%;width:190px;height:190px;margin:-95px 0 0 -95px;border-radius:50%;background:#fff;border:6px solid " + ACC + ";animation:zzPeek .9s ease-in forwards}",

@@ -397,9 +397,9 @@
   }
   function close() { if (sheet) sheet.classList.remove("on"); if (fab) fab.classList.remove("hide"); }
   function mount() {
-    fab = document.createElement("button"); fab.className = "as-fab"; fab.type = "button"; fab.textContent = "질문하기"; fab.hidden = true;
-    sheet = document.createElement("div"); sheet.className = "as-sheet"; sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-label", "학습 비서");
-    sheet.innerHTML = '<div class="as-top"><b>질문하기</b><span class="as-sp"></span><button type="button" class="as-set">설정</button><button type="button" class="as-x" aria-label="닫기">닫기</button></div><div class="as-log"></div><div class="as-chips"></div>' +
+    fab = document.createElement("button"); fab.className = "as-fab"; fab.type = "button"; fab.textContent = "테라에이전트"; fab.hidden = true;
+    sheet = document.createElement("div"); sheet.className = "as-sheet"; sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-label", "테라에이전트");
+    sheet.innerHTML = '<div class="as-top"><b>테라에이전트</b><span class="as-sp"></span><button type="button" class="as-set">설정</button><button type="button" class="as-x" aria-label="닫기">닫기</button></div><div class="as-log"></div><div class="as-chips"></div>' +
       '<form class="as-in"><input type="text" maxlength="120" placeholder="예: ③번이 왜 틀려요?" autocomplete="off" enterkeyhint="send"><button type="submit">보내기</button></form>';
     document.body.appendChild(fab); document.body.appendChild(sheet);
     fab.onclick = open; sheet.querySelector(".as-x").onclick = close;
