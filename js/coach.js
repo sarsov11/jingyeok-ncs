@@ -185,6 +185,42 @@
     return put(d, true);
   }
 
+  /* ───────── 오답 패턴 비교표 (11-11) ─────────
+   * data/oxtable.js 의 표(버튼·열·행·근거·연결·선지연결·우선)를 문항에 붙인다.
+   * 오답 직후: 고른 선지가 선지연결에 있는 표 → 그 문항의 오답후 표 순서로 버튼 최대 3개.
+   * 맞혔지만 오래 걸림: 언제가 오래걸림인 표. 누르면 표가 그 자리에 펼쳐진다. */
+  var OXT = root.NCS_OXT || [], OXQ = {};
+  OXT.forEach(function (t) { (t["연결"] || []).forEach(function (id) { (OXQ[id] = OXQ[id] || []).push(t); }); });
+  function oxtPick(q, pick, when) {
+    var L = (OXQ[q.i] || []).filter(function (t) { return !SS.yqUsed["oxt#" + t.id]; });
+    var sl = function (t) { return ((t["선지연결"] || {})[q.i] || []); };
+    var hit = when === "오답후" ? L.filter(function (t) { return sl(t).indexOf(pick) >= 0; }) : [];
+    var rest = L.filter(function (t) { return hit.indexOf(t) < 0 && (t["언제"] === when || (when === "오답후" && t["유형"] === "근거문장")) && (when !== "오답후" || !sl(t).length); });
+    var by = function (a, b) { return (a["우선"] || 9) - (b["우선"] || 9); };
+    return hit.sort(by).concat(rest.sort(by)).slice(0, 3);
+  }
+  function oxtHtml(t) {
+    var h = '<div class="cb-oxt"><table><tr>' + (t["열"] || []).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join("") + '</tr>';
+    (t["행"] || []).forEach(function (r) { h += '<tr>' + (r["칸"] || []).map(function (c) { return '<td>' + esc(c) + '</td>'; }).join("") + '</tr>'; });
+    h += '</table>';
+    var g = []; (t["행"] || []).forEach(function (r) { (r["근거"] || []).forEach(function (x) { g.push(x); }); });
+    if (g.length) h += '<details class="cb-oxg"><summary>기출 근거 ' + g.length + '개</summary><ul>' + g.map(function (x) { return '<li><b>' + esc(x["판정"]) + '</b> ' + esc(x["문장"]) + (x["출처"] ? ' <i>' + esc(x["출처"]) + '</i>' : '') + '</li>'; }).join("") + '</ul></details>';
+    return h + '</div>';
+  }
+  function showOxt(ts, q, after) {
+    if (!ts.length) return null;
+    var d = cardEl("prop", "", "", ts.map(function (t, n) { return { a: "oxt:" + n, t: t["버튼"], cls: "y" }; }).concat([{ a: "n", t: ETC["괜찮아요"], cls: "n" }]));
+    d.classList.add("live"); d.setAttribute("data-key", "oxt"); d._q = q; d._oxt = ts; d._after = after;
+    return put(d, true);
+  }
+  function openOxt(d, n) {
+    var t = d._oxt[n], q = d._q; if (!t) return;
+    accepted(); SS.yqUsed["oxt#" + t.id] = 1;
+    /* 표는 읽을 시간이 필요해서 live 로 두지 않고(다음 제안이 지우지 않게), 이어지는 제안도 붙이지 않는다 */
+    var r = cardEl("res", t["버튼"], oxtHtml(t), []); r.setAttribute("data-oxt", t.id);
+    d.replaceWith(r); reveal(r);
+  }
+
   /* 빠르게 푸는 법 / 유형 핵심: 유형팁을 그 자리에 펼친다 */
   function speedBody(q, mySec) {
     var r = A.answer("더 빨리 푸는 법", { q: q, solved: !!(cur && cur.answered), mySec: mySec });
@@ -472,6 +508,7 @@
       if (!cur || cur.q !== q || !cur.answered) return;
       if (!slot()) return;
       if (d.ok) {
+        if (ratio > 1.3 && !SS.muted[q.i] && propAllowed() && showOxt(oxtPick(q, 0, "오래걸림"), q)) return;
         if (ratio > 1.3 && !SS.muted[q.i] && TIPS[q.t] && (TIPS[q.t].k || []).length && propAllowed()) {
           showProp("느린정답", { sec: sec, goal: cur.target, over: Math.round(sec - cur.target) }, function (c) { accepted(); var r = cardEl("res", "", speedBody(q, sec), []); c.replaceWith(r); reveal(r); });
           return;
@@ -506,6 +543,8 @@
       }
       if (propAllowed()) {
         /* 예상질문표: 고른 오답 선지에 붙은 질문이 있으면 그 학생 생각을 짚는 말이 먼저, 이어서 근거 → 한 문제 더 */
+        /* 오답 패턴 비교표(11-11): 고른 오답에 맞춘 버튼이 먼저 */
+        if (showOxt(oxtPick(q, d.v, "오답후"), q)) return;
         var yw = yqPick(q, "오답후", { pick: d.v });
         if (yw && showYQ(yw, q, function () { stepEvidence(ctx); })) return;
         stepWhy(ctx);
@@ -527,6 +566,7 @@
     var d = b.closest(".cb"), a = b.getAttribute("data-a");
     if (a === "y") { if (d._yes) d._yes(d); return; }
     if (a === "n") { declined(d); return; }
+    if (a.indexOf("oxt:") === 0) { openOxt(d, +a.slice(4)); return; }
     if (a === "x") { closeMot(d); return; }
     if (a === "rest") { ST.ev.쉼++; bump("위로", 1); closeMot(d, true); return; }
     if (a === "more") { closeMot(d, true); return; }

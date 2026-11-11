@@ -225,10 +225,12 @@
   }
   function orgMock() {
     var c = curJob(); if (!c) { location.hash = "#/org"; return; }
-    var ar = c.j.a.filter(function (a) { return areaStat(a).n; }), n = Math.min(c.j.q || 50, 60), per = {}, ids = [];
+    /* 11-11: 문항 수·시간은 기관 공고 자료(data/orgs.js 의 q·m)를 그대로 쓴다. 60문항 상한을 없앴다. 자료에 없으면 기본 50문항·문항당 1분으로 구성하되 소개 화면에 「공고 자료 없음」을 밝힌다 */
+    var ar = c.j.a.filter(function (a) { return areaStat(a).n; }), n = c.j.q || 50, per = {}, ids = [], seen = {};
     ar.forEach(function (a, k) { per[a] = Math.floor(n / ar.length) + (k < n % ar.length ? 1 : 0); });
-    ar.forEach(function (a) { ids = ids.concat(pickSet(function (q) { return q.a === a && !q.g; }, per[a])); });
-    S.om = { key: "org", name: c.o.n + " " + c.j.n + " 모의고사", form: "기관형", min: c.j.m || ids.length, ids: ids }; save();
+    ar.forEach(function (a) { pickSet(function (q) { return q.a === a && !q.g; }, per[a]).forEach(function (i) { ids.push(i); seen[i] = 1; }); });
+    if (ids.length < n) ar.forEach(function (a) { if (ids.length >= n) return; pickSet(function (q) { return q.a === a && !q.g && !seen[q.i]; }, n - ids.length).forEach(function (i) { if (ids.length < n) { ids.push(i); seen[i] = 1; } }); });
+    S.om = { key: "org", name: c.o.n + " " + c.j.n + " 모의고사", form: "기관형", min: c.j.m || ids.length, ids: ids, noQ: !c.j.q, noM: !c.j.m }; save();
     location.hash = "#/mock/org";
   }
 
@@ -304,7 +306,7 @@
     } else {
       if (cj && have.length) steps.push(['맞춤 10문항', '지원 기관 출제 영역 ' + have.length + '개', '10문항', '#/goorg']);
       else steps.push([w + ' 10문항', '가장 약한 영역부터', '10문항', '#/go/' + encodeURIComponent(w)]);
-      if (cj && have.length) steps.push(['기관형 모의고사', (cj.j.q ? 'NCS ' + cj.j.q + '문항' : '기관 출제 영역으로 구성') + (cj.j.m ? ' · ' + cj.j.m + '분' : ''), (Math.min(cj.j.q || 50, 60)) + '문항', '#/orgmock']);
+      if (cj && have.length) steps.push(['기관형 모의고사', (cj.j.q ? 'NCS ' + cj.j.q + '문항' : '기관 출제 영역으로 구성') + (cj.j.m ? ' · ' + cj.j.m + '분' : ''), (cj.j.q || 50) + '문항', '#/orgmock']);
       else if (D.mocks.length) steps.push(['모의고사', D.mocks[0].name, (D.mocks[0].min || D.mocks[0].ids.length) + '분', '#/mocks']);
       if (wrongN) steps.push(['복습', '마지막에 틀린 것만 다시', wrongN + '문항', '#/wrong']);
     }
@@ -473,10 +475,7 @@
     var h = '<div class="paper cover"><div class="cv-y">' + examYear() + '</div><div class="cv-o">' + esc(eo.o) + '</div><div class="cv-s">신입사원 채용 필기시험</div>' +
       '<div class="cv-t">문 제 지</div><div class="cv-k">직업기초능력평가' + (eo.j ? ' · ' + esc(eo.j) : '') + '</div><div class="cv-f">' + esc(m.name) + ' (' + esc(m.form) + ')</div>' +
       '<table class="cv-tb"><tr><th>문항 수</th><td>' + m.ids.length + '문항</td><th>시험 시간</th><td>' + min + '분</td></tr></table>' +
-      '<table class="cv-tb ar">' + AREAS.filter(function (a) { return cnt[a]; }).map(function (a) { return '<tr><th>' + a + '</th><td>' + cnt[a] + '문항</td></tr>'; }).join("") + '</table>' +
-      '<div class="cv-id"><span>수험번호</span><i></i><span>성 명</span><i></i></div>' +
-      '<div class="cv-rule"><b>응시자 유의사항</b><ol><li>답은 화면 아래 답안 표기란에 고르고, 다 푼 뒤 「채점」을 누른다.</li><li>시험 시간이 끝나면 고른 답까지만 자동으로 채점된다.</li><li>계산기는 쓸 수 없다. 계산은 문항 밑 연습장에 한다.</li><li>문항마다 머문 시간이 기록되어 해설지에 나온다.</li></ol></div></div>' +
-      (r ? '<div class="src" style="margin-top:8px;text-align:center">지난 점수 ' + r.s + ' / ' + r.t + '</div>' : '') +
+      ((m.noQ || m.noM) ? '<div class="src" style="margin:-6px 0 10px;text-align:center">공고에 ' + (m.noQ && m.noM ? '문항 수와 시간이 없어 50문항 · 문항당 1분' : m.noQ ? '문항 수가 없어 50문항' : '시간이 없어 문항당 1분') + '으로 잡았어요.</div>' : '') +
       '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button class="btn red full" id="st">시작</button>' +
       (r ? '<button class="btn line full" data-go="#/res/' + encodeURIComponent(key) + '">지난 해설지</button>' : '') + '</div>';
     $app.innerHTML = '<div class="wrap">' + h + '</div>';
@@ -485,6 +484,14 @@
   function fmt(ms) { ms = Math.max(0, ms); var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2); }
   function leave() { if (M && M.enter) { var id = M.m.ids[M.i]; M.dw[id] = (M.dw[id] || 0) + (Date.now() - M.enter) / 1000; M.enter = 0; } }
   function go(i) { leave(); M.i = i; exam(); }
+  function examMarked(id) {   /* 답 표기를 화면에 바로 반영(다시 그리지 않아 스크롤·펜 필기가 그대로) */
+    var nA = Object.keys(M.ans).length, nT = M.m.ids.length, row = $app.querySelectorAll(".tq-omr-row")[M.i];
+    if (row) { row.classList.remove("is-todo"); row.querySelectorAll("i").forEach(function (c, k) { c.classList.toggle("is-on", k + 1 === M.ans[id]); }); }
+    var u = $app.querySelector(".tq-prog u"); if (u) u.style.width = (nA / nT * 100) + "%";
+    var b = $app.querySelector(".tq-prog b"); if (b) b.textContent = nT - nA;
+    var pr = $app.querySelector(".qhead .prog"); if (pr) pr.textContent = nA + " / " + nT + " 표기";
+    var jb = $app.querySelector(".tq-jump"); if (jb && jb.setCount) jb.setCount(nT - nA);
+  }
   function exam() {
     if (!M) { location.hash = "#/"; return; }
     var id = M.m.ids[M.i], q = BYID[id], eo = examOrg(); M.enter = Date.now();
@@ -500,7 +507,7 @@
     $app.innerHTML = '<div class="tq-wrap has-omr tqe"><main>' + h + '</main><aside class="tq-omr" id="tqomr"><span id="tqjp"></span>' + rows + '</aside></div>' +
       '<div class="tq-bar"><button class="tq-tool' + (M.conf[id] ? ' is-on' : '') + '" id="tqconf" type="button">' + SV_CONF + '헷갈림</button><button class="tq-tool" id="tqpen" type="button">' + SV_PEN + '펜</button><span class="tq-sp"></span><button class="tq-nav" id="pv" type="button"' + (M.i ? '' : ' disabled') + ' aria-label="이전">‹</button><button class="tq-pos" id="tqpos" type="button">' + (M.i + 1) + ' <small>/ ' + nT + '</small></button><button class="tq-nav is-next" id="nx2" type="button"' + (M.i + 1 < nT ? '' : ' disabled') + ' aria-label="다음">다음 ›</button></div>';
     scrollTo(0, 0); padMount(); padBtn(q);
-    if (window.TERA_Q) TERA_Q.jump(document.getElementById("tqjp"), { count: nT - nA, onClick: function () { if (firstTodo >= 0) go(firstTodo); } });
+    if (window.TERA_Q) TERA_Q.jump(document.getElementById("tqjp"), { count: nT - nA, onClick: function () { var ft = -1; M.m.ids.forEach(function (x, k) { if (ft < 0 && !M.ans[x]) ft = k; }); if (ft >= 0) go(ft); } });
     tqTools(q);
     document.getElementById("tqconf").onclick = function () { M.conf[id] = !M.conf[id]; this.classList.toggle("is-on", !!M.conf[id]); };
     document.getElementById("tqpos").onclick = function () { document.getElementById("tqomr").classList.toggle("is-open"); };
@@ -510,7 +517,7 @@
       b.onclick = function () {
         M.ans[id] = +b.getAttribute("data-v");
         $app.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("pick", x === b); });
-        if (M.i + 1 < M.m.ids.length) setTimeout(function () { go(M.i + 1); }, 220); else { leave(); exam(); }
+        examMarked(id);   /* 11-11: 답을 골라도 그 문항에 머문다. 다음 문항으로는 「다음 ›」·번호판으로만 간다(답은 바꿔 고를 수 있다) */
       };
     });
     document.getElementById("pv").onclick = function () { if (M.i) go(M.i - 1); };

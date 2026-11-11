@@ -253,37 +253,69 @@
     return phys >= 2 || money >= 3;
   }
 
-  /* ── 문제 위에 쓰기(펜) ── 화면 전체에 투명한 지면을 덮고 문제 위에 바로 쓴다. 획은 쪽 좌표로 기억해 스크롤해도 제자리에 있다 */
-  var PEN = { on: false, tool: "pen", key: "", store: {}, redo: [] }, pcv, pctx, pbar, pcur;
+  /* ── 문제 위에 쓰기(펜) ── 화면 전체에 투명한 지면을 덮고 문제 위에 바로 쓴다. 획은 스크롤 기준(창 또는 안쪽 스크롤 요소)에 붙여 기억해 스크롤해도 제자리에 있다.
+     1111: 지면 CSS 크기를 width/height 100% 로 못 박았다(전에는 inset:0 만 써서 canvas 가 비트맵 크기 그대로 그려져, 화면 배율(dpr)이 2인 아이패드에서 획이 손 댄 곳의 두 배 위치에 찍혔다).
+     좌표는 지면 자신의 getBoundingClientRect 기준, 지면은 html 직속, 펜이 한 번이라도 들어오면 손가락은 획으로 받지 않는다. */
+  var PEN = { on: false, tool: "pen", key: "", store: {}, redo: [], sawPen: false, pid: null }, pcv, pctx, pbar, pcur;
   var PP = "var(--pt,var(--t-app,var(--cta,#E5202E)))";
-  var PCSS = "#tpen-cv{position:fixed;inset:0;z-index:2147480500;touch-action:none;cursor:crosshair}" +
+  var PCSS = "#tpen-cv{position:fixed;left:0;top:0;width:100%;height:100%;margin:0;padding:0;border:0;z-index:2147480500;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}" +
+    "html.tpen-on .tq-bar{z-index:2147480550!important}" +                       /* 아래 줄(헷갈림·해설·펜·다음)이 지면 위에서 눌린다 — 문제 화면 공용 부품 .tq-bar 와 맞물림 */
     "#tpen-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:2147480600;display:flex;align-items:center;gap:2px;height:58px;max-width:calc(100vw - 16px);overflow-x:auto;padding:0 8px;border-radius:14px;background:#fff;box-shadow:0 14px 34px -14px rgba(17,20,25,.38),0 0 0 1px #E6E8EC;font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif}" +
     "#tpen-bar button{flex:none;height:44px;min-width:44px;padding:0 10px;border:0;border-radius:12px;background:none;font-weight:700;font-size:13px;color:#475569;cursor:pointer;white-space:nowrap}" +
     "#tpen-bar button.on{background:color-mix(in srgb," + PP + " 12%,#fff);color:color-mix(in srgb," + PP + " 78%,#111419)}" +
     "#tpen-bar i{flex:none;width:1px;height:26px;background:#E6E8EC;margin:0 4px}#tpen-bar .end{color:" + PP + "}";
-  function penFit() { var dpr = window.devicePixelRatio || 1; pcv.width = Math.round(window.innerWidth * dpr); pcv.height = Math.round(window.innerHeight * dpr); pctx.setTransform(dpr, 0, 0, dpr, 0, 0); penPaint(); }
+  function penRect() { return pcv.getBoundingClientRect(); }
+  function penFit() {
+    var r = penRect(), dpr = window.devicePixelRatio || 1, w = Math.max(1, r.width), h = Math.max(1, r.height);
+    pcv.width = Math.round(w * dpr); pcv.height = Math.round(h * dpr);
+    pctx.setTransform(pcv.width / w, 0, 0, pcv.height / h, 0, 0); penPaint();
+  }
+  /* 획 하나가 붙어 있는 스크롤 기준: el 이 null 이면 창, 아니면 그 요소(좌표는 요소 안쪽 기준). 반환 x,y = 기준 원점의 화면 좌표 */
+  function penBase(el) {
+    if (!el) return { x: -(window.pageXOffset || 0), y: -(window.pageYOffset || 0) };
+    var b = el.getBoundingClientRect(); return { x: b.left - el.scrollLeft, y: b.top - el.scrollTop, gone: !d.documentElement.contains(el) };
+  }
+  function penScroller(x, y) {
+    var L = d.elementsFromPoint ? d.elementsFromPoint(x, y) : [];
+    for (var i = 0; i < L.length; i++) {
+      var e = L[i]; if (e === pcv || e === d.documentElement || e === d.body || (e.closest && e.closest("#tpen-bar"))) continue;
+      var cs = getComputedStyle(e);
+      if (/(auto|scroll)/.test(cs.overflowY) && e.scrollHeight > e.clientHeight + 2) return e;
+    }
+    return null;
+  }
   function penPaint() {
-    if (!pctx) return; pctx.clearRect(0, 0, window.innerWidth, window.innerHeight); pctx.lineCap = "round"; pctx.lineJoin = "round";
-    var sx = window.scrollX, sy = window.scrollY;
+    if (!pctx) return; var r = penRect(); pctx.clearRect(0, 0, r.width, r.height); pctx.lineCap = "round"; pctx.lineJoin = "round";
     (PEN.store[PEN.key] || []).forEach(function (s) {
+      var o = penBase(s.el); if (o.gone) return; var ox = o.x - r.left, oy = o.y - r.top;
       pctx.globalCompositeOperation = s.t === "era" ? "destination-out" : "source-over";
       pctx.globalAlpha = s.t === "hl" ? .35 : 1; pctx.strokeStyle = s.t === "hl" ? "#FACC15" : "#111419"; pctx.lineWidth = s.t === "era" ? 24 : s.t === "hl" ? 16 : 2.4;
-      pctx.beginPath(); s.p.forEach(function (pt, i) { if (i) pctx.lineTo(pt[0] - sx, pt[1] - sy); else pctx.moveTo(pt[0] - sx, pt[1] - sy); });
-      if (s.p.length === 1) pctx.lineTo(s.p[0][0] - sx + .1, s.p[0][1] - sy + .1); pctx.stroke();
+      pctx.beginPath(); s.p.forEach(function (pt, i) { if (i) pctx.lineTo(pt[0] + ox, pt[1] + oy); else pctx.moveTo(pt[0] + ox, pt[1] + oy); });
+      if (s.p.length === 1) pctx.lineTo(s.p[0][0] + ox + .1, s.p[0][1] + oy + .1); pctx.stroke();
     });
     pctx.globalAlpha = 1; pctx.globalCompositeOperation = "source-over";
   }
   function penBuild() {
     if (pcv) return;
     var st = d.createElement("style"); st.textContent = PCSS; d.head.appendChild(st);
-    pcv = d.createElement("canvas"); pcv.id = "tpen-cv"; pctx = pcv.getContext("2d"); d.body.appendChild(pcv);
+    pcv = d.createElement("canvas"); pcv.id = "tpen-cv"; pctx = pcv.getContext("2d"); d.documentElement.appendChild(pcv);   // html 직속: body 의 transform·zoom·filter 가 position:fixed 기준을 바꾸지 못하게
     pbar = d.createElement("div"); pbar.id = "tpen-bar";
     pbar.innerHTML = '<button data-t="move">넘기기</button><button data-t="pen" class="on">펜</button><button data-t="hl">형광펜</button><button data-t="era">지우개</button><i></i><button data-a="undo">한 획 취소</button><button data-a="redo">다시 긋기</button><i></i><button data-a="end" class="end">필기 종료</button>';
-    d.body.appendChild(pbar);
-    function pt(e) { return [e.clientX + window.scrollX, e.clientY + window.scrollY]; }
-    pcv.addEventListener("pointerdown", function (e) { pcur = { t: PEN.tool, p: [pt(e)] }; (PEN.store[PEN.key] = PEN.store[PEN.key] || []).push(pcur); PEN.redo = []; try { pcv.setPointerCapture(e.pointerId); } catch (x) {} penPaint(); e.preventDefault(); });
-    pcv.addEventListener("pointermove", function (e) { if (pcur) { pcur.p.push(pt(e)); penPaint(); } });
-    ["pointerup", "pointercancel"].forEach(function (n) { pcv.addEventListener(n, function () { pcur = null; }); });
+    d.documentElement.appendChild(pbar);
+    function pt(e, el) { var r = penRect(), o = penBase(el); return [e.clientX - o.x, e.clientY - o.y]; }   // 화면 좌표 − 스크롤 기준 원점 (지면은 화면 전체라 clientX 가 곧 지면 좌표)
+    pcv.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "pen") PEN.sawPen = true;
+      else if (e.pointerType === "touch" && PEN.sawPen) { e.preventDefault(); return; }     // 손바닥: 펜을 쓰는 기기에서는 손가락 획을 받지 않는다
+      if (pcur) return;                                                                      // 이미 긋는 중이면 다른 접촉은 무시
+      var el = penScroller(e.clientX, e.clientY);
+      pcur = { t: PEN.tool, el: el, p: [pt(e, el)] }; PEN.pid = e.pointerId; (PEN.store[PEN.key] = PEN.store[PEN.key] || []).push(pcur); PEN.redo = [];
+      try { pcv.setPointerCapture(e.pointerId); } catch (x) {} penPaint(); e.preventDefault();
+    });
+    pcv.addEventListener("pointermove", function (e) {
+      if (!pcur || e.pointerId !== PEN.pid) return;
+      var L = e.getCoalescedEvents ? e.getCoalescedEvents() : null; (L && L.length ? L : [e]).forEach(function (c) { pcur.p.push(pt(c, pcur.el)); }); penPaint();
+    });
+    ["pointerup", "pointercancel"].forEach(function (n) { pcv.addEventListener(n, function (e) { if (e.pointerId === PEN.pid) { pcur = null; PEN.pid = null; } }); });
     pbar.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return; var L = PEN.store[PEN.key] = PEN.store[PEN.key] || [];
       if (b.dataset.t) { PEN.tool = b.dataset.t; pcv.style.pointerEvents = PEN.tool === "move" ? "none" : "auto"; pbar.querySelectorAll("[data-t]").forEach(function (x) { x.classList.toggle("on", x === b); }); }
@@ -291,18 +323,21 @@
       else if (b.dataset.a === "redo") { if (PEN.redo.length) L.push(PEN.redo.pop()); penPaint(); }
       else if (b.dataset.a === "end") penOff();
     });
-    window.addEventListener("scroll", function () { if (pcv && pcv.style.display !== "none") penPaint(); }, { passive: true });
-    window.addEventListener("resize", function () { if (pcv && pcv.style.display !== "none") penFit(); });
+    var vis = function () { return pcv && pcv.style.display !== "none"; };
+    window.addEventListener("scroll", function () { if (vis()) penPaint(); }, { passive: true, capture: true });     // 안쪽 스크롤 요소의 scroll 도 잡는다
+    window.addEventListener("resize", function () { if (vis()) penFit(); });
+    window.addEventListener("orientationchange", function () { setTimeout(function () { if (vis()) penFit(); }, 250); });
+    if (window.visualViewport) { visualViewport.addEventListener("resize", function () { if (vis()) penFit(); }); visualViewport.addEventListener("scroll", function () { if (vis()) penPaint(); }); }
   }
   function pen(o) {
     o = o || {}; if (PEN.on && (o.key || "기본") === PEN.key) return penOff();
     penBuild(); PEN.key = o.key || "기본"; PEN.on = true; PEN.redo = [];
     if (typeof o.onChange === "function") PEN.onChange = o.onChange;
-    pcv.style.display = "block"; pbar.style.display = "flex"; pcv.style.pointerEvents = PEN.tool === "move" ? "none" : "auto"; penFit();
+    d.documentElement.classList.add("tpen-on"); pcv.style.display = "block"; pbar.style.display = "flex"; pcv.style.pointerEvents = PEN.tool === "move" ? "none" : "auto"; penFit();
     if (PEN.onChange) PEN.onChange(true);
   }
-  function penOff() { if (!pcv) return; PEN.on = false; pcv.style.pointerEvents = "none"; pbar.style.display = "none"; if (PEN.onChange) PEN.onChange(false); }   // 쓴 것은 화면에 남는다
-  function penHide() { if (pcv) { pcv.style.display = "none"; pbar.style.display = "none"; PEN.on = false; } }                                            // 문항이 바뀔 때 지면째 감춘다
+  function penOff() { if (!pcv) return; PEN.on = false; pcur = null; d.documentElement.classList.remove("tpen-on"); pcv.style.pointerEvents = "none"; pbar.style.display = "none"; if (PEN.onChange) PEN.onChange(false); }   // 쓴 것은 화면에 남는다
+  function penHide() { if (pcv) { pcur = null; d.documentElement.classList.remove("tpen-on"); pcv.style.display = "none"; pbar.style.display = "none"; PEN.on = false; } }                                            // 문항이 바뀔 때 지면째 감춘다
   function penClear(key) { delete PEN.store[key || PEN.key]; penPaint(); }
 
   window.TERA_PAD = { open: open, close: close, button: button, isCalc: isCalc, pen: pen, penOff: penOff, penHide: penHide, penClear: penClear, calc: function (s) { return calc(s); } };

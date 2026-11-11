@@ -90,3 +90,13 @@ html[data-cbskin="c"] .as-a{background:#EAF4F7;color:#111419}
 html[data-cbskin="c"] .as-a.two{background:#fff;border-color:#B9D6DE}
 html[data-cbskin="c"] .as-q{border-left-color:#0E7490}
 html[data-cbskin="c"] .as-h{color:#0B5C73}
+/* 오답 패턴 비교표 (11-11): 버튼 + 펼친 표 */
+.cb-oxt{overflow-x:auto;margin-top:4px}
+.cb-oxt table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
+.cb-oxt th{background:#0E7490;color:#fff;font-weight:700;text-align:left;padding:6px 8px;white-space:nowrap}
+.cb-oxt td{border-bottom:1px solid #DCE6EA;padding:7px 8px;vertical-align:top;color:#111419}
+.cb-oxt td:first-child{font-weight:700;white-space:nowrap}
+.cb-oxg{margin-top:8px;font-size:12.5px;color:#4B5563}
+.cb-oxg summary{cursor:pointer;color:#0B5C73;font-weight:600}
+.cb-oxg ul{margin:6px 0 0;padding-left:18px}.cb-oxg li{margin:3px 0}.cb-oxg i{color:#8A94A3;font-style:normal}
+.cb-prop[data-key="oxt"] .cb-bt{flex-wrap:wrap}
