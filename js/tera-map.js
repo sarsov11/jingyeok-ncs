@@ -1,4 +1,4 @@
-/* 3.3(11-11): 폰·태블릿에서 두 칸 카드 줄 바로 아래에 펼친 추천 카드가 붙으며 고리(3px)가 윗 카드를 덮던 것 → 위 여백 8px. 겹침검사.py 로 13개 앱 확인.
+/* 3.3(11-11): 폰·태블릿 카드 두 칸을 CSS columns 에서 grid 로 바꿈 — columns + column-span 은 ① 크롬에서 펼친 추천 카드가 윗 카드에 붙어 고리(3px)가 덮고 ② 아이폰 사파리(웹킷)에서는 오른쪽 칸이 아래로 밀리고 빈 카드가 생겼다. 겹침검사.py 로 13개 앱 크롬·웹킷 확인.
  * 테라러닝 합격 지도 3판(11-10 저녁: 파트 카드 안에 세부 단원을 전부 펼친다. 대표님 「훨씬 더 상세하게 나와야 함」. detail:false 를 주면 2판 타일 격자) · 2판 — 시험 한 개의 전체 구조·진척·중요도·추천 순서를 한 장에 (2026-11-10 허브)
  *   1판(고리 칸 + 범례 줄 + 추천 띠)은 대표님 「직관적으로 눈에 안 들어옴. 조잡해 보임」 → 표시를 덜어 냄.
  *   타일 크기는 전부 같다(대표님 「타일이 넓을수록은 안 됨. 디자인 통일성 위배」).
@@ -91,8 +91,8 @@
     /* 3.2: 카드 이름은 두 줄까지 · 폰에서는 추천 카드만 펼치고 나머지는 머리만(누르면 아래 판에 세부 단원) */
     ".tm-dt .tm-nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.22;word-break:keep-all;overflow-wrap:anywhere}",
     ".tm-dt .tm-t{height:auto;min-height:52px;padding-top:8px;padding-bottom:8px}",
-    "@media(max-width:959px){.tm-dt .tm-row{columns:2;column-gap:6px}.tm-dt .tm-c{margin-bottom:6px}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{column-span:all;margin-top:8px}.tm-dt .tm-row>.tm-c:first-child{margin-top:0}",
-    " .tm-dt .tm-c:not(.tm-crec):not(.tm-cfirst) .tm-ll{display:none}.tm-dt .tm-q{display:none}.tm-dt .tm-crec .tm-q,.tm-dt .tm-cfirst .tm-q{display:inline}",
+    "@media(max-width:959px){.tm-dt .tm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:start;columns:auto}.tm-dt .tm-c{margin:0}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{grid-column:1/-1}",
+".tm-dt .tm-c:not(.tm-crec):not(.tm-cfirst) .tm-ll{display:none}.tm-dt .tm-q{display:none}.tm-dt .tm-crec .tm-q,.tm-dt .tm-cfirst .tm-q{display:inline}",
     " .tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}.tm-key{flex-wrap:wrap}}",
     /* 고른 타일 판 */
     ".tm-pv{position:fixed;z-index:2147480000;right:16px;top:76px;bottom:16px;width:340px;border-radius:18px;background:#fff;box-shadow:0 26px 60px -28px rgba(17,20,25,.34),0 0 0 1px #E6E8EC;padding:18px;display:none;flex-direction:column;gap:12px}",
