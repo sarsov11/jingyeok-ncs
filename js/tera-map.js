@@ -1,4 +1,5 @@
-/* 테라러닝 합격 지도 3판(11-10 저녁: 파트 카드 안에 세부 단원을 전부 펼친다. 대표님 「훨씬 더 상세하게 나와야 함」. detail:false 를 주면 2판 타일 격자) · 2판 — 시험 한 개의 전체 구조·진척·중요도·추천 순서를 한 장에 (2026-11-10 허브)
+/* 3.3(11-11): 폰·태블릿에서 두 칸 카드 줄 바로 아래에 펼친 추천 카드가 붙으며 고리(3px)가 윗 카드를 덮던 것 → 위 여백 8px. 겹침검사.py 로 13개 앱 확인.
+ * 테라러닝 합격 지도 3판(11-10 저녁: 파트 카드 안에 세부 단원을 전부 펼친다. 대표님 「훨씬 더 상세하게 나와야 함」. detail:false 를 주면 2판 타일 격자) · 2판 — 시험 한 개의 전체 구조·진척·중요도·추천 순서를 한 장에 (2026-11-10 허브)
  *   1판(고리 칸 + 범례 줄 + 추천 띠)은 대표님 「직관적으로 눈에 안 들어옴. 조잡해 보임」 → 표시를 덜어 냄.
  *   타일 크기는 전부 같다(대표님 「타일이 넓을수록은 안 됨. 디자인 통일성 위배」).
  *   타일이 채워진 만큼 = 내 진척. 지금 할 것 세 개에만 번호, 1번에만 「추천」.
@@ -17,7 +18,7 @@
  * 색: 앱의 --pt(없으면 --t-app, --cta). 클래스는 전부 tm- 로 시작한다(앱 css 와 겹치지 않게).
  */
 (function () {
-  if (window.TERA_MAP && window.TERA_MAP.version >= 3.2) return;
+  if (window.TERA_MAP && window.TERA_MAP.version >= 3.3) return;
   var d = document, styled = false;
   var CSS = [
     ".tm{--p:var(--pt,var(--t-app,var(--cta,#E5202E)));--pi:color-mix(in srgb,var(--p) 80%,#111419);--pf:color-mix(in srgb,var(--p) 20%,#fff);",
@@ -90,7 +91,7 @@
     /* 3.2: 카드 이름은 두 줄까지 · 폰에서는 추천 카드만 펼치고 나머지는 머리만(누르면 아래 판에 세부 단원) */
     ".tm-dt .tm-nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.22;word-break:keep-all;overflow-wrap:anywhere}",
     ".tm-dt .tm-t{height:auto;min-height:52px;padding-top:8px;padding-bottom:8px}",
-    "@media(max-width:959px){.tm-dt .tm-row{columns:2;column-gap:6px}.tm-dt .tm-c{margin-bottom:6px}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{column-span:all}",
+    "@media(max-width:959px){.tm-dt .tm-row{columns:2;column-gap:6px}.tm-dt .tm-c{margin-bottom:6px}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{column-span:all;margin-top:8px}.tm-dt .tm-row>.tm-c:first-child{margin-top:0}",
     " .tm-dt .tm-c:not(.tm-crec):not(.tm-cfirst) .tm-ll{display:none}.tm-dt .tm-q{display:none}.tm-dt .tm-crec .tm-q,.tm-dt .tm-cfirst .tm-q{display:inline}",
     " .tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}.tm-key{flex-wrap:wrap}}",
     /* 고른 타일 판 */
@@ -217,5 +218,5 @@
     return { recommend: rec.map(function (x) { return x.n; }), whole: whole };
   }
 
-  window.TERA_MAP = { mount: mount, version: 3.2 };
+  window.TERA_MAP = { mount: mount, version: 3.3 };
 })();
