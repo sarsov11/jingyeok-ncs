@@ -21,7 +21,7 @@
     this._ro.observe(host);
   }
   Ink.prototype.inkColor = function () {
-    return this.opts.color || getComputedStyle(this.host).getPropertyValue("--pad-ink").trim() || "#1F2A55";
+    return this.opts.color || getComputedStyle(this.host).getPropertyValue("--pad-ink").trim() || "#0B4F4A";
   };
   Ink.prototype.resize = function () {
     const r = this.host.getBoundingClientRect();
@@ -80,7 +80,7 @@
   };
   Ink.prototype._style = function (ctx, s) {
     ctx.lineCap = "round"; ctx.lineJoin = "round";
-    if (s.tool === "hl") { ctx.globalAlpha = 0.28; ctx.strokeStyle = getComputedStyle(this.host).getPropertyValue("--hl").trim() || "#FFD84D"; }
+    if (s.tool === "hl") { ctx.globalAlpha = 0.28; ctx.strokeStyle = getComputedStyle(this.host).getPropertyValue("--hl").trim() || "#7FB8B2"; }
     else { ctx.globalAlpha = 1; ctx.strokeStyle = this.inkColor(); }
   };
   Ink.prototype._drawSegment = function (s, i) {

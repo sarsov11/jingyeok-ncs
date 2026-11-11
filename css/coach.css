@@ -1,6 +1,6 @@
 /* 학습 비서 선제안·응원 (2026-11-01) — 말풍선은 문항 화면 안에 끼워 넣는다(고정 위치 없음) */
 .cb-slot{margin:12px 0 4px;display:flex;flex-direction:column;gap:8px}
-.cb{background:#111419;color:#fff;border-radius:16px 16px 16px 4px;padding:11px 13px 12px;font-size:14px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;box-shadow:0 3px 12px rgba(0,0,0,.18);animation:cbin .22s ease-out}
+.cb{background:#12302D;color:#fff;border-radius:16px 16px 16px 4px;padding:11px 13px 12px;font-size:14px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;box-shadow:0 3px 12px rgba(0,0,0,.18);animation:cbin .22s ease-out}
 @keyframes cbin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.cb{animation:none}}
 .cb-who{font-size:11.5px;font-weight:800;color:#9AA3B2;letter-spacing:.02em;margin-bottom:2px}
@@ -9,11 +9,11 @@
 .cb-body{margin-top:6px;color:#E8EBF0}
 .cb-p{margin:4px 0}
 .cb-l{margin:4px 0 4px 18px;padding:0}
-.cb-q{margin:6px 0;padding:6px 10px;border-left:3px solid var(--red,#E5202E);background:rgba(255,255,255,.08);border-radius:0 8px 8px 0}
+.cb-q{margin:6px 0;padding:6px 10px;border-left:3px solid var(--red,#0F766E);background:rgba(255,255,255,.08);border-radius:0 8px 8px 0}
 .cb-src{display:block;font-size:13px;color:#9AA3B2;font-weight:700;margin-top:2px}
 .cb-bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .cb-b{min-height:40px;border-radius:12px;padding:0 14px;font-weight:800;font-size:14px;font-family:inherit;border:2px solid #3A4150;background:transparent;color:#fff}
-.cb-b.y{background:var(--red,#E5202E);border-color:var(--red,#E5202E)}
+.cb-b.y{background:var(--red,#0F766E);border-color:var(--red,#0F766E)}
 .cb-b.ch{flex:1 1 100%;text-align:left;padding:8px 14px;line-height:1.35}
 .cb-ask .cb-bt{flex-direction:column}
 .cb-ask .cb-b.n{align-self:flex-start}
@@ -27,76 +27,76 @@ tr.cb-hlrow>*{background:#FFF1A8!important}
 .cs-top{display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:800;margin-bottom:6px}
 .cs-x{border:0;background:var(--bg2,#F4F5F7);border-radius:12px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--ink,#111)}
 .cs-row{display:flex;align-items:center;justify-content:space-between;margin:12px 0 2px;font-size:14px}
-.cs-now{font-weight:800;color:var(--red,#E5202E)}
+.cs-now{font-weight:800;color:var(--red,#0F766E)}
 .cs-d{margin:2px 0;font-size:14px;line-height:1.5;color:var(--ink2,#333);word-break:keep-all}
 .cs-u{margin:4px 0 4px 18px;padding:0;font-size:14px;line-height:1.5}
 .cs-s{margin:4px 0;font-size:13px;color:var(--ink3,#4B5563)}
 .cs-ch{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .cs-b{min-height:40px;border:2px solid var(--line,#D8DBE0);background:#fff;border-radius:12px;padding:0 14px;font-weight:800;font-size:14px;font-family:inherit;color:var(--ink,#111)}
-.cs-b.on{background:#111419;color:#fff;border-color:#111419}
+.cs-b.on{background:#12302D;color:#fff;border-color:#12302D}
 /* ── 비서 색 시안 (11-05 대표님 「검은색 맘에 안 듦」) — html[data-cbskin] 으로 고른다 ── */
 /* A: 흰 카드 + 빨간 테두리 */
-html[data-cbskin="a"] .cb{background:#fff;color:#111419;border:2px solid #E5202E;box-shadow:0 4px 14px -6px rgba(229,32,46,.35)}
-html[data-cbskin="a"] .cb-who{color:#E5202E}
+html[data-cbskin="a"] .cb{background:#fff;color:#12302D;border:2px solid #0F766E;box-shadow:0 4px 14px -6px rgba(15,118,110,.35)}
+html[data-cbskin="a"] .cb-who{color:#0F766E}
 html[data-cbskin="a"] .cb-body{color:#2B2F36}
 html[data-cbskin="a"] .cb-src{color:#6B7280}
 html[data-cbskin="a"] .cb-q{background:#FFF1F2}
-html[data-cbskin="a"] .cb-b{border-color:#D8DBE0;color:#111419;background:#fff}
-html[data-cbskin="a"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
-html[data-cbskin="a"] .as-fab{background:#fff;color:#E5202E;border:2px solid #E5202E}
+html[data-cbskin="a"] .cb-b{border-color:#D8DBE0;color:#12302D;background:#fff}
+html[data-cbskin="a"] .cb-b.y{color:#fff;background:#0F766E;border-color:#0F766E}
+html[data-cbskin="a"] .as-fab{background:#fff;color:#0F766E;border:2px solid #0F766E}
 /* B: 연한 빨강 바탕 */
-html[data-cbskin="b"] .cb{background:#FFF1F2;color:#111419;box-shadow:0 2px 8px -4px rgba(229,32,46,.30)}
-html[data-cbskin="b"] .cb-who{color:#E5202E}
+html[data-cbskin="b"] .cb{background:#FFF1F2;color:#12302D;box-shadow:0 2px 8px -4px rgba(15,118,110,.30)}
+html[data-cbskin="b"] .cb-who{color:#0F766E}
 html[data-cbskin="b"] .cb-body{color:#2B2F36}
 html[data-cbskin="b"] .cb-src{color:#6B7280}
 html[data-cbskin="b"] .cb-q{background:#fff}
-html[data-cbskin="b"] .cb-b{border-color:#F3C2C6;color:#111419;background:#fff}
-html[data-cbskin="b"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
-html[data-cbskin="b"] .as-fab{background:#E5202E;color:#fff}
+html[data-cbskin="b"] .cb-b{border-color:#F3C2C6;color:#12302D;background:#fff}
+html[data-cbskin="b"] .cb-b.y{color:#fff;background:#0F766E;border-color:#0F766E}
+html[data-cbskin="b"] .as-fab{background:#0F766E;color:#fff}
 /* C: 연한 하늘색 바탕(비서만 다른 색으로 구분) */
-html[data-cbskin="c"] .cb{background:#EAF4F7;color:#111419;box-shadow:0 2px 8px -4px rgba(14,116,144,.30)}
-html[data-cbskin="c"] .cb-who{color:#0E7490}
+html[data-cbskin="c"] .cb{background:#EAF4F7;color:#12302D;box-shadow:0 2px 8px -4px rgba(15,118,110,.30)}
+html[data-cbskin="c"] .cb-who{color:#0F766E}
 html[data-cbskin="c"] .cb-body{color:#333941}
 html[data-cbskin="c"] .cb-src{color:#4B5563}
-html[data-cbskin="c"] .cb-q{background:#fff;border-left-color:#0E7490}
-html[data-cbskin="c"] .cb-b{border-color:#B9D6DE;color:#111419;background:#fff}
-html[data-cbskin="c"] .cb-b.y{color:#fff;background:#0E7490;border-color:#0E7490}
-html[data-cbskin="c"] .as-fab{background:#0E7490;color:#fff}
+html[data-cbskin="c"] .cb-q{background:#fff;border-left-color:#0F766E}
+html[data-cbskin="c"] .cb-b{border-color:#B9D6DE;color:#12302D;background:#fff}
+html[data-cbskin="c"] .cb-b.y{color:#fff;background:#0F766E;border-color:#0F766E}
+html[data-cbskin="c"] .as-fab{background:#0F766E;color:#fff}
 /* D: 흰 카드 + 회색 테두리 + 빨간 점 머리(메신저 말풍선) */
-html[data-cbskin="d"] .cb{background:#fff;color:#111419;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
-html[data-cbskin="d"] .cb-who{color:#111419;display:flex;align-items:center;gap:6px}
-html[data-cbskin="d"] .cb-who::before{content:"";width:8px;height:8px;border-radius:50%;background:#E5202E}
+html[data-cbskin="d"] .cb{background:#fff;color:#12302D;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
+html[data-cbskin="d"] .cb-who{color:#12302D;display:flex;align-items:center;gap:6px}
+html[data-cbskin="d"] .cb-who::before{content:"";width:8px;height:8px;border-radius:50%;background:#0F766E}
 html[data-cbskin="d"] .cb-body{color:#2B2F36}
 html[data-cbskin="d"] .cb-src{color:#6B7280}
 html[data-cbskin="d"] .cb-q{background:#F6F7F9}
-html[data-cbskin="d"] .cb-b{border-color:#D8DBE0;color:#111419;background:#fff}
-html[data-cbskin="d"] .cb-b.y{color:#fff;background:#E5202E;border-color:#E5202E}
-html[data-cbskin="d"] .as-fab{background:#fff;color:#111419;border:1px solid #D8DBE0}
+html[data-cbskin="d"] .cb-b{border-color:#D8DBE0;color:#12302D;background:#fff}
+html[data-cbskin="d"] .cb-b.y{color:#fff;background:#0F766E;border-color:#0F766E}
+html[data-cbskin="d"] .as-fab{background:#fff;color:#12302D;border:1px solid #D8DBE0}
 /* 시안별 「이 유형 푸는 순서」 상자(app.css .skill)도 같은 색으로 */
-html[data-cbskin="a"] .skill{background:#fff;color:#111419;border:2px solid #E5202E}
-html[data-cbskin="a"] .skill .sk-t{color:#E5202E}
-html[data-cbskin="b"] .skill{background:#FFF1F2;color:#111419}
-html[data-cbskin="b"] .skill .sk-t{color:#E5202E}
-html[data-cbskin="c"] .skill{background:#EAF4F7;color:#111419}
-html[data-cbskin="c"] .skill .sk-t{color:#0B5C73}
-html[data-cbskin="d"] .skill{background:#fff;color:#111419;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
-html[data-cbskin="d"] .skill .sk-t{color:#E5202E}
+html[data-cbskin="a"] .skill{background:#fff;color:#12302D;border:2px solid #0F766E}
+html[data-cbskin="a"] .skill .sk-t{color:#0F766E}
+html[data-cbskin="b"] .skill{background:#FFF1F2;color:#12302D}
+html[data-cbskin="b"] .skill .sk-t{color:#0F766E}
+html[data-cbskin="c"] .skill{background:#EAF4F7;color:#12302D}
+html[data-cbskin="c"] .skill .sk-t{color:#0B5F59}
+html[data-cbskin="d"] .skill{background:#fff;color:#12302D;border:1px solid #E3E6EB;box-shadow:0 6px 18px -10px rgba(17,20,25,.35)}
+html[data-cbskin="d"] .skill .sk-t{color:#0F766E}
 /* C 확정(11-05 대표님 「연한 하늘」): 질문창·설정 창의 검은 칸도 같은 파랑으로 */
-html[data-cbskin="c"] .as-m.me{background:#0E7490;color:#fff}
-html[data-cbskin="c"] .as-in button{background:#0E7490;color:#fff}
-html[data-cbskin="c"] .cs-b.on{background:#0E7490;border-color:#0E7490;color:#fff}
-html[data-cbskin="c"] .cs-now{color:#0E7490}
-html[data-cbskin="c"] .as-a{background:#EAF4F7;color:#111419}
+html[data-cbskin="c"] .as-m.me{background:#0F766E;color:#fff}
+html[data-cbskin="c"] .as-in button{background:#0F766E;color:#fff}
+html[data-cbskin="c"] .cs-b.on{background:#0F766E;border-color:#0F766E;color:#fff}
+html[data-cbskin="c"] .cs-now{color:#0F766E}
+html[data-cbskin="c"] .as-a{background:#EAF4F7;color:#12302D}
 html[data-cbskin="c"] .as-a.two{background:#fff;border-color:#B9D6DE}
-html[data-cbskin="c"] .as-q{border-left-color:#0E7490}
-html[data-cbskin="c"] .as-h{color:#0B5C73}
+html[data-cbskin="c"] .as-q{border-left-color:#0F766E}
+html[data-cbskin="c"] .as-h{color:#0B5F59}
 /* 오답 패턴 비교표 (11-11): 버튼 + 펼친 표 */
 .cb-oxt{overflow-x:auto;margin-top:4px}
 .cb-oxt table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
-.cb-oxt th{background:#0E7490;color:#fff;font-weight:700;text-align:left;padding:6px 8px;white-space:nowrap}
-.cb-oxt td{border-bottom:1px solid #DCE6EA;padding:7px 8px;vertical-align:top;color:#111419}
+.cb-oxt th{background:#0F766E;color:#fff;font-weight:700;text-align:left;padding:6px 8px;white-space:nowrap}
+.cb-oxt td{border-bottom:1px solid #DCE6EA;padding:7px 8px;vertical-align:top;color:#12302D}
 .cb-oxt td:first-child{font-weight:700;white-space:nowrap}
 .cb-oxg{margin-top:8px;font-size:12.5px;color:#4B5563}
-.cb-oxg summary{cursor:pointer;color:#0B5C73;font-weight:600}
+.cb-oxg summary{cursor:pointer;color:#0B5F59;font-weight:600}
 .cb-oxg ul{margin:6px 0 0;padding-left:18px}.cb-oxg li{margin:3px 0}.cb-oxg i{color:#8A94A3;font-style:normal}
 .cb-prop[data-key="oxt"] .cb-bt{flex-wrap:wrap}

@@ -48,7 +48,7 @@
     }
     return "";
   }
-  var PAL = ["#0B3F4F", "#0E7490", "#5BA7BC", "#A9D0DB", "#9CA3AF"];
+  var PAL = ["#0B4F4A", "#0F766E", "#4E9A93", "#A9D6D1", "#9CA3AF"];
   function chart(b) {
     var W = 340, H = 200, L = 40, B = 28, T = 14, xs = b.x || [], ser = b.계열 || [];
     if (b.모양 === "원") {
@@ -97,7 +97,7 @@
   function padMount() {
     if (pad) { try { pad.destroy(); } catch (e) {} pad = null; }
     var box = $app.querySelector(".padbox"); if (!box) return;
-    if (box.classList.contains("on")) pad = new Ink(box.querySelector(".padcv"), { color: "#1F2A55", width: 2.2 });
+    if (box.classList.contains("on")) pad = new Ink(box.querySelector(".padcv"), { color: "#0B4F4A", width: 2.2 });
     box.querySelectorAll("[data-pt]").forEach(function (b) {
       b.onclick = function () {
         var t = b.getAttribute("data-pt");
