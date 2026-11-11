@@ -29,6 +29,24 @@
     keys = Object.keys(T).sort(function (a, b) { return b.length - a.length; });
   }
 
+  // 낱말 뒤가 조사이거나 끝이면 홀로 쓰인 자리로 본다
+  var JOSA = /^(?:으로서|으로써|에서는|에서|에게|에는|에도|으로|로서|로써|부터|까지|이란|이나|이라|이다|이며|이고|은|는|이|가|을|를|의|에|와|과|도|로|란|인|만|들)?(?![가-힣A-Za-z0-9])/;
+  // 글 속 법령·제도 이름 자리: 「…」 안 · 「…에 관한 법률」 꼴 · 「…법 / 법령 / 시행령 / 시행규칙」으로 끝나는 다섯 자 이상 한 덩어리
+  var LAW = [/[「『][^」』]{2,60}[」』]/g,
+    /(?:[가-힣·ㆍ]+\s){0,8}[가-힣·ㆍ]*(?:에|의)\s?관한\s?(?:특별조치법|특별법|특례법|법률|규칙|규정)(?:\s?시행령|\s?시행규칙)?/g,
+    /[가-힣·ㆍ]{3,}(?:기본법|특별법|특례법|법률|법령|법|시행령|시행규칙)(?:\s?시행령|\s?시행규칙)?(?=상|령|에|의|은|는|이|과|와|을|및|\s|[」』)\],.·]|$)/g];
+  function lawRanges(s) {
+    var out = [];
+    LAW.forEach(function (re, n) {
+      var m; re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (n === 2 && (m[0].length < 5 || /방법$/.test(m[0]))) continue;
+        out.push([m.index, m.index + m[0].length]);
+      }
+    });
+    return out;
+  }
+
   function annotate(target) {
     var hosts = typeof target === "string" ? d.querySelectorAll(target) : target && target.length != null && !target.nodeType ? target : [target];
     if (!keys.length) return 0;
@@ -37,13 +55,26 @@
       if (!host) return;
       var used = {}, w = d.createTreeWalker(host, NodeFilter.SHOW_TEXT, null), nodes = [], x;
       while ((x = w.nextNode())) { if (x.nodeValue.trim() && !x.parentNode.closest(".tq-term,.tn-t,.dg,a,button,script,style,input,textarea")) nodes.push(x); }
-      nodes.forEach(function (node) {
-        var s = node.nodeValue, hits = [];
-        keys.forEach(function (k) {
-          if (used[k]) return; var i = s.indexOf(k); if (i < 0) return;
-          if (hits.some(function (h) { return i < h.e && i + k.length > h.s; })) return;
-          hits.push({ s: i, e: i + k.length, k: k }); used[k] = 1;
-        });
+      // 띠 붙이는 규칙(화면표준 15절): ① 법령·제도 이름 속 낱말에는 달지 않는다(그 이름이 통째로 개념어일 때만 단다)
+      // ② 한 낱말은 한 번만, 홀로 쓰인 자리(앞이 띄어 있고 뒤가 조사)를 먼저 고른다 ③ 홀로 쓰인 자리가 없으면 합친 말 속 첫 자리
+      var texts = nodes.map(function (x) { return x.nodeValue; }), masks = texts.map(lawRanges), all = texts.map(function () { return []; });
+      keys.forEach(function (k) {
+        var best = null;
+        for (var ni = 0; ni < texts.length && !(best && best.solo); ni++) {
+          var s = texts[ni], i = -1;
+          while ((i = s.indexOf(k, i + 1)) >= 0) {
+            var e = i + k.length;
+            if (masks[ni].some(function (m) { return i < m[1] && e > m[0] && !(i <= m[0] && e >= m[1]); })) continue;
+            if (all[ni].some(function (h) { return i < h.e && e > h.s; })) continue;
+            var solo = !/[가-힣A-Za-z0-9]/.test(s.charAt(i - 1)) && JOSA.test(s.slice(e));
+            if (solo) { best = { ni: ni, s: i, e: e, k: k, solo: 1 }; break; }
+            if (!best) best = { ni: ni, s: i, e: e, k: k };
+          }
+        }
+        if (best) all[best.ni].push(best);
+      });
+      nodes.forEach(function (node, ni) {
+        var s = node.nodeValue, hits = all[ni];
         if (!hits.length) return;
         hits.sort(function (a, b) { return a.s - b.s; });
         var frag = d.createDocumentFragment(), pos = 0;

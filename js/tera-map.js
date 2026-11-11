@@ -18,7 +18,7 @@
  * 색: 앱의 --pt(없으면 --t-app, --cta). 클래스는 전부 tm- 로 시작한다(앱 css 와 겹치지 않게).
  */
 (function () {
-  if (window.TERA_MAP && window.TERA_MAP.version >= 3.3) return;
+  if (window.TERA_MAP && window.TERA_MAP.version >= 3.4) return;
   var d = document, styled = false;
   var CSS = [
     ".tm{--p:var(--pt,var(--t-app,var(--cta,#E5202E)));--pi:color-mix(in srgb,var(--p) 80%,#111419);--pf:color-mix(in srgb,var(--p) 20%,#fff);",
@@ -93,7 +93,10 @@
     ".tm-dt .tm-t{height:auto;min-height:52px;padding-top:8px;padding-bottom:8px}",
     "@media(max-width:959px){.tm-dt .tm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:start;columns:auto}.tm-dt .tm-c{margin:0}.tm-dt .tm-c.tm-crec,.tm-dt .tm-c.tm-cfirst{grid-column:1/-1}",
 ".tm-dt .tm-c:not(.tm-crec):not(.tm-cfirst) .tm-ll{display:none}.tm-dt .tm-q{display:none}.tm-dt .tm-crec .tm-q,.tm-dt .tm-cfirst .tm-q{display:inline}",
-    " .tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}.tm-key{flex-wrap:wrap}}",
+    " .tm-dt .tm-lh b{font-size:16px}.tm-dt .tm-lh i{max-width:none}.tm-key{flex-wrap:wrap}",
+    // 3.4: 과목 이름이 길고 「출제 · 진척」 글자가 붙으면 머리 줄이 화면보다 넓어져 옆으로 밀렸다(지게차 390px 에서 13px). 칸은 줄어들 수 있게, 머리 줄은 꺾이게 한다
+    " .tm-lanes,.tm-dt .tm-lanes{min-width:0}.tm-lane,.tm-dt .tm-lane{grid-template-columns:minmax(0,1fr);min-width:0}",
+    " .tm-lh,.tm-dt .tm-lh{flex-wrap:wrap;row-gap:4px;min-width:0}.tm-lh b,.tm-dt .tm-lh b{white-space:normal;min-width:0;word-break:keep-all;overflow-wrap:anywhere}.tm-lh i,.tm-dt .tm-lh i{min-width:60px}}",
     /* 고른 타일 판 */
     ".tm-pv{position:fixed;z-index:2147480000;right:16px;top:76px;bottom:16px;width:340px;border-radius:18px;background:#fff;box-shadow:0 26px 60px -28px rgba(17,20,25,.34),0 0 0 1px #E6E8EC;padding:18px;display:none;flex-direction:column;gap:12px}",
     ".tm-pv.tm-open{display:flex}",
@@ -218,5 +221,5 @@
     return { recommend: rec.map(function (x) { return x.n; }), whole: whole };
   }
 
-  window.TERA_MAP = { mount: mount, version: 3.3 };
+  window.TERA_MAP = { mount: mount, version: 3.4 };
 })();
