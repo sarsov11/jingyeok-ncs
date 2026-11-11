@@ -20,6 +20,9 @@
     " box-shadow:0 -18px 44px -18px rgba(17,20,25,.34),0 0 0 1px #E6E8EC;display:none;flex-direction:column;font:500 15px/1.5 'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;letter-spacing:-.01em}",
     "#tpad.on{display:flex;animation:tpad-up .26s cubic-bezier(.2,.8,.2,1)}#tpad.big{height:calc(100vh - 72px)}",
     "@keyframes tpad-up{from{transform:translateY(36px);opacity:0}}",
+    "#tpad,#tpad *,#tpen-cv,#tpen-bar,#tpen-bar *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}",
+    "html.tpad-on,html.tpad-on body,html.tpen-on,html.tpen-on body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}",
+    "#tpad canvas{-webkit-user-drag:none;touch-action:none}",
     "#tpad *{box-sizing:border-box}#tpad button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}",
     "#tpad .hd{flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px 8px}",
     "#tpad .ttl{flex:1;min-width:0;font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
@@ -93,8 +96,11 @@
     }).join("");
     root.addEventListener("click", click);
     cv.addEventListener("pointerdown", down); cv.addEventListener("pointermove", move);
-    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up); cv.addEventListener("pointerleave", up);
+    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    ["touchstart", "touchmove", "touchend"].forEach(function (n) { cv.addEventListener(n, function (e) { if (e.cancelable) e.preventDefault(); }, { passive: false }); });
+    ["contextmenu", "selectstart", "dblclick", "dragstart", "gesturestart"].forEach(function (n) { root.addEventListener(n, noSel); });
     window.addEventListener("resize", function () { if (root.classList.contains("on")) fit(); });
+    if (window.ResizeObserver) new ResizeObserver(function () { if (root.classList.contains("on") && state.tab === "paper") fit(); }).observe(cv);   // 종이 크기가 바뀌면(열리는 애니메이션 · 화면 회전 · 크게) 비트맵을 다시 맞춘다
     d.addEventListener("keydown", function (e) {
       if (!root.classList.contains("on")) return;
       if (e.key === "Escape") return close();
@@ -146,9 +152,14 @@
     ctx.globalCompositeOperation = "source-over";
   }
   function pos(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
-  function down(e) { cur = { t: tool, p: [pos(e)] }; strokes.push(cur); try { cv.setPointerCapture(e.pointerId); } catch (x) {} paint(); e.preventDefault(); }
-  function move(e) { if (!cur) return; cur.p.push(pos(e)); paint(); }
-  function up() { cur = null; }
+  function noSel(e) { e.preventDefault(); }
+  function unselect() { try { var g = window.getSelection && getSelection(); if (g && g.rangeCount) g.removeAllRanges(); } catch (x) {} }
+  var padPen = false;
+  function down(e) {
+    unselect(); if (e.pointerType === "pen") padPen = true; else if (e.pointerType === "touch" && padPen) { e.preventDefault(); return; }
+    if (cur) return; cur = { t: tool, p: [pos(e)], id: e.pointerId }; strokes.push(cur); try { cv.setPointerCapture(e.pointerId); } catch (x) {} paint(); e.preventDefault(); }
+  function move(e) { if (!cur || e.pointerId !== cur.id) return; var L = e.getCoalescedEvents ? e.getCoalescedEvents() : null; (L && L.length ? L : [e]).forEach(function (c) { cur.p.push(pos(c)); }); paint(); e.preventDefault(); }
+  function up(e) { if (cur && (!e || e.pointerId === cur.id)) cur = null; }
 
   /* ── 계산기 ── */
   var expr = "", hist = [];
@@ -231,11 +242,11 @@
     if (!papers[state.key]) papers[state.key] = { strokes: [], prog: [], wrong: {} };
     strokes = papers[state.key].strokes;
     root.querySelector(".ttl").textContent = o.title ? "풀이 창 · " + o.title : "풀이 창";
-    root.classList.add("on");
+    root.classList.add("on"); d.documentElement.classList.add("tpad-on"); unselect();
     tab(o.tab || ((o.steps || []).length && o.prefer === "steps" ? "steps" : state.tab || "paper"));
     show();
   }
-  function close() { if (root) root.classList.remove("on"); }
+  function close() { if (root) { root.classList.remove("on"); d.documentElement.classList.remove("tpad-on"); } }
 
   function button(parent, o) {
     var b = d.createElement("button"); b.type = "button"; b.className = "tpad-btn"; b.innerHTML = I.pad + "풀이 창";
@@ -261,6 +272,7 @@
   var PCSS = "#tpen-cv{position:fixed;left:0;top:0;width:100%;height:100%;margin:0;padding:0;border:0;z-index:2147480500;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}" +
     "html.tpen-on .tq-bar{z-index:2147480550!important}" +                       /* 아래 줄(헷갈림·해설·펜·다음)이 지면 위에서 눌린다 — 문제 화면 공용 부품 .tq-bar 와 맞물림 */
     "#tpen-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:2147480600;display:flex;align-items:center;gap:2px;height:58px;max-width:calc(100vw - 16px);overflow-x:auto;padding:0 8px;border-radius:14px;background:#fff;box-shadow:0 14px 34px -14px rgba(17,20,25,.38),0 0 0 1px #E6E8EC;font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif}" +
+    "@media(min-width:900px){#tpen-bar{left:auto;right:12px;transform:none;height:50px;max-width:min(560px,calc(100vw - 24px))}#tpen-bar button{height:40px!important;font-size:12.5px!important;padding:0 8px!important}}" +
     "#tpen-bar button{flex:none;height:44px;min-width:44px;padding:0 10px;border:0;border-radius:12px;background:none;font-weight:700;font-size:13px;color:#475569;cursor:pointer;white-space:nowrap}" +
     "#tpen-bar button.on{background:color-mix(in srgb," + PP + " 12%,#fff);color:color-mix(in srgb," + PP + " 78%,#111419)}" +
     "#tpen-bar i{flex:none;width:1px;height:26px;background:#E6E8EC;margin:0 4px}#tpen-bar .end{color:" + PP + "}";
@@ -302,8 +314,13 @@
     pbar = d.createElement("div"); pbar.id = "tpen-bar";
     pbar.innerHTML = '<button data-t="move">넘기기</button><button data-t="pen" class="on">펜</button><button data-t="hl">형광펜</button><button data-t="era">지우개</button><i></i><button data-a="undo">한 획 취소</button><button data-a="redo">다시 긋기</button><i></i><button data-a="end" class="end">필기 종료</button>';
     d.documentElement.appendChild(pbar);
+    ["contextmenu", "selectstart", "dblclick", "dragstart", "gesturestart"].forEach(function (n) { pcv.addEventListener(n, function (e) { e.preventDefault(); }); pbar.addEventListener(n, function (e) { e.preventDefault(); }); });
+    ["touchstart", "touchmove"].forEach(function (n) { pcv.addEventListener(n, function (e) { if (e.cancelable) e.preventDefault(); }, { passive: false }); });
+    d.addEventListener("selectstart", function (e) { if (PEN.on || d.documentElement.classList.contains("tpad-on")) e.preventDefault(); }, true);
+    d.addEventListener("selectionchange", function () { if (PEN.on || d.documentElement.classList.contains("tpad-on")) { var g = getSelection(); if (g && g.rangeCount && !g.isCollapsed) g.removeAllRanges(); } });
     function pt(e, el) { var r = penRect(), o = penBase(el); return [e.clientX - o.x, e.clientY - o.y]; }   // 화면 좌표 − 스크롤 기준 원점 (지면은 화면 전체라 clientX 가 곧 지면 좌표)
     pcv.addEventListener("pointerdown", function (e) {
+      try { getSelection().removeAllRanges(); } catch (x) {}
       if (e.pointerType === "pen") PEN.sawPen = true;
       else if (e.pointerType === "touch" && PEN.sawPen) { e.preventDefault(); return; }     // 손바닥: 펜을 쓰는 기기에서는 손가락 획을 받지 않는다
       if (pcur) return;                                                                      // 이미 긋는 중이면 다른 접촉은 무시
