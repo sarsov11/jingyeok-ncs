@@ -1,0 +1,30 @@
+/* 로그인 단추 — 일반 앱 로그인 화면 꼴 (2026-09-15). 브랜드 색은 가이드 그대로, 스킨을 안 탄다. */
+.lgbox{display:flex;flex-direction:column;gap:10px;max-width:420px}
+.lgtitle{font-size:26px;font-weight:800;letter-spacing:-.04em;color:var(--ink);margin:0 0 2px}
+.lgsub{font-size:16px;color:var(--ink-3);margin:0 0 10px;line-height:1.6}
+.lgbtn{display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+  width:100%;height:52px;border-radius:12px;border:1px solid transparent;cursor:pointer;
+  font-family:var(--kr);font-size:16px;font-weight:700;letter-spacing:-.01em;
+  transition:filter .12s,transform .12s}
+.lgbtn svg{flex:0 0 auto}
+.lgbtn:hover{filter:brightness(.97)} .lgbtn:active{transform:scale(.99)}
+.lgbtn:focus-visible{outline:2px solid var(--cta-2);outline-offset:3px}
+.lgbtn.kakao{background:#FEE500;color:#191919}
+.lgbtn.google{background:#fff;color:#1F1F1F;border-color:#DADCE0}
+.lgbtn.naver{background:#03C75A;color:#fff}
+.lgbtn[disabled]{opacity:.45;cursor:default}
+.lgbtn[disabled]:hover{filter:none}
+.lgbtn em{position:absolute;right:14px;font-style:normal;font-size:14px;font-weight:700}
+.lgskip{align-self:center;margin-top:6px;font-size:14px;font-weight:600;color:var(--ink-3);
+  text-decoration:underline;text-underline-offset:3px}
+.lgwho{font-size:16px;color:var(--ink-2);margin:0 0 6px}
+.lgwho b{color:var(--ink)}
+.lgout{align-self:flex-start;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line-2);
+  background:var(--surface-2);color:var(--ink-2);font-family:var(--kr);font-size:16px;font-weight:700;cursor:pointer}
+.lgnote{font-size:16px;color:var(--ink-3);margin:0}
+
+/* 전체 화면 로그인(login.html) */
+.lgpage{min-height:calc(100vh - var(--nav-h));display:flex;align-items:center;justify-content:center;padding:32px 20px}
+.lgpage .lgbox{width:100%}
+.lgpage .lgmark{width:64px;height:64px;border-radius:14px;background:#0B0F0F;color:#fff;display:grid;place-items:center;
+  font-weight:800;font-size:16px;letter-spacing:-.06em;margin-bottom:14px}

@@ -23,7 +23,7 @@ window.SUPA = {
     return this._c || null;
   }
 };
-if (window.SUPA.url && window.SUPA.anon && window.SUPA.research) {
+if (window.SUPA.url && window.SUPA.anon) {
   /* 뒤따르는 auth.js·research.js 가 바로 쓰므로 동기 로드가 필요하다 */
   document.write('<script src="js/supabase.min.js"><\/script>');
 }
