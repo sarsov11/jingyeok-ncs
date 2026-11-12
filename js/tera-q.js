@@ -34,13 +34,14 @@
   // 글 속 법령·제도 이름 자리: 「…」 안 · 「…에 관한 법률」 꼴 · 「…법 / 법령 / 시행령 / 시행규칙」으로 끝나는 다섯 자 이상 한 덩어리
   var LAW = [/[「『][^」』]{2,60}[」』]/g,
     /(?:[가-힣·ㆍ]+\s){0,8}[가-힣·ㆍ]*(?:에|의)\s?관한\s?(?:특별조치법|특별법|특례법|법률|규칙|규정)(?:\s?시행령|\s?시행규칙)?/g,
+    /(?:[가-힣·ㆍ]{2,}\s){1,3}(?:촉진법|진흥법|기본법|특별법|특례법|관리법|보호법|지원법|육성법|규제법|처벌법|방지법|조치법|사업법|조직법|절차법|소송법|집행법|징수법|운영법|안전법|보장법|보험법|거래법)(?:\s?시행령|\s?시행규칙)?(?=상|령|에|의|은|는|이|과|와|을|및|\s|[」』)\],.·]|$)/g,
     /[가-힣·ㆍ]{3,}(?:기본법|특별법|특례법|법률|법령|법|시행령|시행규칙)(?:\s?시행령|\s?시행규칙)?(?=상|령|에|의|은|는|이|과|와|을|및|\s|[」』)\],.·]|$)/g];
   function lawRanges(s) {
     var out = [];
     LAW.forEach(function (re, n) {
       var m; re.lastIndex = 0;
       while ((m = re.exec(s))) {
-        if (n === 2 && (m[0].length < 5 || /방법$/.test(m[0]))) continue;
+        if (n === 3 && (m[0].length < 5 || /방법$/.test(m[0]))) continue;
         out.push([m.index, m.index + m[0].length]);
       }
     });
@@ -140,9 +141,18 @@
   }
 
   function coach(target, o) {
+    function fin(all) { if (o.key) set("tera_q_coach_" + o.key, "1"); if (all) set(K_COACH, "1"); c.remove(); if (typeof o.onDone === "function") o.onDone(); }
     o = o || {}; if (!target || get(K_COACH) === "1" || (o.key && get("tera_q_coach_" + o.key) === "1")) return null;
     var old = d.querySelector(".tq-coach"); if (old) old.remove();
     var c = el("div", "tq-coach", "<b title=\"" + esc(o.text) + "\">" + esc(o.title) + "</b><p>" + esc(o.text) + '</p><div><button type="button" class="tq-coach-off">다시 안 보기</button><button type="button" class="tq-coach-ok">확인</button></div>');
+    // 11-12: 떠 있는 띠가 선지 · 단추를 가렸다 → 문제 글 위 자리에 끼워 넣어 아래를 밀어낸다(가림 0). 끼울 자리가 없을 때만 예전처럼 띄운다
+    var flow = o.host || d.querySelector("[data-tq-coach]") || d.querySelector("main") || d.querySelector(".page");
+    if (flow && flow !== d.body) {
+      c.className = "tq-coach tq-coach-flow"; flow.insertBefore(c, flow.firstChild);
+      c.querySelector(".tq-coach-ok").onclick = function () { fin(false); }; c.querySelector(".tq-coach-off").onclick = function () { fin(true); };
+      setTimeout(function () { if (c.isConnected) fin(false); }, o.ms || 8000);
+      return c;
+    }
     d.body.appendChild(c);
     var r = target.getBoundingClientRect(), b = c.getBoundingClientRect(), below = r.bottom + b.height + 14 < window.innerHeight;
     c.style.left = Math.max(12, Math.min(window.innerWidth - b.width - 12, r.left)) + "px";
