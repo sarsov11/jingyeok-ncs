@@ -142,13 +142,14 @@
   function coach(target, o) {
     o = o || {}; if (!target || get(K_COACH) === "1" || (o.key && get("tera_q_coach_" + o.key) === "1")) return null;
     var old = d.querySelector(".tq-coach"); if (old) old.remove();
-    var c = el("div", "tq-coach", "<b>" + esc(o.title) + "</b><p>" + esc(o.text) + '</p><div><button type="button" class="tq-coach-off">다시 안 보기</button><button type="button" class="tq-coach-ok">확인</button></div>');
+    var c = el("div", "tq-coach", "<b title=\"" + esc(o.text) + "\">" + esc(o.title) + "</b><p>" + esc(o.text) + '</p><div><button type="button" class="tq-coach-off">다시 안 보기</button><button type="button" class="tq-coach-ok">확인</button></div>');
     d.body.appendChild(c);
     var r = target.getBoundingClientRect(), b = c.getBoundingClientRect(), below = r.bottom + b.height + 14 < window.innerHeight;
     c.style.left = Math.max(12, Math.min(window.innerWidth - b.width - 12, r.left)) + "px";
     c.style.top = (window.scrollY + (below ? r.bottom + 10 : r.top - b.height - 10)) + "px";
     function done(all) { if (o.key) set("tera_q_coach_" + o.key, "1"); if (all) set(K_COACH, "1"); c.remove(); if (typeof o.onDone === "function") o.onDone(); }
     c.querySelector(".tq-coach-ok").onclick = function () { done(false); }; c.querySelector(".tq-coach-off").onclick = function () { done(true); };
+    setTimeout(function () { if (c.isConnected) done(false); }, o.ms || 8000);   // 가리는 시간을 줄인다(11-12)
     return c;
   }
 

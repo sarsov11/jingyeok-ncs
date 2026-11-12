@@ -143,6 +143,7 @@
     TERA_Q.ask(host, { questions: qs.slice(0, 3), onAsk: askAgent });
   }
   function tqTools(q) {
+    var wq = $app.querySelector(".wrap"); if (wq) wq.setAttribute("data-tq-scope", "1");   /* 발문(.qcard)과 선지가 서로 다른 묶음으로 잡혀 띠가 두 배로 붙던 것(11-12) */
     if (window.TERA_Q) TERA_Q.annotate($app.querySelectorAll(".stem, .tq-t"));
     var pb = document.getElementById("tqpen"); if (!pb) return;
     pb.onclick = function () { if (window.TERA_PAD && TERA_PAD.pen) TERA_PAD.pen({ key: String(q.i), onChange: function (on) { pb.classList.toggle("is-on", !!on); } }); };

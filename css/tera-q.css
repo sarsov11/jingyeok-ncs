@@ -2,7 +2,7 @@
  * 색은 앱의 --pt. 클래스는 전부 tq- 로 시작한다. tera-q.js 와 같이 싣는다.
  * 화면 틀: .tq-top(머리) → .tq-prog(진행) → .tq-meta(번호 · 최빈출 · 단추) → .tq-stem(발문) → .tq-choices | .tq-ox → .tq-exp(해설) · .tq-bar(아래 줄) · .tq-omr(답안 번호판)
  */
-:root { --tq-p: var(--pt, var(--t-app, var(--cta, #E5202E))); --tq-ps: color-mix(in srgb, var(--tq-p) 8%, #fff); --tq-pi: color-mix(in srgb, var(--tq-p) 78%, #111419);
+:root { --tq-p: var(--pt, var(--t-app, var(--cta, #0F766E))); --tq-ps: color-mix(in srgb, var(--tq-p) 8%, #fff); --tq-pi: color-mix(in srgb, var(--tq-p) 78%, #111419);
   --tq-ink: #111827; --tq-ink2: #334155; --tq-sub: #5B6B82; --tq-line: #E2E8F0; --tq-fill: #F1F5F9; --tq-ok: #16B364; --tq-no: #E5322D; }
 
 /* 머리: ‹ 과목 이름 …… 시간 */
@@ -116,3 +116,7 @@
 @media (min-width: 960px) { .tq-wrap.has-omr { max-width: 980px; display: grid; grid-template-columns: minmax(0, 1fr) 364px; gap: 30px; align-items: start; } .tq-wrap.has-omr .tq-omr { position: sticky; top: 70px; } }
 @media (max-width: 959px) { .tq-wrap .tq-omr { display: none; } .tq-wrap .tq-omr.is-open { display: block; position: fixed; left: 12px; right: 12px; bottom: 84px; z-index: 50; max-height: 60vh; overflow: auto; } }
 @media (max-width: 389px) { .tq-stem { font-size: 20px; line-height: 28px; } }
+/* 11-12 첫 안내 말풍선을 한 줄 띠로 줄임: 큰 말풍선이 선지를 가렸다(NCS 768px 에서 4번 선지 전부). 높이 약 52px · 8초 뒤 스스로 닫힘 */
+.tq-coach { width: auto; max-width: min(340px, calc(100vw - 24px)); padding: 9px 8px 9px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: center; border-radius: 14px; }
+.tq-coach b { grid-column: 1; margin: 0 0 1px; font-size: 13px; } .tq-coach p { grid-column: 1; margin: 0; font-size: 12.5px; line-height: 1.4; }
+.tq-coach div { grid-column: 2; grid-row: 1 / span 2; } .tq-coach-off { display: none; } .tq-coach-ok { height: 34px; }

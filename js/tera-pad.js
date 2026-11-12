@@ -15,7 +15,7 @@
   var d = document, root, state = { tab: "paper", key: "", opts: {} }, papers = {}, ctx, cv, strokes, cur, tool = "pen";
 
   var CSS = [
-    "#tpad{--p:var(--pt,var(--t-app,var(--cta,#E5202E)));--ps:color-mix(in srgb,var(--p) 10%,#fff);--pi:color-mix(in srgb,var(--p) 78%,#111419);",
+    "#tpad{--p:var(--pt,var(--t-app,var(--cta,#0F766E)));--ps:color-mix(in srgb,var(--p) 10%,#fff);--pi:color-mix(in srgb,var(--p) 78%,#111419);",
     " position:fixed;left:0;right:0;bottom:0;z-index:2147481000;height:64vh;max-height:calc(100vh - 72px);background:#fff;color:#111419;border-radius:18px 22px 0 0;",
     " box-shadow:0 -18px 44px -18px rgba(17,20,25,.34),0 0 0 1px #E6E8EC;display:none;flex-direction:column;font:500 15px/1.5 'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;letter-spacing:-.01em}",
     "#tpad.on{display:flex;animation:tpad-up .26s cubic-bezier(.2,.8,.2,1)}#tpad.big{height:calc(100vh - 72px)}",
@@ -62,7 +62,7 @@
     "#tpad .soon{margin:auto;text-align:center;color:#5F6670;font-weight:600;padding:24px}",
     "#tpad .soon b{display:inline-block;margin-bottom:8px;height:26px;padding:0 10px;border-radius:999px;box-shadow:0 0 0 1px #D3D7DD inset;font-weight:700;font-size:13px;line-height:26px}",
     ".tpad-btn{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #D3D7DD;background:#fff;color:#111419;font:700 14.5px/1 'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;cursor:pointer}",
-    ".tpad-btn svg{width:18px;height:18px;color:var(--pt,var(--t-app,var(--cta,#E5202E)))}",
+    ".tpad-btn svg{width:18px;height:18px;color:var(--pt,var(--t-app,var(--cta,#0F766E)))}",
     "@media(min-width:1000px){#tpad{left:auto;top:72px;bottom:16px;right:16px;width:420px;height:auto;max-height:none;border-radius:18px;box-shadow:0 26px 60px -28px rgba(17,20,25,.34),0 0 0 1px #E6E8EC}#tpad.big{width:640px;height:auto}}",
     ":root[data-skin=night] #tpad{filter:invert(.92) hue-rotate(180deg)}"
   ].join("");
@@ -268,7 +268,7 @@
      1111: 지면 CSS 크기를 width/height 100% 로 못 박았다(전에는 inset:0 만 써서 canvas 가 비트맵 크기 그대로 그려져, 화면 배율(dpr)이 2인 아이패드에서 획이 손 댄 곳의 두 배 위치에 찍혔다).
      좌표는 지면 자신의 getBoundingClientRect 기준, 지면은 html 직속, 펜이 한 번이라도 들어오면 손가락은 획으로 받지 않는다. */
   var PEN = { on: false, tool: "pen", key: "", store: {}, redo: [], sawPen: false, pid: null }, pcv, pctx, pbar, pcur;
-  var PP = "var(--pt,var(--t-app,var(--cta,#E5202E)))";
+  var PP = "var(--pt,var(--t-app,var(--cta,#0F766E)))";
   var PCSS = "#tpen-cv{position:fixed;left:0;top:0;width:100%;height:100%;margin:0;padding:0;border:0;z-index:2147480500;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}" +
     "html.tpen-on .tq-bar{z-index:2147480550!important}" +                       /* 아래 줄(헷갈림·해설·펜·다음)이 지면 위에서 눌린다 — 문제 화면 공용 부품 .tq-bar 와 맞물림 */
     "#tpen-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:2147480600;display:flex;align-items:center;gap:2px;height:58px;max-width:calc(100vw - 16px);overflow-x:auto;padding:0 8px;border-radius:14px;background:#fff;box-shadow:0 14px 34px -14px rgba(17,20,25,.38),0 0 0 1px #E6E8EC;font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif}" +
