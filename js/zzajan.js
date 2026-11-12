@@ -111,7 +111,7 @@
     ".zz-emb b{position:relative;font:900 92px/1 " + FONT + ";color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.3),0 0 30px var(--c2)}",
     "@keyframes zzSpin{to{transform:rotate(360deg)}}",
     "@keyframes zzEmb{0%{transform:scale(0) rotate(-90deg)}33%{transform:scale(0) rotate(-90deg)}42%{transform:scale(1.25) rotate(8deg)}50%{transform:scale(.95) rotate(-2deg)}57%{transform:scale(1)}85%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}",
-    ".zz-big{position:absolute;left:0;right:0;top:calc(44% + 130px);text-align:center;color:#12302D;font:900 54px/1 " + FONT + ";letter-spacing:.04em;",
+    ".zz-big{position:absolute;left:0;right:0;top:calc(44% + 130px);text-align:center;color:#111419;font:900 54px/1 " + FONT + ";letter-spacing:.04em;",
     " text-shadow:none;opacity:0;animation:zzBig 2.6s ease forwards}",
     ".zz-big small{display:block;margin-top:12px;font-size:20px;letter-spacing:0;font-weight:800;opacity:.9}",
     "@keyframes zzBig{0%,40%{opacity:0;transform:translateY(20px)}50%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}",

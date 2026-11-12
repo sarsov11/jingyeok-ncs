@@ -56,7 +56,7 @@
 
   var css = [
     ":host{all:initial}",
-    "#zsu{--bg:#FFFFFF;--card:#F6F7F9;--line:#E6E8EC;--tx:#12302D;--sub:#4B5563;--dim:#5F6670;--ink:#FFFFFF;",
+    "#zsu{--bg:#FFFFFF;--card:#F6F7F9;--line:#E6E8EC;--tx:#111419;--sub:#4B5563;--dim:#5F6670;--ink:#FFFFFF;",
     " position:fixed;inset:0;z-index:2147481800;color:var(--tx);background:#FFFFFF;",
     " font:500 16px/1.6 var(--zf);letter-spacing:-.01em;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;animation:uIn .35s ease-out}",
     "@keyframes uIn{0%{opacity:0}100%{opacity:1}}",
